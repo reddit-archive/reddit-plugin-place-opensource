@@ -1,5 +1,6 @@
 from pylons.i18n import N_
 
+from r2.config.routing import not_in_sr
 from r2.lib.configparse import ConfigValue
 from r2.lib.js import LocalizedModule
 from r2.lib.plugin import Plugin
@@ -10,8 +11,8 @@ class Place(Plugin):
 
     js = {
         "place": LocalizedModule("place.js",
-            # TODO: your javascript files go here, e.g.:
-            # "place/something.js",
+            "websocket.js",
+            "place/init.js",
         ),
     }
 
@@ -35,21 +36,15 @@ class Place(Plugin):
     }
 
     def add_routes(self, mc):
-        # TODO: register your routes here, e.g.:
-        #
-        # mc("/myplugin", controller="place", action="something")
-        pass
+        mc("/place", controller="place", action="canvasse",
+           conditions={"function": not_in_sr})
+        mc("/api/place/:action", controller="place",
+           conditions={"function": not_in_sr})
 
     def load_controllers(self):
-        # TODO: import any other controllers you define here
         from reddit_place.controllers import (
             PlaceController,
         )
-
-        # TODO: register any hooks you define in your modules here, e.g.:
-        #
-        # from reddit_place import some_module
-        # some_module.hooks.register_all()
 
     def declare_queues(self, queues):
         # TODO: add any queues / bindings you need here, e.g.:

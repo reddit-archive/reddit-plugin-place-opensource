@@ -1,4 +1,19 @@
-// TODO: your LESS rules go here
+.place-container {
+    // TODO webkit
+    display: flex;
+    align-items: center;
+    height: 500px;
+    width: 100%;
+    background-color: #ddd;
+}
 
-// NOTE: you'll need to explicitly include this stylesheet in your templates
-// with r2.lib.pages.Reddit's extra_stylesheets option
+.place-canvas {
+    margin: auto;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges; /* so crisp */
+    image-rendering: pixelated;
+    background-color: white;
+    transform-origin: center;
+    transform: scale(2, 2);
+}
