@@ -1,19 +1,38 @@
 .place-container {
     // TODO webkit
-    display: flex;
     align-items: center;
-    height: 500px;
-    width: 100%;
     background-color: #ddd;
+    display: flex;
+    height: 500px;
+    overflow: hidden;
+    width: 100%;
+    // TODO - remove
+    // outline: solid yellow;
+}
+
+.place-viewer {
+    transform-origin: center;
+    margin: auto;
+    // TODO - remove
+    // outline: dotted red;
 }
 
 .place-canvas {
-    margin: auto;
+    cursor: pointer;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges; /* so crisp */
     image-rendering: pixelated;
     background-color: white;
     transform-origin: center;
-    transform: scale(2, 2);
+    // TODO - remove
+    // outline: dashed green;
 }
+
+.place-canvas:active {
+    cursor: -webkit-grab;
+}
+
+// This will be the thing for when you're holding a tile.
+// But that isn't implemented yet.  So it's just a comment.
+// cursor: -webkit-grabbing;
