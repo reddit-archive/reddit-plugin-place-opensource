@@ -1,4 +1,21 @@
 !function(r, $, _){
+
+  var AudioManager = r.placeAudio;
+
+  // Define some sound effects, to be played with AudioManager.playClip
+  var SFX_DROP = AudioManager.compileClip([
+    ['E7', 1/32], ['C7', 1/32], ['A6', 1/16],
+  ]);
+  var SFX_PLACE = AudioManager.compileClip([
+    ['G7', 1/32], ['E7', 1/32], ['C6', 1/16],
+  ]);
+  var SFX_SELECT = AudioManager.compileClip([
+    ['C7', 1/32], ['E7', 1/32], ['G8', 1/16],
+  ]);
+  var SFX_ZOOM_OUT = SFX_DROP;
+  var SFX_ZOOM_IN = SFX_ZOOM_OUT.slice().reverse();
+
+
   /**
    * Utility for linear interpolation between to values
    * Useful as a cheap and easy way to ease between to values
@@ -355,6 +372,7 @@
     drawTile: function(x, y) {
       Canvasse.drawTileAt(x, y, this.color);
       R2Server.draw(x, y, this.color);
+      AudioManager.playClip(SFX_PLACE);
     },
 
     /**
@@ -364,8 +382,10 @@
     toggleZoom: function() {
       if (this.isZoomedIn) {
         this.setTargetZoom(this.ZOOM_MIN_SCALE);
+        AudioManager.playClip(SFX_ZOOM_OUT);
       } else {
         this.setTargetZoom(this.ZOOM_MAX_SCALE);
+        AudioManager.playClip(SFX_ZOOM_IN);
       }
 
       this.isZoomedIn = !this.isZoomedIn;
@@ -496,6 +516,8 @@
 
   // Init code:
   $(function() {
+    AudioManager.init();
+
     var container = document.getElementById('place-container');
     var viewer = document.getElementById('place-viewer');
     var canvas = document.getElementById('place-canvasse');

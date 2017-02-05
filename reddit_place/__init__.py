@@ -12,6 +12,7 @@ class Place(Plugin):
     js = {
         "place": LocalizedModule("place.js",
             "websocket.js",
+            "place/audio.js",
             "place/init.js",
         ),
     }
