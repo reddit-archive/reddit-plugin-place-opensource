@@ -35,7 +35,7 @@ class PlaceController(RedditController):
         ).render()
 
     @validatedForm(
-        VUser(),
+        VUser(),    # NOTE: this will respond with a 200 with an error body
         VModhash(),
         x=VInt("x"),
         y=VInt("y"),
