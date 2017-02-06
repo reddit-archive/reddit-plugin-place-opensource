@@ -390,6 +390,24 @@
 
       this.isZoomedIn = !this.isZoomedIn;
     },
+
+    /**
+     * @typedef {Object} BoxSize
+     * @property {number} width
+     * @property {number} height
+     */
+
+    /**
+     * Get the current canvas size.
+     * @function
+     * @returns {BoxSize}
+     */
+    getCanvasSize: function() {
+      return {
+        width: Canvasse.WIDTH,
+        height: Canvasse.HEIGHT,
+      };
+    },
   };
 
 
@@ -430,8 +448,9 @@
       // The (x, y) coordinates we have are in "canvas space" relative.  We need
       // coordinates in "camera space", i.e. relative to the middle of the canvas.
       // Yes, we effectively have three coordinate systems in play. 
-      var offsetX = Canvasse.WIDTH / 2 - x;
-      var offsetY = Canvasse.HEIGHT / 2 - y;
+      var canvasSize = Client.getCanvasSize();
+      var offsetX = canvasSize.width / 2 - x;
+      var offsetY = canvasSize.height / 2 - y;
 
       if (!Client.isZoomedIn) {
         Client.setTargetOffset(offsetX, offsetY);
