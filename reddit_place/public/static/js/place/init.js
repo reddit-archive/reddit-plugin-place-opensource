@@ -95,7 +95,7 @@
      */
     draw: function(x, y, color) {
       return r.ajax({
-        url: '/api/place/draw',
+        url: '/api/place/draw.json',
         type: 'POST',
         data: {
           x: x,

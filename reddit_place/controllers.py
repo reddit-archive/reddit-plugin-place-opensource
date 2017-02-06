@@ -8,7 +8,7 @@ from r2.controllers.reddit_base import RedditController
 from r2.lib import websockets
 from r2.lib.errors import errors
 from r2.lib.validator import (
-    validatedForm,
+    json_validate,
     VColor,
     VInt,
     VModhash,
@@ -34,31 +34,31 @@ class PlaceController(RedditController):
             },
         ).render()
 
-    @validatedForm(
+    @json_validate(
         VUser(),    # NOTE: this will respond with a 200 with an error body
         VModhash(),
         x=VInt("x"),
         y=VInt("y"),
         color=VColor("color"),
     )
-    def POST_draw(self, form, jquery, x, y, color):
+    def POST_draw(self, responder, x, y, color):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
             self.abort403()
 
         if x is None:
-            form.set_error(errors.BAD_NUMBER, "x")
+            c.errors.add(errors.BAD_NUMBER, "x")
 
         if y is None:
-            form.set_error(errors.BAD_NUMBER, "y")
+            c.errors.add(errors.BAD_NUMBER, "y")
 
-        if (form.has_errors("x", errors.BAD_NUMBER) or
-                form.has_errors("y", errors.BAD_NUMBER)):
+        if (responder.has_errors("x", errors.BAD_NUMBER) or
+                responder.has_errors("y", errors.BAD_NUMBER)):
             return
 
         if not color:
-            form.set_error(errors.BAD_COLOR, "color")
+            c.errors.add(errors.BAD_COLOR, "color")
 
-        if form.has_errors("color", errors.BAD_COLOR):
+        if responder.has_errors("color", errors.BAD_COLOR):
             return
 
         websockets.send_broadcast(
