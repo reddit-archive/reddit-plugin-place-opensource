@@ -17,6 +17,7 @@ API                 | Component        | Points at...
 --------------------|------------------|--------------------------------------
 Events ($canvas)    | CanvasEvents     | Client, Cursor
 Events ($container) | CameraEvents     | Client, Cursor
+Events ($palette)   | PaletteEvents    | Client
 Websockets          | WebsocketEvents  | World
 
 
@@ -42,4 +43,5 @@ Component           | API
 AudioManager        | Web Audio
 Camera              | DOM ($container and $canvas)
 Canvasse            | DOM ($canvas)
+ColorPalette        | DOM ($palette)
 R2Server            | XHR (r2)

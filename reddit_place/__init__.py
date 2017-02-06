@@ -13,6 +13,7 @@ class Place(Plugin):
         "place": LocalizedModule("place.js",
             "websocket.js",
             "place/audio.js",
+            "place/color-palette.js",
             "place/init.js",
         ),
     }

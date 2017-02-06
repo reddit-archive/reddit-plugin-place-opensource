@@ -1,6 +1,6 @@
 !function(r, $, _){
-
   var AudioManager = r.placeAudio;
+  var ColorPalette = r.placeColorPalette;
 
   // Define some sound effects, to be played with AudioManager.playClip
   var SFX_DROP = AudioManager.compileClip([
@@ -243,7 +243,6 @@
   };
 
 
-
   // Handles actions the local user takes.
   var Client = {
     ZOOM_LERP_SPEED: .2,
@@ -273,7 +272,7 @@
      * @param {?number} panY Vertical camera offset
      */
     init: function(color, isZoomedIn, panX, panY) {
-      if (color) this.setColor(color);
+      if (color) this.setColor(color, false);
       this.isZoomedIn = isZoomedIn !== undefined ? isZoomedIn : true;
       this.setZoom(this.isZoomedIn ? this.ZOOM_MAX_SCALE : this.ZOOM_MIN_SCALE);
       this.setOffset(panX|0, panY|0);
@@ -311,9 +310,15 @@
      * Update the current color
      * @function
      * @param {string} color Hex-formatted color string
+     * @param {boolean} [playSFX] Whether to play sound effects, defaults to true.
+     *    Useful for initializing with a color.
      */
-    setColor: function(color) {
+    setColor: function(color, playSFX) {
+      playSFX = playSFX === undefined ? true : playSFX;
       this.color = color;
+      if (playSFX) {
+        AudioManager.playClip(SFX_SELECT);
+      }
     },
 
     /**
@@ -531,19 +536,46 @@
     },
   };
 
+  // Events coming from the color palette UI
+  var PaletteEvents = {
+    'click': function(e) {
+      var color = $(e.target).data('color');
+      Client.setColor(color);
+    },
+  };
+
 
 
   // Init code:
   $(function() {
-    AudioManager.init();
+    var COLORS = [
+      '#FFFFFF',
+      '#949494',
+      '#353535',
+      '#FF4500',
+      '#0DD3BB',
+      '#24A0ED',
+      '#FF8717',
+      '#FFB000',
+      '#94E044',
+      '#46D160',
+      '#7193FF',
+      '#DDBD37',
+      '#FFD635',
+      '#FF585B',
+      '#EA0027',
+    ];
 
     var container = document.getElementById('place-container');
     var viewer = document.getElementById('place-viewer');
     var canvas = document.getElementById('place-canvasse');
+    var palette = document.getElementById('place-palette');
 
+    AudioManager.init();
     Camera.init(viewer, canvas);
-    Client.init();
+    Client.init(COLORS[2]);
     Canvasse.init(canvas);
+    ColorPalette.init(palette, COLORS);
 
     var websocket = new r.WebSocket(r.config.place_websocket_url);
     websocket.on(WebsocketEvents);
@@ -551,6 +583,7 @@
 
     bindEvents(container, CameraEvents);
     bindEvents(canvas, CanvasEvents);
+    bindEvents(palette, PaletteEvents);
 
     bindEvents(container, {
       'mouseout': function(e) {
