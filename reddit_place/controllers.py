@@ -1,7 +1,8 @@
-import datetime
+from datetime import datetime, timedelta
 
 from pylons import app_globals as g
 from pylons import tmpl_context as c
+from pylons import response, request
 
 from r2.controllers import add_controller
 from r2.controllers.reddit_base import RedditController
@@ -15,10 +16,14 @@ from r2.lib.validator import (
     VUser,
 )
 
+from .models import (
+    Pixel,
+)
 from .pages import PlacePage, PlaceCanvasse
 
 
-ACCOUNT_CREATION_CUTOFF = datetime.datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
+ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
+PIXEL_COOLDOWN = timedelta(seconds=120)
 
 
 @add_controller
@@ -61,6 +66,16 @@ class PlaceController(RedditController):
         if responder.has_errors("color", errors.BAD_COLOR):
             return
 
+        wait_seconds = get_wait_seconds(c.user)
+        if wait_seconds > 2:
+            response.status = 429
+            request.environ['extra_error_data'] = {
+                "error": 429,
+                "wait_seconds": wait_seconds,
+            }
+
+        pixel = Pixel.create(c.user, color, x, y)
+
         websockets.send_broadcast(
             namespace="/place",
             type="place",
@@ -71,3 +86,27 @@ class PlaceController(RedditController):
                 "color": color,
             }
         )
+
+    @json_validate(
+        VUser(),
+    )
+    def GET_time_to_wait(self, responder):
+        if c.user._date >= ACCOUNT_CREATION_CUTOFF:
+            self.abort403()
+
+        return {
+            "wait_seconds": get_wait_seconds(c.user),
+        }
+
+
+def get_wait_seconds(user):
+    last_pixel_dt = Pixel.get_last_placement_datetime(user)
+    now = datetime.now(g.tz)
+
+    if last_pixel_dt and last_pixel_dt + PIXEL_COOLDOWN > now:
+        next_pixel_dt = last_pixel_dt + PIXEL_COOLDOWN
+        wait_seconds = (next_pixel_dt - now).total_seconds()
+    else:
+        wait_seconds = 0
+
+    return wait_seconds

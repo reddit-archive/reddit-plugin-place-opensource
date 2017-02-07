@@ -39,6 +39,8 @@ class Place(Plugin):
     def add_routes(self, mc):
         mc("/place", controller="place", action="canvasse",
            conditions={"function": not_in_sr})
+        mc("/api/place/time", controller="place", action="time_to_wait",
+           conditions={"function": not_in_sr})
         mc("/api/place/:action", controller="place",
            conditions={"function": not_in_sr})
 
