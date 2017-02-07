@@ -21,10 +21,13 @@
     },
 
     'mousemove': function(e) {
-      if (!Cursor.isDown) { return; }
-
       var x = parseInt(e.clientX, 10);
       var y = parseInt(e.clientY, 10);
+
+      if (!Cursor.isDown) {
+        Cursor.setTargetPosition(x, y);
+        return;
+      }
 
       // We need to undo the previous transform first
       var oldOffsetX = (Cursor.x - Cursor.downX) / Client.zoom;
@@ -32,7 +35,7 @@
 
       // Then update the cursor position so we can do the same on
       // the next mousemove event
-      Cursor.setCursorPosition(x, y);
+      Cursor.setPosition(x, y);
 
       // Finally, calculate the new offset
       var newOffsetX = (x - Cursor.downX) / Client.zoom;

@@ -8,9 +8,24 @@
   var Canvasse = require('canvasse');
   var Client = require('client');
   var Cursor = require('cursor');
-  var ColorPalette = require('palette');
+  var Palette = require('palette');
+  var Hand = require('hand');
   var PaletteEvents = require('paletteevents');
   var WebsocketEvents = require('websocketevents');
+
+
+  /**
+   * Utility for kicking off an animation frame loop.
+   * @function
+   * @param {function} fn The function to call on each frame
+   * @returns {number} An id, used to cancel with cancelAnimationFrame
+   */
+  function startTicking(fn) {
+    return requestAnimationFrame(function tick() {
+      fn();
+      requestAnimationFrame(tick);
+    });
+  }
 
   /**
    * Utility for binding a bunch of events to a single element.
@@ -54,12 +69,16 @@
     var viewer = document.getElementById('place-viewer');
     var canvas = document.getElementById('place-canvasse');
     var palette = document.getElementById('place-palette');
+    var hand = document.getElementById('place-hand');
+    var handSwatch = document.getElementById('place-hand-swatch');
 
     AudioManager.init();
     Camera.init(viewer, canvas);
-    Client.init(COLORS[2]);
     Canvasse.init(canvas);
-    ColorPalette.init(palette, COLORS);
+    Hand.init(hand, handSwatch);
+    Palette.init(palette, COLORS);
+
+    Client.init();
 
     var websocket = new r.WebSocket(r.config.place_websocket_url);
     websocket.on(WebsocketEvents);
@@ -78,6 +97,11 @@
           return CameraEvents['mouseup'](e);
         }
       },
+    });
+
+    startTicking(function() {
+      Client.tick();
+      Cursor.tick();
     });
 
     r.place = Client;

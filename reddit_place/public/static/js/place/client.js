@@ -2,7 +2,9 @@
   var AudioManager = require('audio');
   var Camera = require('camera');
   var Canvasse = require('canvasse');
+  var Hand = require('hand');
   var R2Server = require('api');
+  var lerp = require('utils').lerp;
 
 
   // Define some sound effects, to be played with AudioManager.playClip
@@ -19,45 +21,14 @@
   var SFX_ZOOM_IN = SFX_ZOOM_OUT.slice().reverse();
 
 
-  /**
-   * Utility for linear interpolation between to values
-   * Useful as a cheap and easy way to ease between to values
-   *
-   *    lerp(0, 10, .5);
-   *    // 5
-   *
-   * @function
-   * @param {number} startVal The current value
-   * @param {number} endVal The target value
-   * @param {number} interpolationAmount A float between 0 and 1, usually
-   *    amount of passed time * some interpolation speed
-   * @returns {number} The interpolated value
-   */
-  function lerp(startVal, endVal, interpolationAmount) {
-    return startVal + interpolationAmount * (endVal - startVal);
-  }
-
-  /**
-   * Utility for kicking off an animation frame loop.
-   * @function
-   * @param {function} fn The function to call on each frame
-   * @returns {number} An id, used to cancel with cancelAnimationFrame
-   */
-  function startTicking(fn) {
-    return requestAnimationFrame(function tick() {
-      fn();
-      requestAnimationFrame(tick);
-    });
-  }
-
-    // Handles actions the local user takes.
+  // Handles actions the local user takes.
   return {
     ZOOM_LERP_SPEED: .2,
     PAN_LERP_SPEED: .4,
     ZOOM_MAX_SCALE: 40,
     ZOOM_MIN_SCALE: 4,
 
-    color: '#000000',
+    color: null,
     isZoomedIn: false,
     panX: 0,
     panY: 0,
@@ -83,7 +54,6 @@
       this.isZoomedIn = isZoomedIn !== undefined ? isZoomedIn : true;
       this.setZoom(this.isZoomedIn ? this.ZOOM_MAX_SCALE : this.ZOOM_MIN_SCALE);
       this.setOffset(panX|0, panY|0);
-      startTicking(this._tick.bind(this));
     },
 
     /**
@@ -91,7 +61,7 @@
      * Not intended for external use.
      * @function
      */
-    _tick: function() {
+    tick: function() {
       if (this._zoom !== this.zoom) {
         this._zoom = lerp(this._zoom, this.zoom, this.ZOOM_LERP_SPEED);
         Camera.updateScale(this._zoom);
@@ -123,6 +93,7 @@
     setColor: function(color, playSFX) {
       playSFX = playSFX === undefined ? true : playSFX;
       this.color = color;
+      Hand.updateColor(color);
       if (playSFX) {
         AudioManager.playClip(SFX_SELECT);
       }
@@ -182,9 +153,13 @@
      * @param {number} y
      */
     drawTile: function(x, y) {
+      if (!this.color) { return; }
+
       Canvasse.drawTileAt(x, y, this.color);
       R2Server.draw(x, y, this.color);
       AudioManager.playClip(SFX_PLACE);
+      this.color = null;
+      Hand.clearColor();
     },
 
     /**

@@ -28,9 +28,9 @@ out to functions on the external nodes when appropriate.
 
 Module           | Requires...
 -----------------|---------------------------------------------------------
-client           | canvasse, camera, api, audio
+client           | api, audio, camera, canvasse, hand
 world            | canvasse
-cursor           |
+cursor           | hand
 
 
 ### Exit nodes
@@ -43,5 +43,6 @@ Module           | Calls to API
 audio            | Web Audio
 camera           | DOM ($container and $canvas)
 canvasse         | DOM ($canvas)
+hand             | DOM ($hand)
 palette          | DOM ($palette)
 api              | XHR (r2)

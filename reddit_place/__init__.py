@@ -14,12 +14,14 @@ class Place(Plugin):
             # core & external dependencies
             "websocket.js",
             "place/modules.js",
+            "place/utils.js",
 
             # 'exit node' modules, no internal dependencies
             "place/api.js",
             "place/audio.js",
             "place/camera.js",
             "place/canvasse.js",
+            "place/hand.js",
             "place/palette.js",
 
             # 'internal node' modules, only dependant on 'exit nodes'
