@@ -11,9 +11,29 @@ class Place(Plugin):
 
     js = {
         "place": LocalizedModule("place.js",
+            # core & external dependencies
             "websocket.js",
+            "place/modules.js",
+
+            # 'exit node' modules, no internal dependencies
+            "place/api.js",
             "place/audio.js",
-            "place/color-palette.js",
+            "place/camera.js",
+            "place/canvasse.js",
+            "place/palette.js",
+
+            # 'internal node' modules, only dependant on 'exit nodes'
+            "place/client.js",
+            "place/cursor.js",
+            "place/world.js",
+
+            # 'entrance node' modules, only dependant on 'internal nodes'
+            "place/cameraevents.js",
+            "place/canvasevents.js",
+            "place/paletteevents.js",
+            "place/websocketevents.js",
+
+            # entry point
             "place/init.js",
         ),
     }

@@ -1,6 +1,8 @@
-!function(r, $, _){
+!r.placeModule(function palette(require) {
+  var $ = require('jQuery');
+
   // Generates the color palette UI
-  var ColorPalette = {
+  return {
     el: null,
 
     /**
@@ -33,6 +35,4 @@
       return div;
     },
   };
-
-  r.placeColorPalette = ColorPalette;
-}(r, jQuery, _);
+});

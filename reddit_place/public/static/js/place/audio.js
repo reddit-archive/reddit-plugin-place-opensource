@@ -1,4 +1,4 @@
-!function(r, $, _){
+!r.placeModule(function audio(require) {
   /**
    * Utility for getting the frequency of a note.
    * The formula can be found here http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html
@@ -11,8 +11,6 @@
   function getKeyFrenquency(key) {
     return Math.pow(2, (key - 69) / 12) * 440;
   }
-
-
 
   // We're going to create a map of human-readable key indicies to
   // frequencies, so that we don't need to constantly calculate them *and*
@@ -56,7 +54,7 @@
 
   // Audio controller.  Must be initialized before use!
   // TODO - handle browsers without AudioContext support
-  var AudioManager = {
+  return {
     audioCtx: null,
     audioGain: null,
 
@@ -140,6 +138,4 @@
       });
     },
   };
-
-  r.placeAudio = AudioManager
-}(r, jQuery, _);
+});
