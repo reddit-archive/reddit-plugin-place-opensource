@@ -24,6 +24,8 @@ from .pages import PlacePage, PlaceCanvasse
 
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
 PIXEL_COOLDOWN = timedelta(seconds=120)
+CANVAS_WIDTH = 1000
+CANVAS_HEIGHT = 1000
 
 
 @add_controller
@@ -50,10 +52,10 @@ class PlaceController(RedditController):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
             self.abort403()
 
-        if x is None:
+        if x is None or x > CANVAS_WIDTH or x < 0:
             c.errors.add(errors.BAD_NUMBER, "x")
 
-        if y is None:
+        if y is None or y > CANVAS_HEIGHT or y < 0:
             c.errors.add(errors.BAD_NUMBER, "y")
 
         if (responder.has_errors("x", errors.BAD_NUMBER) or
