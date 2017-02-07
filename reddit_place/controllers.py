@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from pylons import app_globals as g
 from pylons import tmpl_context as c
 from pylons import response, request
+from pylons.i18n import _
 
 from r2.controllers import add_controller
 from r2.controllers.reddit_base import RedditController
@@ -44,28 +45,47 @@ class PlaceController(RedditController):
     @json_validate(
         VUser(),    # NOTE: this will respond with a 200 with an error body
         VModhash(),
-        x=VInt("x"),
-        y=VInt("y"),
+        x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
+        y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
         color=VColor("color"),
     )
     def POST_draw(self, responder, x, y, color):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
             self.abort403()
 
-        if x is None or x > CANVAS_WIDTH or x < 0:
-            c.errors.add(errors.BAD_NUMBER, "x")
+        if x is None:
+            # copy the error set by VNumber/VInt
+            c.errors.add(
+                error_name=errors.BAD_NUMBER,
+                field="x",
+                msg_params={
+                    "range": _("%(min)d to %(max)d") % {
+                        "min": 0,
+                        "max": CANVAS_WIDTH,
+                    },
+                },
+            )
 
-        if y is None or y > CANVAS_HEIGHT or y < 0:
-            c.errors.add(errors.BAD_NUMBER, "y")
-
-        if (responder.has_errors("x", errors.BAD_NUMBER) or
-                responder.has_errors("y", errors.BAD_NUMBER)):
-            return
+        if y is None:
+            # copy the error set by VNumber/VInt
+            c.errors.add(
+                error_name=errors.BAD_NUMBER,
+                field="y",
+                msg_params={
+                    "range": _("%(min)d to %(max)d") % {
+                        "min": 0,
+                        "max": CANVAS_HEIGHT,
+                    },
+                },
+            )
 
         if not color:
-            c.errors.add(errors.BAD_COLOR, "color")
+            c.errors.add(errors.BAD_COLOR, field="color")
 
-        if responder.has_errors("color", errors.BAD_COLOR):
+        if (responder.has_errors("x", errors.BAD_NUMBER) or
+                responder.has_errors("y", errors.BAD_NUMBER) or
+                responder.has_errors("color", errors.BAD_COLOR)):
+            # TODO: return 400 with parsable error message?
             return
 
         wait_seconds = get_wait_seconds(c.user)
