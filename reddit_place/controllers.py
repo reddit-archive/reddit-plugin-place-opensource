@@ -95,6 +95,7 @@ class PlaceController(RedditController):
                 "error": 429,
                 "wait_seconds": wait_seconds,
             }
+            return
 
         pixel = Pixel.create(c.user, color, x, y)
 
