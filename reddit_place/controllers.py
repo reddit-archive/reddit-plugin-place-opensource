@@ -18,6 +18,8 @@ from r2.lib.validator import (
 )
 
 from .models import (
+    CANVAS_WIDTH,
+    CANVAS_HEIGHT,
     Pixel,
 )
 from .pages import PlacePage, PlaceCanvasse
@@ -25,8 +27,6 @@ from .pages import PlacePage, PlaceCanvasse
 
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
 PIXEL_COOLDOWN = timedelta(seconds=120)
-CANVAS_WIDTH = 1000
-CANVAS_HEIGHT = 1000
 
 
 @add_controller
@@ -36,7 +36,9 @@ class PlaceController(RedditController):
 
         return PlacePage(
             title="place",
-            content=PlaceCanvasse(),
+            content=PlaceCanvasse(
+                pixels=Pixel.get_canvas(),
+            ),
             extra_js_config={
                 "place_websocket_url": websocket_url,
             },
