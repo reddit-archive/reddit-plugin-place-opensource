@@ -2,6 +2,25 @@
   var Client = require('client');
   var Cursor = require('cursor');
 
+  /**
+   * @typedef {Object} Coordinate
+   * @property {number} x
+   * @property {number} y
+   */
+
+  /**
+   * Utility to get the {x, y} coordinates from an event.
+   * @function
+   * @param {Event} e
+   * @returns {Coordinate}
+   */
+  function getCoordsFromEvent(e) {
+    return {
+      x: parseInt(e.clientX, 10) + window.scrollX,
+      y: parseInt(e.clientY, 10) + window.scrollY,
+    };
+  }
+
   // Client events that primarily handle updating the camera
   // IMPORTANT NOTE – (x, y) coordinates here are in "container space". That is,
   // relative to the top left corner of the application container and in units
@@ -9,23 +28,20 @@
   // which also tracks position in "container space".
   return {
     'mousedown': function(e) {
-      var x = parseInt(e.clientX, 10);
-      var y = parseInt(e.clientY, 10);
-      Cursor.setCursorDown(x, y);
+      var coords = getCoordsFromEvent(e);
+      Cursor.setCursorDown(coords.x, coords.y);
     },
 
     'mouseup': function(e) {
-      var x = parseInt(e.clientX, 10);
-      var y = parseInt(e.clientY, 10);
-      Cursor.setCursorUp(x, y);
+      var coords = getCoordsFromEvent(e);
+      Cursor.setCursorUp(coords.x, coords.y);
     },
 
     'mousemove': function(e) {
-      var x = parseInt(e.clientX, 10);
-      var y = parseInt(e.clientY, 10);
+      var coords = getCoordsFromEvent(e);
 
       if (!Cursor.isDown) {
-        Cursor.setTargetPosition(x, y);
+        Cursor.setTargetPosition(coords.x, coords.y);
         return;
       }
 
@@ -35,11 +51,11 @@
 
       // Then update the cursor position so we can do the same on
       // the next mousemove event
-      Cursor.setPosition(x, y);
+      Cursor.setPosition(coords.x, coords.y);
 
       // Finally, calculate the new offset
-      var newOffsetX = (x - Cursor.downX) / Client.zoom;
-      var newOffsetY = (y - Cursor.downY) / Client.zoom;
+      var newOffsetX = (coords.x - Cursor.downX) / Client.zoom;
+      var newOffsetY = (coords.y - Cursor.downY) / Client.zoom;
 
       // And update the offset.  Important to know that Client
       // expects offset coordinates in canvas-space, which is why
