@@ -51,6 +51,7 @@
     var websocketUrl = r.config.place_websocket_url;
     var canvasWidth = r.config.place_canvas_width;
     var canvasHeight = r.config.place_canvas_height;
+    var isUserLoggedIn = r.config.logged;
 
     var COLORS = [
       '#FFFFFF',
@@ -82,7 +83,10 @@
     Camera.init(viewer, canvas);
     Canvasse.init(canvas, canvasWidth, canvasHeight);
     Hand.init(hand, handSwatch);
-    Palette.init(palette, COLORS);
+
+    if (isUserLoggedIn) {
+      Palette.init(palette, COLORS);
+    }
 
     Client.init();
 
@@ -98,7 +102,10 @@
 
     bindEvents(container, CameraEvents);
     bindEvents(canvas, CanvasEvents);
-    bindEvents(palette, PaletteEvents);
+
+    if (isUserLoggedIn) {
+      bindEvents(palette, PaletteEvents);
+    }
 
     function shouldMouseOutCancel(e) {
       // Events are stupid
