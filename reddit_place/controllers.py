@@ -11,6 +11,8 @@ from r2.lib import websockets
 from r2.lib.errors import errors
 from r2.lib.validator import (
     json_validate,
+    validate,
+    VBoolean,
     VColor,
     VInt,
     VModhash,
@@ -22,7 +24,11 @@ from .models import (
     CANVAS_HEIGHT,
     Pixel,
 )
-from .pages import PlacePage, PlaceCanvasse
+from .pages import (
+    PlaceEmbedPage,
+    PlacePage,
+    PlaceCanvasse,
+)
 
 
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
@@ -31,16 +37,35 @@ PIXEL_COOLDOWN = timedelta(seconds=10)
 
 @add_controller
 class PlaceController(RedditController):
-    def GET_canvasse(self):
+    @validate(
+        is_embed=VBoolean("is_embed"),
+    )
+    def GET_canvasse(self, is_embed):
         websocket_url = websockets.make_url("/place", max_age=3600)
 
-        return PlacePage(
-            title="place",
-            content=PlaceCanvasse(),
-            extra_js_config={
-                "place_websocket_url": websocket_url,
-            },
-        ).render()
+        content = PlaceCanvasse()
+
+        if is_embed:
+            # ensure we're off the cookie domain before allowing embedding
+            if request.host != g.media_domain:
+                abort(404)
+            c.allow_framing = True
+
+            return PlaceEmbedPage(
+                title="place",
+                content=content,
+                extra_js_config={
+                    "place_websocket_url": websocket_url,
+                },
+            ).render()
+        else:
+            return PlacePage(
+                title="place",
+                content=content,
+                extra_js_config={
+                    "place_websocket_url": websocket_url,
+                },
+            ).render()
 
     @json_validate(
         VUser(),    # NOTE: this will respond with a 200 with an error body

@@ -61,7 +61,9 @@ class Place(Plugin):
 
     def add_routes(self, mc):
         mc("/place", controller="place", action="canvasse",
-           conditions={"function": not_in_sr})
+           conditions={"function": not_in_sr}, is_embed=False)
+        mc("/place/embed", controller="place", action="canvasse",
+           conditions={"function": not_in_sr}, is_embed=True)
         mc("/api/place/time", controller="place", action="time_to_wait",
            conditions={"function": not_in_sr})
         mc("/api/place/:action", controller="place",

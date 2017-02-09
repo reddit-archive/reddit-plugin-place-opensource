@@ -1,0 +1,13 @@
+<%inherit file="placepage.html" />
+
+<%def name="pagemeta()">
+  ${parent.pagemeta()}
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+</%def>
+
+<%def name="bodyContent()">
+<a name="content"></a>
+<div class="content" role="main">
+  ${thing.content()}
+</div>
+</%def>

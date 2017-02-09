@@ -9,8 +9,13 @@ class PlacePage(Reddit):
         super(PlacePage, self).__init__(
             title=title,
             content=content,
+            show_newsletterbar=False,
             **kwargs
         )
+
+
+class PlaceEmbedPage(PlacePage):
+    pass
 
 
 class PlaceCanvasse(Templated):
