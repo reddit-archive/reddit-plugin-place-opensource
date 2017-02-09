@@ -8,9 +8,10 @@
   var Canvasse = require('canvasse');
   var Client = require('client');
   var Cursor = require('cursor');
-  var Palette = require('palette');
   var Hand = require('hand');
+  var Palette = require('palette');
   var PaletteEvents = require('paletteevents');
+  var R2Server = require('api');
   var WebsocketEvents = require('websocketevents');
 
 
@@ -47,6 +48,10 @@
 
   // Init code:
   $(function() {
+    var websocketUrl = r.config.place_websocket_url;
+    var canvasWidth = r.config.place_canvas_width;
+    var canvasHeight = r.config.place_canvas_height;
+
     var COLORS = [
       '#FFFFFF',
       '#949494',
@@ -72,15 +77,22 @@
     var hand = document.getElementById('place-hand');
     var handSwatch = document.getElementById('place-hand-swatch');
 
+
     AudioManager.init();
     Camera.init(viewer, canvas);
-    Canvasse.init(canvas);
+    Canvasse.init(canvas, canvasWidth, canvasHeight);
     Hand.init(hand, handSwatch);
     Palette.init(palette, COLORS);
 
     Client.init();
 
-    var websocket = new r.WebSocket(r.config.place_websocket_url);
+    R2Server.getCanvasState().then(function(res) {
+      if (!res) { return; }
+
+      Canvasse.setState(res);
+    });
+
+    var websocket = new r.WebSocket(websocketUrl);
     websocket.on(WebsocketEvents);
     websocket.start();
 

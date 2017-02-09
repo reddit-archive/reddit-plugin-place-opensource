@@ -56,6 +56,8 @@ class PlaceController(RedditController):
                 content=content,
                 extra_js_config={
                     "place_websocket_url": websocket_url,
+                    "place_canvas_width": CANVAS_WIDTH,
+                    "place_canvas_height": CANVAS_HEIGHT,
                 },
             ).render()
         else:
@@ -64,6 +66,8 @@ class PlaceController(RedditController):
                 content=content,
                 extra_js_config={
                     "place_websocket_url": websocket_url,
+                    "place_canvas_width": CANVAS_WIDTH,
+                    "place_canvas_height": CANVAS_HEIGHT,
                 },
             ).render()
 

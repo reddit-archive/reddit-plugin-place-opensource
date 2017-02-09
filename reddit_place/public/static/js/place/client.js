@@ -191,8 +191,8 @@
      */
     getCanvasSize: function() {
       return {
-        width: Canvasse.WIDTH,
-        height: Canvasse.HEIGHT,
+        width: Canvasse.width,
+        height: Canvasse.height,
       };
     },
   };
