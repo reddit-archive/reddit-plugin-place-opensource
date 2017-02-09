@@ -14,6 +14,4 @@ class PlacePage(Reddit):
 
 
 class PlaceCanvasse(Templated):
-    def __init__(self, pixels):
-        self.pixels = pixels
-        Templated.__init__(self)
+    pass

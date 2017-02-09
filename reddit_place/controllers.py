@@ -36,9 +36,7 @@ class PlaceController(RedditController):
 
         return PlacePage(
             title="place",
-            content=PlaceCanvasse(
-                pixels=Pixel.get_canvas(),
-            ),
+            content=PlaceCanvasse(),
             extra_js_config={
                 "place_websocket_url": websocket_url,
             },
@@ -122,6 +120,10 @@ class PlaceController(RedditController):
         return {
             "wait_seconds": get_wait_seconds(c.user),
         }
+
+    @json_validate()
+    def GET_state(self, responder):
+        return [(x, y, d) for (x, y), d in Pixel.get_canvas().iteritems()]
 
 
 def get_wait_seconds(user):
