@@ -88,13 +88,50 @@
     bindEvents(canvas, CanvasEvents);
     bindEvents(palette, PaletteEvents);
 
+    function shouldMouseOutCancel(e) {
+      // Events are stupid
+      return !(e.target === canvas || e.relatedTarget === canvas) && Cursor.isDown;
+    }
+
     bindEvents(container, {
       'mouseout': function(e) {
-        // Events are stupid
-        if (e.target === canvas || e.relatedTarget === canvas) { return; }
-
-        if (Cursor.isDown) {
+        if (shouldMouseOutCancel(e)) {
           return CameraEvents['mouseup'](e);
+        }
+      },
+
+      // Map touch events to mouse events.  Note that this works since
+      // currently the event handlers only use the clientX and clientY
+      // properties of the MouseEvent objects (which the Touch objects
+      // also have.  If the handlers start using other properties or
+      // methods of the MouseEvent that the Touch objects *don't* have,
+      // this will probably break.
+      'touchstart': function(e) {
+        if (!Cursor.isUsingTouch) {
+          Cursor.setTouchMode(true);
+        }
+        return CameraEvents['mousedown'](e.changedTouches[0]);
+      },
+
+      'touchmove': function(e) {
+        return CameraEvents['mousemove'](e.changedTouches[0]);
+      },
+
+      'touchend': function(e) {
+        return CameraEvents['mouseup'](e.changedTouches[0]);
+      },
+
+      'touchcancel': function(e) {
+        if (shouldMouseOutCancel(e)) {
+          return CameraEvents['mouseup'](e.changedTouches[0]);
+        }
+      },
+    });
+
+    bindEvents(palette, {
+      'touchstart': function(e) {
+        if (!Cursor.isUsingTouch) {
+          Cursor.setTouchMode(true);
         }
       },
     });

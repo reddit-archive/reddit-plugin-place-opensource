@@ -25,6 +25,7 @@
     CURSOR_TRANSLATE_LERP: 1,
     CURSOR_ROTATE_LERP: .5,
 
+    isUsingTouch: false,
     isDown: false,
     downX: 0,
     downY: 0,
@@ -143,6 +144,20 @@
     setTargetPosition: function(x, y) {
       this.x = x;
       this.y = y;
+    },
+
+    /**
+     * Update whether or not we're using touch events
+     * @function
+     * @param {boolean} isUsingTouch
+     */
+    setTouchMode: function(isUsingTouch) {
+      this.isUsingTouch = isUsingTouch;
+      if (isUsingTouch) {
+        Hand.disable();
+      } else {
+        Hand.enable();
+      }
     },
   };
 });
