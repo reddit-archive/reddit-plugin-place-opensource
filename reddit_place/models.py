@@ -29,6 +29,7 @@ class Pixel(tdb_cassandra.UuidThing):
     def create(cls, user, color, x, y):
         pixel = cls(
             canvas_id=CANVAS_ID,
+            user_name=user.name,
             user_fullname=user._fullname,
             color=color,
             x=x,
@@ -114,6 +115,7 @@ class Canvas(tdb_cassandra.View):
             (pixel.x, pixel.y): json.dumps({
                 "color": pixel.color,
                 "timestamp": convert_uuid_to_time(pixel._id),
+                "user_name": pixel.user_name,
                 "user_fullname": pixel.user_fullname,
             })
         }
