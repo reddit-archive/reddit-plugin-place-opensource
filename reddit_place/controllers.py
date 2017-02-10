@@ -26,7 +26,7 @@ from .pages import PlacePage, PlaceCanvasse
 
 
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
-PIXEL_COOLDOWN = timedelta(seconds=120)
+PIXEL_COOLDOWN = timedelta(seconds=10)
 
 
 @add_controller
