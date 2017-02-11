@@ -17,6 +17,9 @@
   var SFX_SELECT = AudioManager.compileClip([
     ['C7', 1/32], ['E7', 1/32], ['G8', 1/16],
   ]);
+  var SFX_ERROR = AudioManager.compileClip([
+    ['E4', 1/32], ['C4', 1/32], ['A3', 1/16],
+  ])
   var SFX_ZOOM_OUT = SFX_DROP;
   var SFX_ZOOM_IN = SFX_ZOOM_OUT.slice().reverse();
 
@@ -29,6 +32,7 @@
     ZOOM_MIN_SCALE: 4,
 
     color: null,
+    enabled: true,
     isZoomedIn: false,
     panX: 0,
     panY: 0,
@@ -153,13 +157,41 @@
      * @param {number} y
      */
     drawTile: function(x, y) {
-      if (!this.color) { return; }
+      if (!this.color || !this.enabled) { return; }
 
-      Canvasse.drawTileAt(x, y, this.color);
-      R2Server.draw(x, y, this.color);
-      AudioManager.playClip(SFX_PLACE);
-      this.color = null;
-      Hand.clearColor();
+      // Disable to prevent further draw actions until the API request resolves.
+      this.disable();
+
+      R2Server.draw(x, y, this.color).then(
+        // On success, draw the tile.  Will need to play with this to see
+        // if the delay is too noticeable, otherwise we may want to
+        // optimistically update the canvas and then undo on error.
+        function onSuccess(responseJSON, status, jqXHR) {
+          Canvasse.drawTileAt(x, y, this.color);
+          AudioManager.playClip(SFX_PLACE);
+          Hand.clearColor();
+          this.color = null;
+          this.enable();
+        }.bind(this),
+
+        // Handle API errors.
+        function onError(jqXHR, status, statusText) {
+          AudioManager.playClip(SFX_ERROR);
+          var res = jqXHR.responseJSON;
+
+          if (res && res.wait_seconds) {
+            // Handle ratelimit, enable after wait_seconds.
+            // TODO - may want to do some UI treatment to show the user that they
+            // can't interact.
+            setTimeout(function() {
+              this.enable();
+            }.bind(this), res.wait_seconds * 1000);
+          } else {
+            // Fallback to just re-enabling. Maybe it'll work this time.
+            this.enable();
+          }
+        }.bind(this)
+      );
     },
 
     /**
@@ -194,6 +226,23 @@
         width: Canvasse.width,
         height: Canvasse.height,
       };
+    },
+
+    /**
+     * Disable the client.  Intended for temporarily disabling for
+     * handling ratelimiting, cooldowns, etc.
+     * @function
+     */
+    disable: function() {
+      this.enabled = false;
+    },
+
+    /**
+     * Re-enable the client.
+     * @function
+     */
+    enable: function() {
+      this.enabled = true;
     },
   };
 });
