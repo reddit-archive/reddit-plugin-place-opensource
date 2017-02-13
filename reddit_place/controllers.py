@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import struct
 import time
 
 from pylons import app_globals as g
@@ -13,7 +12,10 @@ from r2.controllers.reddit_base import (
         set_content_type,
 )
 from r2.lib import hooks
-from r2.lib import websockets
+from r2.lib import (
+    baseplate_integration,
+    websockets,
+)
 from r2.lib.base import BaseController
 from r2.lib.errors import errors
 from r2.lib.validator import (
@@ -32,9 +34,11 @@ from r2.controllers.oauth2 import (
 )
 
 from .models import (
+    CANVAS_ID,
     CANVAS_WIDTH,
     CANVAS_HEIGHT,
     Pixel,
+    RedisCanvas,
 )
 from .pages import (
     PlaceEmbedPage,
@@ -68,40 +72,14 @@ class LoggedOutPlaceController(BaseController):
     # checks embedded in MinimalController that would prevent caching.
 
     def _get_board_bitmap(self):
-        # Make a blank board
-        #
-        # We add 1 to the total number of canvas blocks in case the end
-        # result is an odd number, which python will round down when we
-        # divide by 2.
-        #
-        # Thus, a 3x3 board (with 9 total pixels) would correctly map to 5
-        # bytes, and a 4x3 board (with 12 total pixels) would still correctly
-        # map to 6 bytes.
-        bitmap = ['\x00'] * ((CANVAS_HEIGHT * CANVAS_HEIGHT + 1) / 2)
-        timestamp = time.time()
 
-        # Fill in the pixels that have been set
-        for (x, y), color in Pixel.get_canvas().iteritems():
-            # We're putting 2 integers into a single byte.  If the integer is
-            # an odd number, we can just OR it onto the byte, since we want it
-            # at the end.  If it's an even number, it needs to go at the
-            # beginning of the byte, so we shift it first.
-            offset = y * CANVAS_WIDTH + x
-            if offset % 2 == 0:
-                color = color << 4
-
-            # Update the color in the bitmap.  Because division rounds down, we
-            # can simply divide by 2 to find the correct byte in the bitmap.
-            bitmap_idx = offset / 2
-            updated_bitmap_int = ord(bitmap[bitmap_idx]) | color
-            packed_color = struct.pack('B', updated_bitmap_int)
-            bitmap[bitmap_idx] = packed_color
-
-        # We plan on heavily caching this board bitmap.  We include the
-        # timestamp as a 32 bit uint at the beginning so the client can make a
-        # determination as to whether the cached state is too old.  If it's too
-        # old, the client will hit the non-fastly-cached endpoint directly.
-        return ''.join([struct.pack('I', int(timestamp))] + bitmap)
+        # Since we're not using MinimalController, we need to setup the
+        # baseplate span manually to have access to the baseplate context.
+        baseplate_integration.make_server_span(
+            span_name="place.GET_board_bitmap").start()
+        response = RedisCanvas.get_board()
+        baseplate_integration.finish_server_span()
+        return response
 
     def GET_board_bitmap_fastly_cached(self):
         """
@@ -266,7 +244,7 @@ class PlaceController(RedditController):
             }
             return
 
-        pixel = Pixel.create(c.user, color, x, y)
+        Pixel.create(c.user, color, x, y)
 
         c.user.set_flair(
             subreddit=PLACE_SUBREDDIT,
@@ -377,7 +355,22 @@ class PlaceController(RedditController):
     @json_validate()
     @allow_oauth2_access
     def GET_state(self, responder):
-        return [(x, y, d) for (x, y), d in Pixel.get_canvas().iteritems()]
+        # Grab the canvas from redis as a single key and iterate through each
+        # color, calculating the coordinate based on the offset.
+        canvas_bitfield = c.place_redis.get(CANVAS_ID)
+        redis_items = []
+        if canvas_bitfield:
+            for i in xrange(0, len(canvas_bitfield), 3):
+                red, green, blue = canvas_bitfield[i:i+3]
+                if red == '\x00' and green == '\x00' and blue == '\x00':
+                    continue
+                color = '#{:02x}{:02x}{:02x}'.format(
+                    ord(red), ord(green), ord(blue))
+                offset = i / 3
+                x = offset % CANVAS_WIDTH
+                y = offset / CANVAS_WIDTH
+                redis_items.append((x, y, {"color": color}))
+        return redis_items
 
     @json_validate(
         x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
