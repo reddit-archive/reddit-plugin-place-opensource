@@ -48,10 +48,11 @@
 
   // Init code:
   $(function() {
-    var websocketUrl = r.config.place_websocket_url;
+    var isUserLoggedIn = r.config.logged;
     var canvasWidth = r.config.place_canvas_width;
     var canvasHeight = r.config.place_canvas_height;
-    var isUserLoggedIn = r.config.logged;
+    var cooldownDuration = 1000 * r.config.place_cooldown;
+    var websocketUrl = r.config.place_websocket_url;
 
     var COLORS = [
       '#FFFFFF',
@@ -88,7 +89,7 @@
       Palette.init(palette, COLORS);
     }
 
-    Client.init();
+    Client.init(isUserLoggedIn, cooldownDuration);
 
     R2Server.getCanvasState().then(function(res) {
       if (!res) { return; }

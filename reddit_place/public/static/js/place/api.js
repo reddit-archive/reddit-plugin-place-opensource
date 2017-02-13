@@ -35,6 +35,20 @@
         url: '/api/place/state.json',
         type: 'GET',
       });
-    }
+    },
+
+    /**
+     * GET the amount of time remaining on the current user's cooldown.
+     * @function
+     * @returns {Promise<number>}
+     */
+    getTimeToWait: function() {
+      return r.ajax({
+        url: '/api/place/time.json',
+        type: 'GET',
+      }).then(function onSuccess(responseJSON, status, jqXHR) {
+        return 1000 * responseJSON.wait_seconds
+      });
+    },
   };
 });

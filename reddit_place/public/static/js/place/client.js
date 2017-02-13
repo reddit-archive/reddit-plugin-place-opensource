@@ -1,4 +1,5 @@
 !r.placeModule(function client(require) {
+  var $ = require('jQuery');
   var AudioManager = require('audio');
   var Camera = require('camera');
   var Canvasse = require('canvasse');
@@ -32,6 +33,9 @@
     ZOOM_MIN_SCALE: 4,
 
     color: null,
+    cooldown: 0,
+    cooldownEndTime: 0,
+    cooldownPromise: null,
     enabled: true,
     isZoomedIn: false,
     panX: 0,
@@ -48,16 +52,95 @@
     /**
      * Initialize
      * @function
+     * @param {boolean} isEnabled Is the client enabled.
+     * @param {number} cooldown The amount of time in ms users must wait between draws.
      * @param {?string} color Hex-formatted color string
      * @param {?boolean} isZoomedIn Is the camera zoomed in or out
      * @param {?number} panX Horizontal camera offset
      * @param {?number} panY Vertical camera offset
      */
-    init: function(color, isZoomedIn, panX, panY) {
+    init: function(isEnabled, cooldown, color, isZoomedIn, panX, panY) {
+      // If logged out, client is disabled.  If logged in, client is
+      // initially disabled until we get the API response back to know
+      // whether they can place.
+      this.enabled = false;
+      this.cooldown = cooldown;
       if (color) this.setColor(color, false);
       this.isZoomedIn = isZoomedIn !== undefined ? isZoomedIn : true;
       this.setZoom(this.isZoomedIn ? this.ZOOM_MAX_SCALE : this.ZOOM_MIN_SCALE);
       this.setOffset(panX|0, panY|0);
+
+      if (!isEnabled) { return; }
+
+      // Get the remaining wait time from the API, then set the cooldown.
+      R2Server.getTimeToWait().then(
+        function onSuccess(waitTime, status, jqXHR) {
+          this.setCooldownTime(waitTime);
+        }.bind(this),
+
+        // Handle API errors.
+        function onError(jqXHR, status, statusText) {
+          // Something has gone wrong.  Assume the user can draw.
+          this.setCooldownTime(0);
+        }.bind(this)
+      );
+    },
+
+    /**
+     * Sets the cooldown time period.
+     * After the cooldown has passed, the client is enabled.
+     * The returned promise is also stored and reused in the whenCooldownEnds
+     * method.
+     * @function
+     * @param {number} cooldownTime Duration of cooldown in ms
+     * @returns {Promise} A promise that resolves when the cooldown ends.
+     */
+    setCooldownTime: function(cooldownTime) {
+      var currentTime = Date.now();
+      this.cooldownEndTime = currentTime + cooldownTime;
+
+      var deferred = $.Deferred();
+      setTimeout(function onTimeout() {
+        this.enable();
+        deferred.resolve();
+        this.cooldownPromise = null;
+      }.bind(this), cooldownTime);
+
+      this.cooldownPromise = deferred.promise();
+      return this.cooldownPromise;
+    },
+
+    /**
+     * Get a promise that resolves when the cooldown period expires.
+     * If there isn't an active cooldown, returns a promise that
+     * immediately resolves.
+     * 
+     *    Client.whenCooldownEnds().then(function() {
+     *      // do stuff
+     *    });
+     * 
+     * @function
+     * @returns {Promise}
+     */
+    whenCooldownEnds: function() {
+      if (this.cooldownPromise) {
+        return this.cooldownPromise;
+      }
+
+      var deferred = $.Deferred();
+      deferred.resolve();
+      return deferred.promise();
+    },
+
+    /**
+     * Return the time remaining in the cooldown in ms
+     * @function
+     * @returns {number}
+     */
+    getCooldownTimeRemaining: function() {
+      var currentTime = Date.now();
+      var timeRemaining = this.cooldownEndTime - currentTime;
+      return Math.max(0, timeRemaining);
     },
 
     /**
@@ -96,6 +179,14 @@
      */
     setColor: function(color, playSFX) {
       playSFX = playSFX === undefined ? true : playSFX;
+
+      if (!this.enabled) {
+        if (playSFX) {
+          AudioManager.playClip(SFX_ERROR);
+        }
+        return;
+      }
+
       this.color = color;
       Hand.updateColor(color);
       if (playSFX) {
@@ -157,7 +248,10 @@
      * @param {number} y
      */
     drawTile: function(x, y) {
-      if (!this.color || !this.enabled) { return; }
+      if (!this.color || !this.enabled) {
+        AudioManager.playClip(SFX_ERROR);
+        return;
+      }
 
       // Disable to prevent further draw actions until the API request resolves.
       this.disable();
@@ -171,25 +265,17 @@
           AudioManager.playClip(SFX_PLACE);
           Hand.clearColor();
           this.color = null;
-          this.enable();
+          this.setCooldownTime(this.cooldown);
         }.bind(this),
 
         // Handle API errors.
         function onError(jqXHR, status, statusText) {
           AudioManager.playClip(SFX_ERROR);
-          var res = jqXHR.responseJSON;
-
-          if (res && res.wait_seconds) {
-            // Handle ratelimit, enable after wait_seconds.
-            // TODO - may want to do some UI treatment to show the user that they
-            // can't interact.
-            setTimeout(function() {
-              this.enable();
-            }.bind(this), res.wait_seconds * 1000);
-          } else {
-            // Fallback to just re-enabling. Maybe it'll work this time.
-            this.enable();
-          }
+          // Handle ratelimit, enable after wait_seconds.
+          // TODO - may want to do some UI treatment to show the user that they
+          // can't interact.
+          var cooldownTime = 1000 * res.wait_seconds;
+          this.setCooldownTime(cooldownTime);
         }.bind(this)
       );
     },

@@ -32,7 +32,8 @@ from .pages import (
 
 
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
-PIXEL_COOLDOWN = timedelta(seconds=10)
+PIXEL_COOLDOWN_SECONDS = 10
+PIXEL_COOLDOWN = timedelta(seconds=PIXEL_COOLDOWN_SECONDS)
 
 
 @add_controller
@@ -45,6 +46,13 @@ class PlaceController(RedditController):
 
         content = PlaceCanvasse()
 
+        js_config = {
+            "place_websocket_url": websocket_url,
+            "place_canvas_width": CANVAS_WIDTH,
+            "place_canvas_height": CANVAS_HEIGHT,
+            "place_cooldown": PIXEL_COOLDOWN_SECONDS,
+        }
+
         if is_embed:
             # ensure we're off the cookie domain before allowing embedding
             if request.host != g.media_domain:
@@ -54,21 +62,13 @@ class PlaceController(RedditController):
             return PlaceEmbedPage(
                 title="place",
                 content=content,
-                extra_js_config={
-                    "place_websocket_url": websocket_url,
-                    "place_canvas_width": CANVAS_WIDTH,
-                    "place_canvas_height": CANVAS_HEIGHT,
-                },
+                extra_js_config=js_config,
             ).render()
         else:
             return PlacePage(
                 title="place",
                 content=content,
-                extra_js_config={
-                    "place_websocket_url": websocket_url,
-                    "place_canvas_width": CANVAS_WIDTH,
-                    "place_canvas_height": CANVAS_HEIGHT,
-                },
+                extra_js_config=js_config,
             ).render()
 
     @json_validate(
