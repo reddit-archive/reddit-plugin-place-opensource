@@ -14,6 +14,7 @@ from r2.lib.validator import (
     validate,
     VBoolean,
     VColor,
+    VEmployee,
     VInt,
     VModhash,
     VUser,
@@ -39,6 +40,7 @@ PIXEL_COOLDOWN = timedelta(seconds=PIXEL_COOLDOWN_SECONDS)
 @add_controller
 class PlaceController(RedditController):
     @validate(
+        VEmployee(),
         is_embed=VBoolean("is_embed"),
         is_webview=VBoolean("webview", default=False),
     )
@@ -76,6 +78,7 @@ class PlaceController(RedditController):
 
     @json_validate(
         VUser(),    # NOTE: this will respond with a 200 with an error body
+        VEmployee(),
         VModhash(),
         x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
         y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
@@ -144,6 +147,7 @@ class PlaceController(RedditController):
 
     @json_validate(
         VUser(),
+        VEmployee(),
     )
     def GET_time_to_wait(self, responder):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
@@ -153,7 +157,9 @@ class PlaceController(RedditController):
             "wait_seconds": get_wait_seconds(c.user),
         }
 
-    @json_validate()
+    @json_validate(
+        VEmployee(),
+    )
     def GET_state(self, responder):
         return [(x, y, d) for (x, y), d in Pixel.get_canvas().iteritems()]
 
