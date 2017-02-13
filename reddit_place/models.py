@@ -1,16 +1,49 @@
 from datetime import datetime
 import json
+import struct
+import time
 
 from pycassa.system_manager import TIME_UUID_TYPE, INT_TYPE
 from pycassa.types import CompositeType, IntegerType
 from pycassa.util import convert_uuid_to_time
 from pylons import app_globals as g
+from pylons import tmpl_context as c
 
 from r2.lib.db import tdb_cassandra
 
 CANVAS_ID = "test_1"
 CANVAS_WIDTH = 1000
 CANVAS_HEIGHT = 1000
+
+
+class RedisCanvas(object):
+
+    @classmethod
+    def get_board(cls):
+        # We plan on heavily caching this board bitmap.  We include the
+        # timestamp as a 32 bit uint at the beginning so the client can make a
+        # determination as to whether the cached state is too old.  If it's too
+        # old, the client will hit the non-fastly-cached endpoint directly.
+        timestamp = time.time()
+        bitmap = c.place_redis.get(CANVAS_ID)
+        return struct.pack('I', int(timestamp)) + bitmap
+
+    @classmethod
+    def set_pixel(cls, color, x, y):
+        # The canvas is stored in one long redis bitfield, offset by the
+        # coordinates of the pixel.  For instance, for a canvas of width 1000,
+        # the offset for position (1, 1) would be 1001.  redis conveniently
+        # lets us ignore our integer size when specifying our offset, doing the
+        # calculation for us.  For instance, rather than (3, 0) being sent as
+        # offset 72 for a 24-bit integer, we can just use the offset 3.
+        #
+        #     https://redis.io/commands/bitfield
+        #
+        UINT_SIZE = 'u4'  # Max value: 15
+        offset = y * CANVAS_WIDTH + x
+        c.place_redis.execute_command(
+            'bitfield', CANVAS_ID, 'SET',
+            UINT_SIZE, '#%d' % offset, color)
 
 
 class Pixel(tdb_cassandra.UuidThing):
@@ -27,6 +60,10 @@ class Pixel(tdb_cassandra.UuidThing):
 
     @classmethod
     def create(cls, user, color, x, y):
+
+        # We dual-write to cassandra to allow the frontend to get information
+        # on a particular pixel, as well as to have a backup, persistent state
+        # of the board in case something goes wrong with redis.
         pixel = cls(
             canvas_id=CANVAS_ID,
             user_name=user.name,
@@ -39,6 +76,8 @@ class Pixel(tdb_cassandra.UuidThing):
 
         Canvas.insert_pixel(pixel)
         PixelsByParticipant.add(user, pixel)
+
+        RedisCanvas.set_pixel(color, x, y)
 
         g.stats.simple_event('place.pixel.create')
 
