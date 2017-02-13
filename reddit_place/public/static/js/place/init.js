@@ -48,6 +48,7 @@
 
   // Init code:
   $(function() {
+    var isFullscreen = r.config.place_fullscreen;
     var isUserLoggedIn = r.config.logged;
     var canvasWidth = r.config.place_canvas_width;
     var canvasHeight = r.config.place_canvas_height;
@@ -79,6 +80,12 @@
     var hand = document.getElementById('place-hand');
     var handSwatch = document.getElementById('place-hand-swatch');
 
+    if (isFullscreen) {
+      $(container).css({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
+    }
 
     AudioManager.init();
     Camera.init(viewer, canvas);

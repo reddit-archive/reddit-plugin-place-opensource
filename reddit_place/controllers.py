@@ -40,8 +40,9 @@ PIXEL_COOLDOWN = timedelta(seconds=PIXEL_COOLDOWN_SECONDS)
 class PlaceController(RedditController):
     @validate(
         is_embed=VBoolean("is_embed"),
+        is_webview=VBoolean("webview", default=False),
     )
-    def GET_canvasse(self, is_embed):
+    def GET_canvasse(self, is_embed, is_webview):
         websocket_url = websockets.make_url("/place", max_age=3600)
 
         content = PlaceCanvasse()
@@ -51,6 +52,7 @@ class PlaceController(RedditController):
             "place_canvas_width": CANVAS_WIDTH,
             "place_canvas_height": CANVAS_HEIGHT,
             "place_cooldown": PIXEL_COOLDOWN_SECONDS,
+            "place_fullscreen": is_embed or is_webview, 
         }
 
         if is_embed:
@@ -59,6 +61,7 @@ class PlaceController(RedditController):
                 abort(404)
             c.allow_framing = True
 
+        if is_embed or is_webview:
             return PlaceEmbedPage(
                 title="place",
                 content=content,
