@@ -89,6 +89,12 @@
 
     AudioManager.init();
     Camera.init(viewer, canvas);
+
+    // Allow passing in starting camera position in the url hash
+    var locationHash = window.location.hash.replace(/^#/, '');
+    var hashParams = r.utils.parseQueryString(locationHash);
+
+
     Canvasse.init(canvas, canvasWidth, canvasHeight);
     Hand.init(hand, handSwatch);
 
@@ -96,7 +102,16 @@
       Palette.init(palette, COLORS);
     }
 
-    Client.init(isUserLoggedIn, cooldownDuration);
+    var halfWidth = canvasWidth / 2;
+    var halfHeight = canvasHeight / 2;
+    // Clamp starting coordinates to the canvas boundries
+    var startX = Math.max(-halfWidth, Math.min(halfWidth, hashParams.x|0));
+    var startY = Math.max(-halfHeight, Math.min(halfHeight, hashParams.y|0));
+    // Convert those values to canvas transform offsets
+    // TODO - this shouldn't be done here, it requires Canvasse.init to be called first
+    var startOffsets = Client.getOffsetFromCameraPosition(startX, startY);
+
+    Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
 
     R2Server.getCanvasState().then(function(res) {
       if (!res) { return; }

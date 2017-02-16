@@ -54,12 +54,12 @@
      * @function
      * @param {boolean} isEnabled Is the client enabled.
      * @param {number} cooldown The amount of time in ms users must wait between draws.
-     * @param {?string} color Hex-formatted color string
-     * @param {?boolean} isZoomedIn Is the camera zoomed in or out
      * @param {?number} panX Horizontal camera offset
      * @param {?number} panY Vertical camera offset
+     * @param {?string} color Hex-formatted color string
+     * @param {?boolean} isZoomedIn Is the camera zoomed in or out
      */
-    init: function(isEnabled, cooldown, color, isZoomedIn, panX, panY) {
+    init: function(isEnabled, cooldown, panX, panY, color, isZoomedIn) {
       // If logged out, client is disabled.  If logged in, client is
       // initially disabled until we get the API response back to know
       // whether they can place.
@@ -208,6 +208,16 @@
     /**
      * Update the current camera offsets.
      * Used to pan the camera around.
+     * The x and y values are offsets for the canvas rather than camera
+     * positions, which may be unintuitive to use.  For example, to
+     * position the camera in the top left corner of a 1000x1000 canvas, 
+     * you would call:
+     * 
+     *    r.place.setOffset(500, 500);
+     * 
+     * which pushes the canvas down and to the right 500px, putting its
+     * top left corner in the center of the screen.  If this is confusing,
+     * use the setCameraPosition method instead.
      * @function
      * @param {number} x
      * @param {number} y
@@ -216,6 +226,65 @@
       this._panX = this.panX = x;
       this._panY = this.panY = y;
       Camera.updateTranslate(this._panX, this._panY);
+    },
+  
+    /**
+     * Given coordinates relative to the camera position, get canvas offsets.
+     * See the setCameraPosition method description for more details.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    getOffsetFromCameraPosition: function(x, y) {
+      return { x: -x, y: -y };
+    },
+
+    /**
+     * Given an absolute canvas coordinat, get canvas offsets.
+     * See the setCameraLocation method description for more details.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    getOffsetFromCameraLocation: function(x, y) {
+      var size = this.getCanvasSize();
+      return { x: -(x - size.width / 2),  y: -(y - size.height / 2) };
+    },
+
+    /**
+     * An alias for setOffset with values relative to the camera.
+     * It literally just reverses the direction of the coordinates.  To use
+     * the above example, if you want to position the camera in the top left
+     * corner using this method, you would call:
+     *
+     *    r.place.setCameraPosition(-500, -500);
+     *
+     * which moves the camera up and to the left 500px, centering it on the
+     * top left corner of the canvas.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    setCameraPosition: function(x, y) {
+      var offsets = this.getOffsetFromCameraPosition(x, y);
+      this.setOffset(offsets.x, offsets.y);
+    },
+
+    /**
+     * The third and final option for setting the camera position.
+     * This centers the camera on the given canvas coordinate.  That is to
+     * say, if you wanted to center the camera on the top left corner:
+     *
+     *    r.place.setCameraLocation(0, 0);
+     *
+     * which moves the camera to the (0, 0) coordinate of the canvas.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    setCameraLocation: function(x, y) {
+      var offsets = this.getOffsetFromCameraLocation(x, y);
+      this.setOffset(offsets.x, offsets.y);
     },
 
     /**
@@ -238,6 +307,28 @@
     setTargetOffset: function(x, y) {
       this.panX = x;
       this.panY = y;
+    },
+
+    /**
+     * Update the target camera offsets relative to the camera.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    setTargetCameraPosition: function(x, y) {
+      var offsets = this.getOffsetFromCameraPosition(x, y);
+      this.setTargetOffset(offsets.x, offsets.y);
+    },
+
+    /**
+     * Update the target camera offsets relative to the camera.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    setTargetCameraLocation: function(x, y) {
+      var offsets = this.getOffsetFromCameraLocation(x, y);
+      this.setTargetOffset(offsets.x, offsets.y);
     },
 
     /**
