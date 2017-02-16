@@ -8,7 +8,9 @@
   return {
     'click': function(e) {
       var color = $(e.target).data('color');
-      Client.setColor(color);
+      if (typeof color !== "undefined") {
+        Client.setColor(color);
+      }
     },
   };
 });

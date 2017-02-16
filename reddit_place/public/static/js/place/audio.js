@@ -57,11 +57,28 @@
   return {
     audioCtx: null,
     audioGain: null,
+    enabled: true,
 
     init: function() {
       this.audioCtx = new window.AudioContext();
       this.audioGain = this.audioCtx.createGain();
       this.audioGain.connect(this.audioCtx.destination);
+    },
+
+    /**
+     * Disable sound effects.
+     * @function
+     */
+    disable: function() {
+      this.enabled = false;
+    },
+
+    /**
+     * Re-enable sound effects
+     * @function
+     */
+    enable: function() {
+      this.enabled = true;
     },
 
     /**
@@ -94,6 +111,8 @@
      *    as the second.
      */
     playClip: function(audioClip) {
+      if (!this.enabled) { return }
+
       var currentTime = this.audioCtx.currentTime;
 
       var clipNote, frequency, duration;

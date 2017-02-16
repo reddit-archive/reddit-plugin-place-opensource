@@ -184,6 +184,23 @@
       },
     });
 
+    // TODO - make less shitty
+    var shittyMuteButton = document.getElementById('place-mute-button');
+    var muteButton = "🔇";
+    var unmuteButton = "🔊";
+    $(shittyMuteButton).text(muteButton);
+    bindEvents(shittyMuteButton, {
+      'click': function() {
+        if (AudioManager.enabled) {
+          AudioManager.disable();
+          $(shittyMuteButton).text(unmuteButton);
+        } else {
+          AudioManager.enable();
+          $(shittyMuteButton).text(muteButton);
+        }
+      },
+    });
+
     startTicking(function() {
       Client.tick();
       Cursor.tick();
