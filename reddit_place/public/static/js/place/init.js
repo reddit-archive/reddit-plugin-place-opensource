@@ -75,6 +75,7 @@
 
     var container = document.getElementById('place-container');
     var viewer = document.getElementById('place-viewer');
+    var camera = document.getElementById('place-camera');
     var canvas = document.getElementById('place-canvasse');
     var palette = document.getElementById('place-palette');
     var hand = document.getElementById('place-hand');
@@ -88,7 +89,7 @@
     }
 
     AudioManager.init();
-    Camera.init(viewer, canvas);
+    Camera.init(viewer, camera);
 
     // Allow passing in starting camera position in the url hash
     var locationHash = window.location.hash.replace(/^#/, '');
@@ -123,8 +124,9 @@
     websocket.on(WebsocketEvents);
     websocket.start();
 
+    // TODO - fix this weird naming?
     bindEvents(container, CameraEvents);
-    bindEvents(canvas, CanvasEvents);
+    bindEvents(camera, CanvasEvents);
 
     if (isUserLoggedIn) {
       bindEvents(palette, PaletteEvents);
@@ -132,7 +134,7 @@
 
     function shouldMouseOutCancel(e) {
       // Events are stupid
-      return !(e.target === canvas || e.relatedTarget === canvas) && Cursor.isDown;
+      return !(e.target === camera || e.relatedTarget === camera) && Cursor.isDown;
     }
 
     bindEvents(container, {

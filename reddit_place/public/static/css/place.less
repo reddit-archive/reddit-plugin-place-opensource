@@ -15,6 +15,7 @@
     height: 500px;
     justify-content: center;
     overflow: hidden;
+    position: relative;
     width: 100%;
     // TODO - remove
     // outline: solid yellow;
@@ -26,19 +27,24 @@
     // outline: dotted red;
 }
 
-.place-canvas {
+.place-camera {
     cursor: pointer;
+    transform-origin: center;
+}
+
+.place-canvas {
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges; /* so crisp */
     image-rendering: pixelated;
     background-color: white;
-    transform-origin: center;
+    pointer-events: none;
+    transform: translate(-.5px, -.5px);
     // TODO - remove
     // outline: dashed green;
 }
 
-.place-canvas:active {
+.place-camera:active {
     cursor: -webkit-grab;
 }
 
@@ -71,6 +77,7 @@
 
 .place-hand-swatch {
     display: block;
+    transform: translate(-50%, -50%);
     width: 40px;
     height: 40px;
 }

@@ -2,11 +2,14 @@
     <div id="place-container" class="place-container">
         <!-- #viewer is used to control zooming. -->
         <div id="place-viewer" class="place-viewer">
-            <canvas id="place-canvasse" class="place-canvas"></canvas>
+            <!-- #camera is used to control camera positioning --> 
+            <div id="place-camera" class="place-camera">
+                <canvas id="place-canvasse" class="place-canvas"></canvas>
+            </div>
         </div>
-    </div>
-    <!-- This will be a holding container for swatches generated in js -->
-    <div id="place-palette" class="place-palette">
+        <!-- This will be a holding container for swatches generated in js -->
+        <div id="place-palette" class="place-palette">
+        </div>
     </div>
     <!-- This will be the cursor element that displays the current color -->
     <div id="place-hand" class="place-hand">

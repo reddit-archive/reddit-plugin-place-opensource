@@ -15,7 +15,7 @@ the event payloads, and call functions of the appropriate internal componets.
 
 Module           | Listens to API      | Requires...
 -----------------|---------------------|--------------------------------------
-canvasevents     | Events ($canvas)    | client, cursor
+canvasevents     | Events ($camera)    | client, cursor
 cameraevents     | Events ($container) | client, cursor
 paletteevents    | Events ($palette)   | client
 websocketevents  | Websockets          | world
@@ -41,7 +41,7 @@ update the DOM or make requests to the backend API.
 Module           | Calls to API
 -----------------|---------------------------------------------------------
 audio            | Web Audio
-camera           | DOM ($container and $canvas)
+camera           | DOM ($container and $camera)
 canvasse         | DOM ($canvas)
 hand             | DOM ($hand)
 palette          | DOM ($palette)
