@@ -114,10 +114,14 @@
 
     Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
 
+    // TODO - this should just get passed into init.  Honestly just
+    // avoiding merge conflicts with another branch here
+    Client.setColorPalette(COLORS);
+
     R2Server.getCanvasState().then(function(res) {
       if (!res) { return; }
 
-      Canvasse.setState(res);
+      Client.setInitialState(res);
     });
 
     var websocket = new r.WebSocket(websocketUrl);

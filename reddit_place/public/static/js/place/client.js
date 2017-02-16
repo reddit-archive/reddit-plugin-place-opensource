@@ -7,6 +7,8 @@
   var R2Server = require('api');
   var lerp = require('utils').lerp;
 
+  var MAX_COLOR_INDEX = 15;
+  var DEFAULT_COLOR = '#FFFFFF';
 
   // Define some sound effects, to be played with AudioManager.playClip
   var SFX_DROP = AudioManager.compileClip([
@@ -36,6 +38,7 @@
     cooldown: 0,
     cooldownEndTime: 0,
     cooldownPromise: null,
+    palette: [],
     enabled: true,
     isZoomedIn: false,
     panX: 0,
@@ -84,6 +87,16 @@
           this.setCooldownTime(0);
         }.bind(this)
       );
+    },
+
+    /**
+     * Set the color palette.
+     * @function
+     * @param {string[]} palette An array of valid css color strings
+     */
+    setColorPalette: function(palette) {
+      this.palette = palette;
+      // TODO - redraw canvas with old colors mapped to new ones
     },
 
     /**
@@ -171,13 +184,57 @@
     },
 
     /**
+     * Get the css color string for the given colorIndex.
+     * @function
+     * @param {number} colorIndex The index of the color in the palette.
+     *    This is clamped into the 0 to MAX_COLOR_INDEX range.  If the current
+     *    color palette has less colors than that defined, it repeats.
+     * @returns {string}
+     */
+    getPaletteColor: function(colorIndex) {
+      colorIndex = Math.min(MAX_COLOR_INDEX, Math.max(0, colorIndex|0));
+      return this.palette[colorIndex % this.palette.length] || DEFAULT_COLOR;
+    },
+
+    /**
+     * Sets the initial state of the canvas.
+     * This accepts the state directly from the API, and mutates it into
+     * the format expected by Canvasse.setState.
+     * Note that if the API payload shape changes, this will need to update.
+     * @function
+     * @param {Object} state The state returned from the API
+     */
+    setInitialState: function(state) {
+      // Iterate over API response state. When the backend starts dealing
+      // with numbers instead of strings, this is where we'll need to
+      // update.
+      state.forEach(function(pixelState) {
+        // The current shape of the API payload is an array of pixels, where
+        // each pixel is an array containing x, y, and metadata; and metadata
+        // is a dict containing the color, timestamp, and fullname of the user
+        // that placed it.
+
+        // TODO - when the backend starts sending numbers, this will need to get
+        // the color string out of the palette using getPaletteColor
+        var hexColorString = pixelState[2].color;
+
+        // Canvasse expects the same format, but with the color object as the
+        // third item in the pixel array.  Since we  don't need the response
+        // data anywhere else, I'll just mutate it.
+        pixelState[2] = hexColorString;
+      });
+
+      Canvasse.setState(state);
+    },
+
+    /**
      * Update the current color
      * @function
-     * @param {string} color Hex-formatted color string
+     * @param {number} color Index of color in palette.  Should be less than MAX_COLOR_INDEX
      * @param {boolean} [playSFX] Whether to play sound effects, defaults to true.
      *    Useful for initializing with a color.
      */
-    setColor: function(color, playSFX) {
+    setColor: function(colorIndex, playSFX) {
       playSFX = playSFX === undefined ? true : playSFX;
 
       if (!this.enabled) {
@@ -187,8 +244,9 @@
         return;
       }
 
-      this.color = color;
-      Hand.updateColor(color);
+      this.colorIndex = colorIndex;
+      this.paletteColor = this.getPaletteColor(colorIndex);
+      Hand.updateColor(this.paletteColor);
       if (playSFX) {
         AudioManager.playClip(SFX_SELECT);
       }
@@ -339,7 +397,7 @@
      * @param {number} y
      */
     drawTile: function(x, y) {
-      if (!this.color || !this.enabled) {
+      if (!this.paletteColor || !this.enabled) {
         AudioManager.playClip(SFX_ERROR);
         return;
       }
@@ -347,15 +405,15 @@
       // Disable to prevent further draw actions until the API request resolves.
       this.disable();
 
-      R2Server.draw(x, y, this.color).then(
+      R2Server.draw(x, y, this.paletteColor).then(
         // On success, draw the tile.  Will need to play with this to see
         // if the delay is too noticeable, otherwise we may want to
         // optimistically update the canvas and then undo on error.
         function onSuccess(responseJSON, status, jqXHR) {
-          Canvasse.drawTileAt(x, y, this.color);
+          Canvasse.drawTileAt(x, y, this.paletteColor);
           AudioManager.playClip(SFX_PLACE);
           Hand.clearColor();
-          this.color = null;
+          this.paletteColor = null;
           this.setCooldownTime(this.cooldown);
         }.bind(this),
 

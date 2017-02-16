@@ -122,19 +122,20 @@
     },
 
     /**
-     * Updates the canvas given a state returned from the API.
-     * Note that if the API payload shape changes, this will need to update.
+     * @typedef {Object} PixelState
+     * @property {number} pixelState[0] x coordinate
+     * @property {number} pixelState[1] y coordinate
+     * @property {string} pixelState[2] hex color string
+     */
+
+    /**
+     * Updates the canvas given a state.
      * @function
-     * @param {Object} state The state returned from the API call that returns the
-     *    canvas state.
+     * @param {PixelState[]} state
      */
     setState: function(state) {
       var width = this.width;
       var height = this.height;
-      // The current shape of the API payload is an array of pixels, where
-      // each pixel is an array containing x, y, and metadata; and metadata
-      // is a dict containing the color, timestamp, and fullname of the user
-      // that placed it.
 
       // We need to convert this into a Uint8ClampedArray to write it to the
       // canvas, where each pixel is represented by 4 items in the array – the
@@ -146,7 +147,7 @@
       state.forEach(function(pixelState) {
         var x = pixelState[0];
         var y = pixelState[1];
-        var color = parseHexColor(pixelState[2].color);
+        var color = parseHexColor(pixelState[2]);
 
         // The normal formula for finding the index in a flat-array representation
         // of a 2D grid for given (x, y) coordinates is: i = y * width + x

@@ -14,8 +14,8 @@
     init: function(el, colors) {
       this.el = el;
 
-      colors.forEach(function(color) {
-        var swatch = this._buildSwatch(color);
+      colors.forEach(function(color, index) {
+        var swatch = this._buildSwatch(color, index);
         el.appendChild(swatch);
       }, this);
     },
@@ -30,7 +30,7 @@
       var div = document.createElement('div');
       $(div)
       .css('backgroundColor', color)
-      .data('color', color)
+      .data('color', index)
       .addClass(this.SWATCH_CLASS);
       return div;
     },
