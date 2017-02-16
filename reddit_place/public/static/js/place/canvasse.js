@@ -30,6 +30,13 @@
     height: 0,
     el: null,
     ctx: null,
+    bufferEl: null,
+    bufferCtx: null,
+    // TODO - not sure if I'll actually need these yet, remove if they aren't
+    // getting used.
+    // Flags to let us know when the two canvases are out of sync  
+    hasBufferedUpdates: false,
+    hasUnbufferedUpdates: false,
 
     /**
      * Initialize the Canvasse
@@ -39,26 +46,79 @@
      * @param {number} height
      */
     init: function(el, width, height) {
-      this.el = el;
       this.width = width;
       this.height = height;
+
+      // The canvas state as visible to the user
+      this.el = el;
       this.el.width = width;
       this.el.height = height;
       this.ctx = this.el.getContext('2d');
+
+      // The actual canvas state.  This canvas is hidden, to allow us to do
+      // stuff like pause rendering of incoming updates without losing them,
+      // or to optimistically render changes made by the user and revert them
+      // if they fail, etc.
+      this.bufferEl = document.createElement('canvas');
+      this.bufferCtx = this.bufferEl.getContext('2d');
+      this.bufferEl.width = width;
+      this.bufferEl.height = height;
     },
 
     /**
-     * Draw a color to the canvas.
-     * Only handles updating the local canvas.
+     * Draw a color to the buffer canvas and immediately update.
      * Coordinates are in canvas pixels, not screen pixels.
+     * @deprecated Use drawTileToDisplay or drawTileToBuffer
      * @function
      * @param {int} x
      * @param {int} y
      * @param {string} color Any valid css color string
      */
     drawTileAt: function(x, y, color) {
+      // TODO - clean this up. Eventually we'll want to be able to draw
+      // without actually updating the buffer canvas.
+      this.drawTileToBuffer(x, y, color);
+      this.updateFromBuffer();
+    },
+
+    /**
+     * Draw a color to the display canvas
+     * Used for optimistic updates or temporary drawing for UI purposes.
+     * Updates will be lost if updateFromBuffer is called.
+     * @function
+     * @param {int} x
+     * @param {int} y
+     * @param {string} color Any valid css color string
+     */
+    drawTileToDisplay: function(x, y, color) {
       this.ctx.fillStyle = color;
       this.ctx.fillRect(x, y, 1, 1);
+      this.hasUnbufferedUpdates = true;
+    },
+
+    /**
+     * Draw a color to the buffer canvas
+     * Does not update the display canvas. Call updateFromBuffer to copy
+     * buffered updates to the display.
+     * @function
+     * @param {int} x
+     * @param {int} y
+     * @param {string} color Any valid css color string
+     */
+    drawTileToBuffer: function(x, y, color) {
+      this.bufferCtx.fillStyle = color;
+      this.bufferCtx.fillRect(x, y, 1, 1);
+      this.hasBufferedUpdates = true;
+    },
+
+    /**
+     * Update the display canvas by drawing from the buffered canvas
+     * @function
+     */
+    updateFromBuffer: function() {
+      this.ctx.drawImage(this.bufferEl, 0, 0, this.width, this.height);
+      this.hasBufferedUpdates = false;
+      this.hasUnbufferedUpdates = false;
     },
 
     /**
@@ -102,7 +162,8 @@
       }, this);
 
       var imageData = new ImageData(pixelData, width, height);
-      this.ctx.putImageData(imageData, 0, 0);
+      this.bufferCtx.putImageData(imageData, 0, 0);
+      this.updateFromBuffer();
     },
   };
 });
