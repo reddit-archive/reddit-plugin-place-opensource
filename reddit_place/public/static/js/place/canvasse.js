@@ -35,8 +35,8 @@
     // TODO - not sure if I'll actually need these yet, remove if they aren't
     // getting used.
     // Flags to let us know when the two canvases are out of sync  
-    hasBufferedUpdates: false,
-    hasUnbufferedUpdates: false,
+    isBufferDirty: false,
+    isDisplayDirty: false,
 
     /**
      * Initialize the Canvasse
@@ -78,13 +78,13 @@
       // TODO - clean this up. Eventually we'll want to be able to draw
       // without actually updating the buffer canvas.
       this.drawTileToBuffer(x, y, color);
-      this.updateFromBuffer();
+      this.drawBufferToDisplay();
     },
 
     /**
      * Draw a color to the display canvas
      * Used for optimistic updates or temporary drawing for UI purposes.
-     * Updates will be lost if updateFromBuffer is called.
+     * Updates will be lost if drawBufferToDisplay is called.
      * @function
      * @param {int} x
      * @param {int} y
@@ -93,12 +93,12 @@
     drawTileToDisplay: function(x, y, color) {
       this.ctx.fillStyle = color;
       this.ctx.fillRect(x, y, 1, 1);
-      this.hasUnbufferedUpdates = true;
+      this.isDisplayDirty = true;
     },
 
     /**
      * Draw a color to the buffer canvas
-     * Does not update the display canvas. Call updateFromBuffer to copy
+     * Does not update the display canvas. Call drawBufferToDisplay to copy
      * buffered updates to the display.
      * @function
      * @param {int} x
@@ -108,17 +108,30 @@
     drawTileToBuffer: function(x, y, color) {
       this.bufferCtx.fillStyle = color;
       this.bufferCtx.fillRect(x, y, 1, 1);
-      this.hasBufferedUpdates = true;
+      this.isBufferDirty = true;
     },
 
     /**
      * Update the display canvas by drawing from the buffered canvas
      * @function
      */
-    updateFromBuffer: function() {
+    drawBufferToDisplay: function() {
       this.ctx.drawImage(this.bufferEl, 0, 0, this.width, this.height);
-      this.hasBufferedUpdates = false;
-      this.hasUnbufferedUpdates = false;
+      this.isBufferDirty = false;
+    },
+
+    /**
+     * Update the buffer canvas by drawing from the display canvas
+     * This has a very particular use case - during initial loading, the
+     * client can receive updates over websockets that will not be reflected
+     * in the initial state (i.e. the loaded state will be stale by the time
+     * it finishes loading), so we preserve them in the *display* canvas
+     * to re-write back on top of the loaded state.
+     * @function
+     */
+    drawDisplayToBuffer: function() {
+      this.bufferCtx.drawImage(this.el, 0, 0, this.width, this.height);
+      this.isDisplayDirty = false;
     },
 
     /**
@@ -129,11 +142,11 @@
      */
 
     /**
-     * Updates the canvas given a state.
+     * Updates the buffer canvas given a state.
      * @function
      * @param {PixelState[]} state
      */
-    setState: function(state) {
+    writeStateToBuffer: function(state) {
       var width = this.width;
       var height = this.height;
 
@@ -164,7 +177,6 @@
 
       var imageData = new ImageData(pixelData, width, height);
       this.bufferCtx.putImageData(imageData, 0, 0);
-      this.updateFromBuffer();
     },
   };
 });

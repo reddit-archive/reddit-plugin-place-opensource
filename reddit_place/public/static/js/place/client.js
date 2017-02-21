@@ -219,7 +219,9 @@
         canvas.push([x, y, hexColorString]);
       }.bind(this));
 
-      Canvasse.setState(canvas);
+      Canvasse.writeStateToBuffer(canvas);
+      Canvasse.drawDisplayToBuffer();
+      Canvasse.drawBufferToDisplay();
     },
 
     /**
