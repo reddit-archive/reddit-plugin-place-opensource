@@ -1,7 +1,9 @@
 !r.placeModule('init', function(require) {
   var $ = require('jQuery');
   var r = require('r');
+
   var AudioManager = require('audio');
+  var bindEvents = require('utils').bindEvents;
   var Camera = require('camera');
   var CameraEvents = require('cameraevents');
   var CanvasEvents = require('canvasevents');
@@ -26,24 +28,6 @@
       fn();
       requestAnimationFrame(tick);
     });
-  }
-
-  /**
-   * Utility for binding a bunch of events to a single element.
-   * @function
-   * @param {HTMLElement} target
-   * @param {Object<function>} eventsDict A dictionary of event handling functions.
-   *    Each key should be the name of the event to bind the handler to.
-   * @param {bool} [useCapture] Whether to use event capturing.  Defaults to true.
-   */
-  function bindEvents(target, eventsDict, useCapture) {
-    useCapture = useCapture === undefined ? true : useCapture;
-
-    for (var event in eventsDict) {
-      // If useCapture changes from true to false,
-      // CanvasEvents.mouseup will stop working correctly
-      target.addEventListener(event, eventsDict[event], true);
-    }
   }
 
   // Init code:
@@ -207,5 +191,6 @@
     });
 
     r.place = Client;
+    r.hooks.call('place.init');
   });
 });

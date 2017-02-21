@@ -42,6 +42,7 @@
     palette: [],
     enabled: true,
     isZoomedIn: false,
+    isPanEnabled: true,
     panX: 0,
     panY: 0,
     zoom: 1,
@@ -257,6 +258,7 @@
      */
     setZoom: function(zoomLevel) {
       this._zoom = this.zoom = zoomLevel;
+      this.isZoomedIn = zoomLevel === this.ZOOM_MAX_SCALE;
       Camera.updateScale(this._zoom);
     },
 
@@ -350,6 +352,7 @@
      */
     setTargetZoom: function(zoomLevel) {
       this.zoom = zoomLevel;
+      this.isZoomedIn = zoomLevel === this.ZOOM_MAX_SCALE;
     },
 
     /**
@@ -429,17 +432,21 @@
     /**
      * Toggles between the two predefined zoom levels.
      * @function
+     * @param {number} offsetX
+     * @param {number} offsetY
      */
-    toggleZoom: function() {
+    toggleZoom: function(offsetX, offsetY) {
       if (this.isZoomedIn) {
         this.setTargetZoom(this.ZOOM_MIN_SCALE);
         AudioManager.playClip(SFX_ZOOM_OUT);
       } else {
         this.setTargetZoom(this.ZOOM_MAX_SCALE);
+        // Any time we are zooming in, also center camera where the user clicked
+        this.setTargetOffset(offsetX, offsetY);
         AudioManager.playClip(SFX_ZOOM_IN);
       }
 
-      this.isZoomedIn = !this.isZoomedIn;
+      this.isZoomedIn = this.zoom === this.ZOOM_MAX_SCALE;
     },
 
     /**
@@ -475,6 +482,23 @@
      */
     enable: function() {
       this.enabled = true;
+    },
+
+        /**
+     * Disable the client.  Intended for temporarily disabling for
+     * handling ratelimiting, cooldowns, etc.
+     * @function
+     */
+    disablePan: function() {
+      this.isPanEnabled = false;
+    },
+
+    /**
+     * Re-enable the client.
+     * @function
+     */
+    enablePan: function() {
+      this.isPanEnabled = true;
     },
   };
 });

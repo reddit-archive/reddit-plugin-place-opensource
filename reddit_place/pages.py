@@ -1,3 +1,5 @@
+from pylons import tmpl_context as c
+
 from r2.lib.pages import Reddit
 from r2.lib.wrapped import Templated
 
@@ -10,6 +12,7 @@ class PlacePage(Reddit):
             title=title,
             content=content,
             show_newsletterbar=False,
+            include_admin_features=c.user_is_admin,
             **kwargs
         )
 

@@ -3,5 +3,9 @@
 <%def name="javascript_bottom()">
     <% from r2.lib import js %>
     ${parent.javascript_bottom()}
-    ${unsafe(js.use("place"))}
+    ${unsafe(js.use("place-base"))}
+    %if thing.include_admin_features:
+        ${unsafe(js.use("place-admin"))}
+    %endif
+    ${unsafe(js.use("place-init"))}
 </%def>

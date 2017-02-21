@@ -53,6 +53,8 @@
       // the next mousemove event
       Cursor.setPosition(coords.x, coords.y);
 
+      if (!Client.isPanEnabled) { return; }
+
       // Finally, calculate the new offset
       var newOffsetX = (coords.x - Cursor.downX) / Client.zoom;
       var newOffsetY = (coords.y - Cursor.downY) / Client.zoom;

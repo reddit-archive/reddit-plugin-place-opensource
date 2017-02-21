@@ -2,7 +2,7 @@ from pylons.i18n import N_
 
 from r2.config.routing import not_in_sr
 from r2.lib.configparse import ConfigValue
-from r2.lib.js import LocalizedModule
+from r2.lib.js import Module
 from r2.lib.plugin import Plugin
 
 
@@ -10,7 +10,7 @@ class Place(Plugin):
     needs_static_build = True
 
     js = {
-        "place": LocalizedModule("place.js",
+        "place-base": Module("place-base.js",
             # core & external dependencies
             "websocket.js",
             "place/modules.js",
@@ -34,7 +34,12 @@ class Place(Plugin):
             "place/canvasevents.js",
             "place/paletteevents.js",
             "place/websocketevents.js",
-
+        ),
+        # Optionally included admin-only modules
+        "place-admin": Module("place-admin.js",
+            "place/admin/slider.js",
+        ),
+        "place-init": Module("place-init.js",
             # entry point
             "place/init.js",
         ),

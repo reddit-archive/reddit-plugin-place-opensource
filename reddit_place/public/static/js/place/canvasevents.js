@@ -35,10 +35,7 @@
       var offsetX = canvasSize.width / 2 - x;
       var offsetY = canvasSize.height / 2 - y;
 
-      if (!Client.isZoomedIn) {
-        Client.setTargetOffset(offsetX, offsetY);
-      }
-      Client.toggleZoom();
+      Client.toggleZoom(offsetX, offsetY);
     },
   };
 });

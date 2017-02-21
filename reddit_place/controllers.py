@@ -154,7 +154,7 @@ class PlaceController(RedditController):
             "place_websocket_url": websocket_url,
             "place_canvas_width": CANVAS_WIDTH,
             "place_canvas_height": CANVAS_HEIGHT,
-            "place_cooldown": PIXEL_COOLDOWN_SECONDS,
+            "place_cooldown": 0 if c.user_is_admin else PIXEL_COOLDOWN_SECONDS,
             "place_fullscreen": is_embed or is_webview, 
         }
 
@@ -308,10 +308,12 @@ def add_canvasse(controller):
 @controller_hooks.on("js_config")
 def add_place_config(config):
     if c.site.name == PLACE_SUBREDDIT.name:
+        cooldown = 0 if c.user_is_admin else PIXEL_COOLDOWN_SECONDS
         websocket_url = websockets.make_url("/place", max_age=3600)
         config["place_websocket_url"] = websocket_url
         config["place_canvas_width"] = CANVAS_WIDTH
         config["place_canvas_height"] = CANVAS_HEIGHT
+        config["place_cooldown"] = cooldown
 
 
 @controller_hooks.on("extra_stylesheets")
@@ -323,4 +325,7 @@ def add_place_stylesheet(extra_stylesheets):
 @controller_hooks.on("extra_js_modules")
 def add_place_js_module(extra_js_modules):
     if c.site.name == PLACE_SUBREDDIT.name:
-        extra_js_modules.append("place")
+        extra_js_modules.append("place-base")
+        if c.user_is_admin:
+            extra_js_modules.append("place-admin")
+        extra_js_modules.append("place-init")
