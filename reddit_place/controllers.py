@@ -246,6 +246,12 @@ class PlaceController(RedditController):
 
         pixel = Pixel.create(c.user, color, x, y)
 
+        c.user.set_flair(
+            subreddit=PLACE_SUBREDDIT,
+            text="({x},{y}) {time}".format(x=x, y=y, time=time.time()),
+            css_class="place-%s" % color,
+        )
+
         websockets.send_broadcast(
             namespace="/place",
             type="place",
