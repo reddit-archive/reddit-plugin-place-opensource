@@ -9,6 +9,7 @@ from pylons.i18n import _
 
 from r2.controllers import add_controller
 from r2.controllers.reddit_base import RedditController
+from r2.lib import hooks
 from r2.lib import websockets
 from r2.lib.base import BaseController
 from r2.lib.errors import errors
@@ -22,6 +23,7 @@ from r2.lib.validator import (
     VModhash,
     VUser,
 )
+from r2.models import Subreddit
 
 from .models import (
     CANVAS_WIDTH,
@@ -35,9 +37,13 @@ from .pages import (
 )
 
 
+controller_hooks = hooks.HookRegistrar()
+
+
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
 PIXEL_COOLDOWN_SECONDS = 10
 PIXEL_COOLDOWN = timedelta(seconds=PIXEL_COOLDOWN_SECONDS)
+PLACE_SUBREDDIT = Subreddit._by_name("place", stale=True)
 
 
 @add_controller
@@ -265,3 +271,30 @@ def get_wait_seconds(user):
         wait_seconds = 0
 
     return wait_seconds
+
+
+@controller_hooks.on("hot.get_content")
+def add_canvasse(controller):
+    if c.site.name == PLACE_SUBREDDIT.name:
+        return PlaceCanvasse()
+
+
+@controller_hooks.on("js_config")
+def add_place_config(config):
+    if c.site.name == PLACE_SUBREDDIT.name:
+        websocket_url = websockets.make_url("/place", max_age=3600)
+        config["place_websocket_url"] = websocket_url
+        config["place_canvas_width"] = CANVAS_WIDTH
+        config["place_canvas_height"] = CANVAS_HEIGHT
+
+
+@controller_hooks.on("extra_stylesheets")
+def add_place_stylesheet(extra_stylesheets):
+    if c.site.name == PLACE_SUBREDDIT.name:
+        extra_stylesheets.append("place.less")
+
+
+@controller_hooks.on("extra_js_modules")
+def add_place_js_module(extra_js_modules):
+    if c.site.name == PLACE_SUBREDDIT.name:
+        extra_js_modules.append("place")

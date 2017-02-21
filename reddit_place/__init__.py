@@ -89,8 +89,11 @@ class Place(Plugin):
 
     def load_controllers(self):
         from reddit_place.controllers import (
+            controller_hooks,
             PlaceController,
         )
+
+        controller_hooks.register_all()
 
     def declare_queues(self, queues):
         # TODO: add any queues / bindings you need here, e.g.:
