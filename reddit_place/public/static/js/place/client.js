@@ -251,6 +251,15 @@
     },
 
     /**
+     * Clear the current color
+     * @function
+     */
+    clearColor: function() {
+      Hand.clearColor();
+      this.paletteColor = null;
+    },
+
+    /**
      * Update the current zoom level.
      * Should be non-zero to avoid weirdness.
      * @function
@@ -412,8 +421,7 @@
         function onSuccess(responseJSON, status, jqXHR) {
           Canvasse.drawTileAt(x, y, this.paletteColor);
           AudioManager.playClip(SFX_PLACE);
-          Hand.clearColor();
-          this.paletteColor = null;
+          this.clearColor();
           this.setCooldownTime(this.cooldown);
         }.bind(this),
 

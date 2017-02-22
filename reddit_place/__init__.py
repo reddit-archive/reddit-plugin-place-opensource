@@ -37,7 +37,10 @@ class Place(Plugin):
         ),
         # Optionally included admin-only modules
         "place-admin": Module("place-admin.js",
+            "place/admin/api.js",
+
             "place/admin/slider.js",
+            "place/admin/selector.js",
         ),
         "place-init": Module("place-init.js",
             # entry point

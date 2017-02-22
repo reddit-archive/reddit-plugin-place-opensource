@@ -35,5 +35,25 @@
         target.addEventListener(event, eventsDict[event], true);
       }
     },
+
+    /**
+     * Utility for wrapping a method with a sort of decorator function
+     * Used specifically from admin tools to inject behavior into some other modules
+     * @function
+     * @param {Object} target
+     * @param {string} methodName
+     * @param {function} fn
+     */
+    hijack: function(target, methodName, fn) {
+      var targetMethod = target[methodName];
+      // Overwrite the original function.  The fn function can access
+      // the original function as this.targetMethod
+      target[methodName] = function() {
+        // Give the context object a special key that points to the original function
+        target.targetMethod = targetMethod;
+        var res = fn.apply(target, arguments);
+        delete target.targetMethod;
+      };
+    },
   };
 });

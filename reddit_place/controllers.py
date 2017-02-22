@@ -16,6 +16,7 @@ from r2.lib.errors import errors
 from r2.lib.validator import (
     json_validate,
     validate,
+    VAdmin,
     VBoolean,
     VColor,
     VInt,
@@ -42,6 +43,7 @@ controller_hooks = hooks.HookRegistrar()
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 4, 1, 0, 0, tzinfo=g.tz)
 PIXEL_COOLDOWN_SECONDS = 10
 PIXEL_COOLDOWN = timedelta(seconds=PIXEL_COOLDOWN_SECONDS)
+ADMIN_RECT_DRAW_MAX_SIZE = 20
 PLACE_SUBREDDIT = Subreddit._by_name("place", stale=True)
 
 
@@ -256,6 +258,77 @@ class PlaceController(RedditController):
                 "y": y,
                 "color": color,
             }
+        )
+
+    @json_validate(
+        VUser(),    # NOTE: this will respond with a 200 with an error body
+        VAdmin(),
+        VModhash(),
+        x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
+        y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
+        width=VInt("width", min=1, max=ADMIN_RECT_DRAW_MAX_SIZE,
+                   coerce=True, num_default=1),
+        height=VInt("height", min=1, max=ADMIN_RECT_DRAW_MAX_SIZE,
+                    coerce=True, num_default=1),
+        color=VInt("color", min=0, max=15),
+    )
+    def POST_drawrect(self, responder, x, y, width, height, color):
+        if x is None:
+            # copy the error set by VNumber/VInt
+            c.errors.add(
+                error_name=errors.BAD_NUMBER,
+                field="x",
+                msg_params={
+                    "range": _("%(min)d to %(max)d") % {
+                        "min": 0,
+                        "max": CANVAS_WIDTH,
+                    },
+                },
+            )
+
+        if y is None:
+            # copy the error set by VNumber/VInt
+            c.errors.add(
+                error_name=errors.BAD_NUMBER,
+                field="y",
+                msg_params={
+                    "range": _("%(min)d to %(max)d") % {
+                        "min": 0,
+                        "max": CANVAS_HEIGHT,
+                    },
+                },
+            )
+
+        if not color:
+            c.errors.add(errors.BAD_COLOR, field="color")
+
+        if (responder.has_errors("x", errors.BAD_NUMBER) or
+                responder.has_errors("y", errors.BAD_NUMBER) or
+                responder.has_errors("color", errors.BAD_COLOR)):
+            # TODO: return 400 with parsable error message?
+            return
+
+        # prevent drawing outside of the canvas
+        width = min(CANVAS_WIDTH - x, width)
+        height = min(CANVAS_HEIGHT - y, height)
+
+        batch_payload = []
+
+        for _x in xrange(x, x + width):
+            for _y in xrange(y, y + height):
+                pixel = Pixel.create(c.user, color, _x, _y)
+                payload = {
+                    "author": c.user.name,
+                    "x": _x,
+                    "y": _y,
+                    "color": color,
+                }
+                batch_payload.append(payload)
+
+        websockets.send_broadcast(
+            namespace="/place",
+            type="batch-place",
+            payload=batch_payload,
         )
 
     @json_validate(

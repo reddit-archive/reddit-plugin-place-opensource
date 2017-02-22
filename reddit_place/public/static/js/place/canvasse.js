@@ -97,6 +97,34 @@
     },
 
     /**
+     * Fill a rectangle on the display canvas with the given color.
+     * @function
+     * @param {int} x
+     * @param {int} y
+     * @param {int} width
+     * @param {int} height
+     * @param {string} color Any valid css color string
+     */
+    drawRectToDisplay: function(x, y, width, height, color) {
+      this.ctx.fillStyle = color;
+      this.ctx.fillRect(x, y, width, height);
+      this.isDisplayDirty = true;
+    },
+
+    /**
+     * Fill a rectangle on the display canvas with the given color.
+     * @function
+     * @param {int} x
+     * @param {int} y
+     * @param {int} width
+     * @param {int} height
+     */
+    clearRectFromDisplay: function(x, y, width, height) {
+      this.ctx.clearRect(x, y, width, height);
+      this.isDisplayDirty = true;
+    },
+
+    /**
      * Draw a color to the buffer canvas
      * Does not update the display canvas. Call drawBufferToDisplay to copy
      * buffered updates to the display.
