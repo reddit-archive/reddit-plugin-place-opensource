@@ -1,4 +1,4 @@
-!r.placeModule(function hand(require) {
+!r.placeModule('hand', function(require) {
   var $ = require('jQuery');
 
   return {

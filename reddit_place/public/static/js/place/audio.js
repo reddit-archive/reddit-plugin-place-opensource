@@ -1,4 +1,4 @@
-!r.placeModule(function audio(require) {
+!r.placeModule('audio', function(require) {
   /**
    * Utility for getting the frequency of a note.
    * The formula can be found here http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html

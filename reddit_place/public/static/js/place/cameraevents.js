@@ -1,4 +1,4 @@
-!r.placeModule(function cameraevents(require) {
+!r.placeModule('cameraevents', function(require) {
   var Client = require('client');
   var Cursor = require('cursor');
 

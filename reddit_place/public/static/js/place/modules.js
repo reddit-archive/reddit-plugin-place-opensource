@@ -38,8 +38,7 @@
    * @param {function} moduleFunction A function that accepts the require
    *    function defined above as its only argument.
    */
-  r.placeModule = function(moduleFunction) {
-    var name = moduleFunction.name;
+  r.placeModule = function(name, moduleFunction) {
     var exportVal = moduleFunction(require);
     if (name) {
       modules[name] = exportVal;

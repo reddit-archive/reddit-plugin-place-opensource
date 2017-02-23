@@ -1,4 +1,4 @@
-!r.placeModule(function palette(require) {
+!r.placeModule('palette', function(require) {
   var $ = require('jQuery');
 
   // Generates the color palette UI

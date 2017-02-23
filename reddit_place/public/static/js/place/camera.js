@@ -1,4 +1,4 @@
-!r.placeModule(function camera(require) {
+!r.placeModule('camera', function(require) {
   var $ = require('jQuery');
 
   // Manages camera position and zoom level.

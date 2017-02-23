@@ -1,4 +1,4 @@
-!r.placeModule(function utils(require) {
+!r.placeModule('utils', function(require) {
   return {
     /**
      * Utility for linear interpolation between to values

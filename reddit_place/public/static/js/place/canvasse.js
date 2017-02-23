@@ -1,4 +1,4 @@
-!r.placeModule(function canvasse(require) {
+!r.placeModule('canvasse', function(require) {
   /**
    * A dict with red, green, and blue color values.  Each color
    * is an int between 0 and 255.

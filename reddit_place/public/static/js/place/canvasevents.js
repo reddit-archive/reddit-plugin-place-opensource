@@ -1,4 +1,4 @@
-!r.placeModule(function canvasevents(require) {
+!r.placeModule('canvasevents', function(require) {
   var Client = require('client');
   var Cursor = require('cursor');
 

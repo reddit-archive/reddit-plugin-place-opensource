@@ -1,4 +1,4 @@
-!r.placeModule(function websocketevents(require) {
+!r.placeModule('websocketevents', function(require) {
   var World = require('world');
 
   // Events pushed from the server over websockets, primarily representing

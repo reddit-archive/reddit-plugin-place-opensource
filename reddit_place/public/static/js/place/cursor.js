@@ -1,4 +1,4 @@
-!r.placeModule(function cursor(require) {
+!r.placeModule('cursor', function(require) {
   var Hand = require('hand');
   var lerp = require('utils').lerp;
 

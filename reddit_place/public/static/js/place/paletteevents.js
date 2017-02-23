@@ -1,4 +1,4 @@
-!r.placeModule(function paletteevents(require) {
+!r.placeModule('paletteevents', function(require) {
   var $ = require('jQuery');
   var Client = require('client');
 

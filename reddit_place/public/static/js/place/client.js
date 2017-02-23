@@ -1,4 +1,4 @@
-!r.placeModule(function client(require) {
+!r.placeModule('client', function(require) {
   var $ = require('jQuery');
   var r = require('r');
   var AudioManager = require('audio');

@@ -1,4 +1,4 @@
-!r.placeModule(function api(require) {
+!r.placeModule('api', function(require) {
   var r = require('r');
 
   // Collection of functions that call out to the backend API.

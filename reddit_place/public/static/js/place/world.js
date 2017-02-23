@@ -1,4 +1,4 @@
-!r.placeModule(function world(require) {
+!r.placeModule('world', function(require) {
   var Canvasse = require('canvasse');
   var Client = require('client');
 
