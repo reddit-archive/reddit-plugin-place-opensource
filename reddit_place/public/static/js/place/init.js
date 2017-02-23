@@ -118,10 +118,10 @@
     // avoiding merge conflicts with another branch here
     Client.setColorPalette(COLORS);
 
-    R2Server.getCanvasState().then(function(res) {
-      if (!res) { return; }
-
-      Client.setInitialState(res);
+    R2Server.getCanvasBitmapState().then(function(timestamp, canvas) {
+      // TODO - request non-cached version if the timestamp is too old
+      if (!canvas) { return; }
+      Client.setInitialState(canvas);
     });
 
     var websocket = new r.WebSocket(websocketUrl);

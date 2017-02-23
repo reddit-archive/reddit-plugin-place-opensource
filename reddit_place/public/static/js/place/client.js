@@ -1,5 +1,6 @@
 !r.placeModule(function client(require) {
   var $ = require('jQuery');
+  var r = require('r');
   var AudioManager = require('audio');
   var Camera = require('camera');
   var Canvasse = require('canvasse');
@@ -198,33 +199,27 @@
 
     /**
      * Sets the initial state of the canvas.
-     * This accepts the state directly from the API, and mutates it into
+     * This accepts a Uint8Array of color indices, and mutates it into
      * the format expected by Canvasse.setState.
      * Note that if the API payload shape changes, this will need to update.
      * @function
-     * @param {Object} state The state returned from the API
+     * @param {Object} state A Uint8Array of color indices
      */
     setInitialState: function(state) {
-      // Iterate over API response state. When the backend starts dealing
-      // with numbers instead of strings, this is where we'll need to
-      // update.
-      state.forEach(function(pixelState) {
-        // The current shape of the API payload is an array of pixels, where
-        // each pixel is an array containing x, y, and metadata; and metadata
-        // is a dict containing the color, timestamp, and fullname of the user
-        // that placed it.
+      // Iterate over API response state.
+      var canvas = [];
+      state.forEach(function(colorIndex, i) {
+        // The current shape of the API payload is a bitmap of pixels, where
+        // each pixel is a color index to be used as reference in a palette.
+        //
+        // Canvasse expects an array of [x, y, hexColor]
+        var x = i % r.config.place_canvas_width;
+        var y = Math.floor(i / r.config.place_canvas_width);
+        var hexColorString = this.getPaletteColor(colorIndex);
+        canvas.push([x, y, hexColorString]);
+      }.bind(this));
 
-        // TODO - when the backend starts sending numbers, this will need to get
-        // the color string out of the palette using getPaletteColor
-        var hexColorString = pixelState[2].color;
-
-        // Canvasse expects the same format, but with the color object as the
-        // third item in the pixel array.  Since we  don't need the response
-        // data anywhere else, I'll just mutate it.
-        pixelState[2] = hexColorString;
-      });
-
-      Canvasse.setState(state);
+      Canvasse.setState(canvas);
     },
 
     /**
@@ -405,7 +400,7 @@
       // Disable to prevent further draw actions until the API request resolves.
       this.disable();
 
-      R2Server.draw(x, y, this.paletteColor).then(
+      R2Server.draw(x, y, this.colorIndex).then(
         // On success, draw the tile.  Will need to play with this to see
         // if the delay is too noticeable, otherwise we may want to
         // optimistically update the canvas and then undo on error.

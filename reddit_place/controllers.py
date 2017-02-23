@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+import struct
+import time
 
 from pylons import app_globals as g
 from pylons import tmpl_context as c
@@ -82,7 +84,7 @@ class PlaceController(RedditController):
         VModhash(),
         x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
         y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
-        color=VColor("color"),
+        color=VInt("color", min=0, max=15),
     )
     def POST_draw(self, responder, x, y, color):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
@@ -162,6 +164,47 @@ class PlaceController(RedditController):
     )
     def GET_state(self, responder):
         return [(x, y, d) for (x, y), d in Pixel.get_canvas().iteritems()]
+
+    def GET_board_bitmap(self):
+
+        # Make a blank board
+        bitmap = ['\x00'] * CANVAS_HEIGHT * CANVAS_HEIGHT
+        timestamp = time.time()
+
+        # Fill in the pixels that have been set
+        for (x, y), d in Pixel.get_canvas().iteritems():
+            color = d.get('color')
+
+            # If the color wasn't found, we'll just blank it.
+            color = 0 if not color else color
+
+            # We're putting 2 integers into a single byte.  If the integer is
+            # an odd number, we can just OR it onto the byte, since we want it
+            # at the end.  If it's an even number, it needs to go at the
+            # beginning of the byte, so we shift it first.
+            offset = y * CANVAS_WIDTH + x
+            if offset % 2 == 0:
+                color = color << 4
+
+            # Update the color in the bitmap.  Because division rounds down, we
+            # can simply divide by 2 to find the correct byte in the bitmap.
+            bitmap_idx = offset / 2
+            updated_bitmap_int = ord(bitmap[bitmap_idx]) | color
+            packed_color = struct.pack('B', updated_bitmap_int)
+            bitmap[bitmap_idx] = packed_color
+
+        # We plan on heavily caching this board bitmap.  We include the
+        # timestamp as a 32 bit uint at the beginning so the client can make a
+        # determination as to whether the cached state is too old.  If it's too
+        # old, the client will hit the non-fastly-cached endpoint directly.
+        return [struct.pack('I', int(timestamp))] + bitmap
+
+    def GET_board_bitmap_cached(self):
+        board_bitmap = g.gencache.get('place:board_bitmap')
+        if not board_bitmap:
+            board_bitmap = self.GET_board_bitmap()
+            g.gencache.set('place:board_bitmap', board_bitmap, time=1)
+        return board_bitmap
 
 
 def get_wait_seconds(user):
