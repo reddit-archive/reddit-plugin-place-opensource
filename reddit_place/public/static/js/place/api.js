@@ -32,32 +32,65 @@
     getCanvasBitmapState: function() {
       var dfd = $.Deferred();
 
-      // Make request for board bitmap
-      var oReq = new XMLHttpRequest();
-      oReq.responseType = "arraybuffer";
-      resp = oReq.open("GET", "/api/place/board-bitmap", true);
-      oReq.onload = function (oEvent) {
+      var timestamp;
+      var canvas = new Uint8Array(r.config.place_canvas_width * r.config.place_canvas_height);
+      var offset = 0;
 
-        var arrayBuffer = oReq.response;
-        if (!arrayBuffer) { dfd.resolve(); }
-
-        // Parse the bitmap as a series of bytes, each byte containing 2
-        // uint4s representing the color index of the pixel.
-        var timestamp = new Uint32Array(arrayBuffer, 0, 1);
-        var canvasBitmap = new Uint8Array(arrayBuffer, timestamp.BYTES_PER_ELEMENT * timestamp.length);
-        var canvas = [];
-        for (var i = 0; i < canvasBitmap.byteLength; i++) {
-
-          // Get the left pixel (first 4 bits) from the byte
-          canvas.push(canvasBitmap[i] >> 4);
-
-          // Get the right pixel (last 4 bits) from the byte
-          canvas.push(canvasBitmap[i] & 15);
-
+      /**
+       * Handle a single "chunk" or response data.
+       * This modifies the local timestamp, canvas, and offset variables.
+       * @function
+       * @param {Uint8Array} responseArray
+       */
+      function handleChunk(responseArray) {
+        // If we haven't set the timestamp yet, slice it off of this chunk
+        if (!timestamp) {
+          timestamp = (new Uint32Array(responseArray.buffer, 0, 1))[0],
+          responseArray = new Uint8Array(responseArray.buffer, 4);
         }
-        dfd.resolve(timestamp, new Uint8Array(canvas));
-      };
-      oReq.send(null);
+        // Each byte in the responseArray represents two values in the canvas
+        for (var i = 0; i < responseArray.byteLength; i++) {
+          canvas[offset + 2 * i] = responseArray[i] >> 4;
+          canvas[offset + 2 * i + 1] = responseArray[i] & 15;
+        }
+        offset += responseArray.byteLength * 2;
+      }
+
+      if (window.fetch) {
+        // If the fetch API is available, use it so we can process the response
+        // in chunks as it comes in.
+        // TODO - should we render the board as it streams in?
+        fetch("/api/place/board-bitmap", { credentials: 'include' })
+          .then(function(res) {
+            function next(reader) {
+              reader.read().then(function(chunk) {
+                if (chunk.done) {
+                  dfd.resolve(timestamp, canvas);
+                } else {
+                  handleChunk(chunk.value);
+                  next(reader);
+                }
+              });
+            }
+            next(res.body.getReader());
+          });
+      } else {
+        // Fall back to using a normal XHR request.
+        var oReq = new XMLHttpRequest();
+        oReq.responseType = "arraybuffer";
+        var resp = oReq.open("GET", "/api/place/board-bitmap", true);
+
+        oReq.onload = function (oEvent) {
+          var arrayBuffer = oReq.response;
+          if (!arrayBuffer) { dfd.resolve(); }
+          var responseArray = new Uint8Array(arrayBuffer);
+          handleChunk(responseArray);
+          dfd.resolve(timestamp, canvas);
+        };
+
+        oReq.send(null);
+      }
+
       return dfd.promise();
     },
 
