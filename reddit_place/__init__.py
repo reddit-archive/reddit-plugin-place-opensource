@@ -74,14 +74,14 @@ class Place(Plugin):
         # endpoint with no caching whatsoever.
         #
         # Cached by fastly
-        mc("/api/place/board-bitmap", controller="place",
+        mc("/api/place/board-bitmap", controller="loggedoutplace",
            action="board_bitmap", conditions={"function": not_in_sr})
         # Straight from Cassandra.  The same endpoint as above, but not cached
         # by fastly.
-        mc("/api/place/board-bitmap/nocache", controller="place",
+        mc("/api/place/board-bitmap/nocache", controller="loggedoutplace",
            action="board_bitmap", conditions={"function": not_in_sr})
         # Cached by memcached
-        mc("/api/place/board-bitmap/cached", controller="place",
+        mc("/api/place/board-bitmap/cached", controller="loggedoutplace",
            action="board_bitmap_cached", conditions={"function": not_in_sr})
 
         mc("/api/place/:action", controller="place",
