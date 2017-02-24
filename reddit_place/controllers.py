@@ -18,7 +18,6 @@ from r2.lib.validator import (
     validate,
     VBoolean,
     VColor,
-    VEmployee,
     VInt,
     VModhash,
     VUser,
@@ -135,8 +134,19 @@ class LoggedOutPlaceController(BaseController):
 
 @add_controller
 class PlaceController(RedditController):
+    def pre(self):
+        RedditController.pre(self)
+
+        if not c.user.employee:
+            self.abort403()
+
+        if c.user.in_timeout:
+            self.abort403()
+
+        if c.user._spam:
+            self.abort403()
+
     @validate(
-        VEmployee(),
         is_embed=VBoolean("is_embed"),
         is_webview=VBoolean("webview", default=False),
     )
@@ -174,7 +184,6 @@ class PlaceController(RedditController):
 
     @json_validate(
         VUser(),    # NOTE: this will respond with a 200 with an error body
-        VEmployee(),
         VModhash(),
         x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
         y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
@@ -182,6 +191,9 @@ class PlaceController(RedditController):
     )
     def POST_draw(self, responder, x, y, color):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
+            self.abort403()
+
+        if PLACE_SUBREDDIT.is_banned(c.user):
             self.abort403()
 
         if x is None:
@@ -247,7 +259,6 @@ class PlaceController(RedditController):
 
     @json_validate(
         VUser(),
-        VEmployee(),
     )
     def GET_time_to_wait(self, responder):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
@@ -262,9 +273,7 @@ class PlaceController(RedditController):
             "wait_seconds": wait_seconds,
         }
 
-    @json_validate(
-        VEmployee(),
-    )
+    @json_validate()
     def GET_state(self, responder):
         return [(x, y, d) for (x, y), d in Pixel.get_canvas().iteritems()]
 
