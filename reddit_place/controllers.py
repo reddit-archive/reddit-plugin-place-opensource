@@ -219,7 +219,11 @@ class PlaceController(RedditController):
             # TODO: return 400 with parsable error message?
             return
 
-        wait_seconds = get_wait_seconds(c.user)
+        if c.user_is_admin:
+            wait_seconds = 0
+        else:
+            wait_seconds = get_wait_seconds(c.user)
+
         if wait_seconds > 2:
             response.status = 429
             request.environ['extra_error_data'] = {
@@ -249,8 +253,13 @@ class PlaceController(RedditController):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
             self.abort403()
 
+        if c.user_is_admin:
+            wait_seconds = 0
+        else:
+            wait_seconds = get_wait_seconds(c.user)
+
         return {
-            "wait_seconds": get_wait_seconds(c.user),
+            "wait_seconds": wait_seconds,
         }
 
     @json_validate(
