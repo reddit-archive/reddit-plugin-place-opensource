@@ -168,7 +168,15 @@ class PlaceController(RedditController):
     def GET_board_bitmap(self):
 
         # Make a blank board
-        bitmap = ['\x00'] * CANVAS_HEIGHT * CANVAS_HEIGHT
+        #
+        # We add 1 to the total number of canvas blocks in case the end
+        # result is an odd number, which python will round down when we
+        # divide by 2.
+        #
+        # Thus, a 3x3 board (with 9 total pixels) would correctly map to 5
+        # bytes, and a 4x3 board (with 12 total pixels) would still correctly
+        # map to 6 bytes.
+        bitmap = ['\x00'] * ((CANVAS_HEIGHT * CANVAS_HEIGHT + 1) / 2)
         timestamp = time.time()
 
         # Fill in the pixels that have been set
