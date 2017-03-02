@@ -44,10 +44,10 @@ PIXEL_COOLDOWN = timedelta(seconds=PIXEL_COOLDOWN_SECONDS)
 class LoggedOutPlaceController(BaseController):
     # We want to be able to cache some endpoints regardless of whether or not
     # the user is logged in.  For this, we need to inherit from
-    # BaseController.
+    # BaseController.  This lets us avoid the cache poisoning and logged in
+    # checks embedded in MinimalController that would prevent caching.
 
-    def GET_board_bitmap(self):
-
+    def _get_board_bitmap(self):
         # Make a blank board
         #
         # We add 1 to the total number of canvas blocks in case the end
@@ -88,12 +88,43 @@ class LoggedOutPlaceController(BaseController):
         # old, the client will hit the non-fastly-cached endpoint directly.
         return ''.join([struct.pack('I', int(timestamp))] + bitmap)
 
-    def GET_board_bitmap_cached(self):
+    def GET_board_bitmap_fastly_cached(self):
+        """
+        Get board bitmap with cache control headers set to be cached by fastly.
+        """
+        response.headers['Cache-Control'] = 'max-age=1'
+        return self._get_board_bitmap()
+
+    def GET_board_bitmap_mc_cached(self):
+        """
+        Get board bitmap cached by memcache.
+
+        This explicitly sets headers to not allow fastly caching, since if we
+        are hitting this endpoint that means fastly has started serving stale
+        data.
+        """
+        response.headers['Cache-Control'] = 'private'
         board_bitmap = g.gencache.get('place:board_bitmap')
         if not board_bitmap:
-            board_bitmap = self.GET_board_bitmap()
+            board_bitmap = self._get_board_bitmap()
             g.gencache.set('place:board_bitmap', board_bitmap, time=1)
         return board_bitmap
+
+    def GET_board_bitmap_nocache(self):
+        """
+        Get board bitmap with headers set to avoid fastly caching.
+        """
+        response.headers['Cache-Control'] = 'private'
+        return self._get_board_bitmap()
+
+    def post(self):
+
+        # This should never happen.  Our routes should never be changing the
+        # login status of a user.  Still, since we plan on heavily caching
+        # these routes, it's better safe than sorry.  We don't want to
+        # accidentally cache sensitive information.
+        for k, v in response.headers.iteritems():
+            assert k != 'Set-Cookie'
 
 
 @add_controller
