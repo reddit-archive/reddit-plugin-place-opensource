@@ -60,9 +60,16 @@
     enabled: true,
 
     init: function() {
-      this.audioCtx = new window.AudioContext();
-      this.audioGain = this.audioCtx.createGain();
-      this.audioGain.connect(this.audioCtx.destination);
+      var AudioContext = window.AudioContext // Default
+        || window.webkitAudioContext; // Safari and old versions of Chrome
+
+      if (AudioContext) {
+        this.audioCtx = new AudioContext();
+        this.audioGain = this.audioCtx.createGain();
+        this.audioGain.connect(this.audioCtx.destination);
+      } else {
+        this.enabled = false;
+      }
     },
 
     /**
