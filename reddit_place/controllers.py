@@ -283,6 +283,13 @@ class PlaceController(RedditController):
     def GET_state(self, responder):
         return [(x, y, d) for (x, y), d in Pixel.get_canvas().iteritems()]
 
+    @json_validate(
+        x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
+        y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
+    )
+    def GET_pixel(self, responder, x, y):
+        return Pixel.get_pixel_at(x, y)
+
 
 def get_wait_seconds(user):
     last_pixel_dt = Pixel.get_last_placement_datetime(user)

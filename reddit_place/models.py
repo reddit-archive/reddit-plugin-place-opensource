@@ -52,6 +52,22 @@ class Pixel(tdb_cassandra.UuidThing):
     def get_canvas(cls):
         return Canvas.get_all()
 
+    @classmethod
+    def get_pixel_at(cls, x, y):
+        pixel_dict = Canvas.get(x, y)
+        if not pixel_dict:
+            return None
+
+        return cls(
+            canvas_id=CANVAS_ID,
+            user_name=pixel_dict["user_name"],
+            user_fullname=pixel_dict["user_fullname"],
+            color=pixel_dict["color"],
+            x=x,
+            y=y,
+            timestamp=pixel_dict["timestamp"],
+        )
+
 
 class PixelsByParticipant(tdb_cassandra.View):
     _use_db = True
@@ -120,6 +136,18 @@ class Canvas(tdb_cassandra.View):
             })
         }
         cls._cf.insert(cls._rowkey(), columns)
+
+    @classmethod
+    def get(cls, x, y):
+        column = (x, y)
+        try:
+            row = cls._cf.get(cls._rowkey(), columns=[column])
+        except tdb_cassandra.NotFoundException:
+            return {}
+
+        d = row.get(column, '{}')
+        pixel_dict = json.loads(d)
+        return pixel_dict
 
     @classmethod
     def get_all(cls):
