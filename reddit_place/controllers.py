@@ -66,12 +66,7 @@ class LoggedOutPlaceController(BaseController):
         timestamp = time.time()
 
         # Fill in the pixels that have been set
-        for (x, y), d in Pixel.get_canvas().iteritems():
-            color = d.get('color')
-
-            # If the color wasn't found, we'll just blank it.
-            color = 0 if not color else color
-
+        for (x, y), color in Pixel.get_canvas().iteritems():
             # We're putting 2 integers into a single byte.  If the integer is
             # an odd number, we can just OR it onto the byte, since we want it
             # at the end.  If it's an even number, it needs to go at the
