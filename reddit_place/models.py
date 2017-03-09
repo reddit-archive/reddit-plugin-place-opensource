@@ -59,10 +59,8 @@ class Pixel(tdb_cassandra.UuidThing):
         if not pixel_dict:
             return None
 
-        return cls(
-            canvas_id=CANVAS_ID,
+        return dict(
             user_name=pixel_dict["user_name"],
-            user_fullname=pixel_dict["user_fullname"],
             color=pixel_dict["color"],
             x=x,
             y=y,
