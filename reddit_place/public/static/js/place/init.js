@@ -170,8 +170,8 @@
 
     // TODO - make less shitty
     var shittyMuteButton = document.getElementById('place-mute-button');
-    var muteButton = "🔇";
-    var unmuteButton = "🔊";
+    var unmuteButton = "🔇";
+    var muteButton = "🔊";
     $(shittyMuteButton).text(muteButton);
     bindEvents(shittyMuteButton, {
       'click': function() {
