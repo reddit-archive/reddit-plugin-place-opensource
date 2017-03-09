@@ -28,7 +28,7 @@ out to functions on the external nodes when appropriate.
 
 Module           | Requires...
 -----------------|---------------------------------------------------------
-client           | api, audio, camera, canvasse, hand
+client           | api, audio, camera, canvasse, hand, notification
 world            | canvasse
 cursor           | hand
 
@@ -46,3 +46,4 @@ canvasse         | DOM ($canvas)
 hand             | DOM ($hand)
 palette          | DOM ($palette)
 api              | XHR (r2)
+notifications    | Notification

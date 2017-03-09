@@ -5,6 +5,7 @@
   var Camera = require('camera');
   var Canvasse = require('canvasse');
   var Hand = require('hand');
+  var Notifications = require('notifications');
   var R2Server = require('api');
   var lerp = require('utils').lerp;
 
@@ -422,7 +423,9 @@
           Canvasse.drawTileAt(x, y, this.paletteColor);
           AudioManager.playClip(SFX_PLACE);
           this.clearColor();
-          this.setCooldownTime(this.cooldown);
+          this.setCooldownTime(this.cooldown).then(function() {
+            Notifications.sendNotification('Your next tile is now available');
+          });
         }.bind(this),
 
         // Handle API errors.

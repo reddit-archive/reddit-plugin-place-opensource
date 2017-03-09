@@ -22,6 +22,7 @@ class Place(Plugin):
             "place/camera.js",
             "place/canvasse.js",
             "place/hand.js",
+            "place/notifications.js",
             "place/palette.js",
 
             # 'internal node' modules, only dependant on 'exit nodes'

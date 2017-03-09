@@ -11,6 +11,7 @@
   var Client = require('client');
   var Cursor = require('cursor');
   var Hand = require('hand');
+  var Notifications = require('notifications');
   var Palette = require('palette');
   var PaletteEvents = require('paletteevents');
   var R2Server = require('api');
@@ -86,6 +87,8 @@
     if (isUserLoggedIn) {
       Palette.init(palette, COLORS);
     }
+
+    Notifications.init();
 
     var halfWidth = canvasWidth / 2;
     var halfHeight = canvasHeight / 2;
