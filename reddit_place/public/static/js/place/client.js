@@ -431,7 +431,7 @@
           // Handle ratelimit, enable after wait_seconds.
           // TODO - may want to do some UI treatment to show the user that they
           // can't interact.
-          var cooldownTime = 1000 * res.wait_seconds;
+          var cooldownTime = 1000 * jqXHR.responseJSON.wait_seconds;
           this.setCooldownTime(cooldownTime);
         }.bind(this)
       );
