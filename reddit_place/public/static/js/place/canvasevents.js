@@ -21,8 +21,10 @@
       if (!Client.isZoomedIn) {
         var offset = Client.getOffsetFromCameraLocation(x, y);
         Client.toggleZoom(offset.x, offset.y);
-      } else {
+      } else if (Client.hasColor()) {
         Client.drawTile(x, y);
+      } else {
+        Client.inspectTile(x, y);
       }
     },
 

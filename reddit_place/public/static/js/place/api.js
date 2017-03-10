@@ -120,5 +120,24 @@
         return 1000 * responseJSON.wait_seconds
       });
     },
+
+    /**
+     * Get info about the current pixel.
+     * @function
+     * @param {int} x,
+     * @param {int} y,
+     * @returns {Promise}
+     */
+    getPixelInfo: function(x, y) {
+      return r.ajax({
+        url: '/api/place/pixel.json',
+        headers: injectedHeaders,
+        type: 'GET',
+        data: {
+          x: x,
+          y: y,
+        },
+      });
+    },
   };
 });

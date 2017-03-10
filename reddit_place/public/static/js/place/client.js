@@ -456,6 +456,25 @@
     },
 
     /**
+     * Get info about the tile at the given coordinates.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    inspectTile: function(x, y) {
+      R2Server.getPixelInfo(x, y).then(
+        // TODO - actually do something with this info in the UI.
+        function onSuccess(responseJSON, status, jqXHR) {
+          console.log(responseJSON);
+        },
+
+        function onError(jqXHR, status, statusText) {
+          console.error(jqXHR);
+        }
+      )
+    },
+
+    /**
      * Toggles between the two predefined zoom levels.
      * @function
      * @param {number} offsetX
