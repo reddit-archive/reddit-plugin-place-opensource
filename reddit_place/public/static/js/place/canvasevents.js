@@ -25,6 +25,13 @@
       // We don't actually want the OS contextual menu.
       e.preventDefault();
 
+      // If holding a color, the right click will drop it instead of toggling
+      // zoom levels.
+      if (Client.hasColor()) {
+        Client.clearColor();
+        return;
+      }
+
       var x = Math.round(e.offsetX);
       var y = Math.round(e.offsetY);
 

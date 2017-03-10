@@ -36,7 +36,8 @@
     ZOOM_MAX_SCALE: 40,
     ZOOM_MIN_SCALE: 4,
 
-    color: null,
+    colorIndex: null,
+    paletteColor: null,
     cooldown: 0,
     cooldownEndTime: 0,
     cooldownPromise: null,
@@ -255,9 +256,23 @@
      * Clear the current color
      * @function
      */
-    clearColor: function() {
+    clearColor: function(playSFX) {
+      playSFX = playSFX === undefined ? true : playSFX;
+
       Hand.clearColor();
       this.paletteColor = null;
+      
+      if (playSFX) {
+        AudioManager.playClip(SFX_DROP);
+      }
+    },
+
+    /**
+     * Returns whether or not the user is "holding" a color.
+     * @returns {boolean}
+     */
+    hasColor: function() {
+      return this.paletteColor !== null;
     },
 
     /**
@@ -422,7 +437,7 @@
         function onSuccess(responseJSON, status, jqXHR) {
           Canvasse.drawTileAt(x, y, this.paletteColor);
           AudioManager.playClip(SFX_PLACE);
-          this.clearColor();
+          this.clearColor(false);
           this.setCooldownTime(this.cooldown).then(function() {
             Notifications.sendNotification('Your next tile is now available');
           });
