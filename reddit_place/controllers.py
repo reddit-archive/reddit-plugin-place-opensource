@@ -217,7 +217,7 @@ class PlaceController(RedditController):
                 },
             )
 
-        if not color:
+        if color is None:
             c.errors.add(errors.BAD_COLOR, field="color")
 
         if (responder.has_errors("x", errors.BAD_NUMBER) or
