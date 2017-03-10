@@ -514,6 +514,14 @@
 
     injectHeaders: function(headers) {
       R2Server.injectHeaders(headers);
-    }
+    },
+
+    /**
+     * Sets the AudioManager volume globally.
+     */
+    setVolume: function(volume) {
+      AudioManager.setGlobalVolume(volume);
+      AudioManager.playClip(SFX_SELECT);
+    },
   };
 });

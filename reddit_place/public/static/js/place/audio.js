@@ -116,9 +116,15 @@
      * @param {ClipNote[]} audioClip A 2d array, where the inner arrays
      *    each contain a frequency as the first item and a duration (in seconds)
      *    as the second.
+     * @param {number} [volume] optionally sets the volume.  Should be a float
+     *    between 0 (muted) and 1 (full volume).  Defaults to globalVolume.
      */
-    playClip: function(audioClip) {
+    playClip: function(audioClip, volume) {
       if (!this.enabled) { return }
+
+      volume = volume === undefined ? this.globalVolume : Math.max(0, Math.min(1, volume));
+
+      this.audioGain.gain.value = volume;
 
       var currentTime = this.audioCtx.currentTime;
 
@@ -162,6 +168,16 @@
         var frequency = Keys[key] || 0;
         return [frequency, duration];
       });
+    },
+
+    /**
+     * Set the default volume for all clips played via playClip.
+     * @function
+     * @param {number} volume sets globalVolume.  Should be a float
+     *    between 0 (muted) and 1 (full volume)
+     */
+    setGlobalVolume: function(volume) {
+      this.globalVolume = Math.min(1, Math.max(0, volume));
     },
   };
 });

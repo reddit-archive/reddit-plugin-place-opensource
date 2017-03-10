@@ -174,18 +174,28 @@
 
     // TODO - make less shitty
     var shittyMuteButton = document.getElementById('place-mute-button');
-    var unmuteButton = "🔇";
-    var muteButton = "🔊";
-    $(shittyMuteButton).text(muteButton);
+    var volumeIcons = ['🔇', '🔈', '🔉', '🔊'];
+    var volumeLevels = [0, .01, .1, 1];
+    var currentIndex = 2;
+
+    AudioManager.setGlobalVolume(volumeLevels[currentIndex]);
+    $(shittyMuteButton).text(volumeIcons[currentIndex]);
+    
     bindEvents(shittyMuteButton, {
       'click': function() {
-        if (AudioManager.enabled) {
+        currentIndex -= 1;
+        if (currentIndex < 0) currentIndex = volumeLevels.length - 1;
+
+        var volume = volumeLevels[currentIndex];
+        
+        AudioManager.setGlobalVolume(volume);
+        if (!volume) {
           AudioManager.disable();
-          $(shittyMuteButton).text(unmuteButton);
         } else {
           AudioManager.enable();
-          $(shittyMuteButton).text(muteButton);
         }
+
+        $(shittyMuteButton).text(volumeIcons[currentIndex]);
       },
     });
 
