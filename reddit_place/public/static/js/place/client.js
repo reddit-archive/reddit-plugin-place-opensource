@@ -5,6 +5,7 @@
 
   var AudioManager = require('audio');
   var Camera = require('camera');
+  var CameraButton = require('camerabutton');
   var Canvasse = require('canvasse');
   var Hand = require('hand');
   var Inspector = require('inspector');
@@ -39,8 +40,48 @@
   var SFX_ZOOM_OUT = SFX_DROP;
   var SFX_ZOOM_IN = SFX_ZOOM_OUT.slice().reverse();
 
+  // Used to keep a list of the most recent n pixel updates received.
+  var recentTiles = [];
+  var recentTilesIndex = 0;
+  var maxrecentTilesLength = 100;
+
+  var autoCameraIntervalToken;
+
+  var B = 0;
+  var k = 1;
+  var f = .5;
+  var g = 1;
+
+  /**
+   * Rossmo Formula.
+   * https://en.wikipedia.org/wiki/Rossmo%27s_formula
+   * Using this as a rough way of determining where the most interesting part
+   * of the board might be.
+   * @param {Object} a { x, y } coordinate object 
+   * @param {Object[]} ns array of { x, y } coordinate objects
+   * @param {number} B "buffer" zone size
+   * @param {number} k used to scale the entire results.  Essentially
+   *    meaningless in this context since we're just selecting the max anyway.
+   *    Anything greater than 0 should be fine.
+   * @param {number} f configurable value, I don't understand it.
+   * @param {number} g configurable value, I don't understand it.
+   */
+  function rossmoFormula(a, ns, B, k, f, g) {
+    return k * ns.reduce(function(acc, n) {
+      const d = Math.abs(a.x - n.x) + Math.abs(a.y - n.y)
+      if (!d) {
+        return acc; // not sure if I need the 1 there
+      } else if (d > B) {
+        return acc + 1 / Math.pow(d, f);
+      } else {
+        return acc + Math.pow(B, g - f) / Math.pow(d, g);
+      }
+    }, 0); // not sure if this ought to be at least 1
+  }
+
   // Handles actions the local user takes.
   return {
+    AUTOCAMERA_INTERVAL: 3000,
     ZOOM_LERP_SPEED: .2,
     PAN_LERP_SPEED: .4,
     ZOOM_MAX_SCALE: 40,
@@ -67,6 +108,7 @@
     ],
 
     state: null,
+    autoCameraEnabled: false,
     colorIndex: null,
     paletteColor: null,
     cooldown: 0,
@@ -726,6 +768,102 @@
       if (Inspector.isVisible) {
         Inspector.hide();
       }
+    },
+
+    /*
+     * Track the position of a recently added tile.
+     * This is called by the world module and used to power the auto-camera
+     * feature
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    trackRecentTile: function(x, y) {
+      // TODO - may be worth measuring the impact of doing this constantly,
+      // and skip it when auto-camera is disabled (which is the default).
+      if (recentTiles[recentTilesIndex]) {
+        // recycle existing objects once the list is full
+        recentTiles[recentTilesIndex].x = x;
+        recentTiles[recentTilesIndex].x = y;
+      } else {
+        recentTiles[recentTilesIndex] = { x: x, y: y }
+      }
+      recentTilesIndex = (recentTilesIndex + 1) % maxrecentTilesLength;
+    },
+
+    /**
+     * Toggle the auto-camera feature
+     * @function
+     */
+    toggleAutoCamera: function() {
+      if (this.autoCameraEnabled) {
+        this.disableAutoCamera();
+      } else {
+        this.enableAutoCamera();
+      }
+    },
+
+    /**
+     * Turn on the auto-camera feature.
+     * This will attempt to move the camera to a "hot spot" at a regular
+     * interval.  It uses Rossmo's formula to identify 1 pixel out of the most
+     * recent n (currently 100) that is most likely to be the most interesting.
+     * The same formula can be used to find serial killers, or sharks.  Neat!
+     * @function.
+     */
+    enableAutoCamera: function() {
+      if (this.autoCameraEnabled) { return }
+      this.autoCameraEnabled = true;
+      CameraButton.showDisable();
+
+      autoCameraIntervalToken = setInterval(function() {
+        var maxScore = 0;
+        var winningIndex = 0;
+
+        var tile, score;
+        for (var i = 0; i < recentTiles.length; i++) {
+          tile = recentTiles[i];
+          score = rossmoFormula(tile, recentTiles, B, k, f, g);
+          // TODO - we probably actually want to weight this by distance
+          // from current camera location, so that a smaller, but still
+          // significant activity nearby takes priority over a slightly bigger
+          // one farther away.
+          if (score > maxScore) {
+            maxScore = score;
+            winningIndex = i;
+          }
+        }
+
+        if (tile) {
+          this.setTargetCameraLocation(tile.x, tile.y);
+        }
+      }.bind(this), this.AUTOCAMERA_INTERVAL);
+    },
+
+    /**
+     * Turn of the auto-camera feature.
+     */
+    disableAutoCamera: function() {
+      if (!this.autoCameraEnabled) { return }
+      this.autoCameraEnabled = false;
+      CameraButton.showEnable();
+
+      clearInterval(autoCameraIntervalToken);
+    },
+
+    /**
+     * Truncate the list of recent pixels used by the autoCamera feature.
+     */
+    clearrecentTiles: function() {
+      recentTiles.length = 0;
+      recentTilesIndex = 0;
+    },
+
+    /**
+     * Used to disable some features when the user interacts
+     */
+    touch: function(x, y) {
+      this.disableAutoCamera();
     },
   };
 });

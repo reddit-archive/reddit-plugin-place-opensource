@@ -16,6 +16,8 @@
       } else {
         Canvasse.drawTileToBuffer(x, y, color);
       }
+
+      Client.trackRecentTile(x, y);
     },
 
     /**

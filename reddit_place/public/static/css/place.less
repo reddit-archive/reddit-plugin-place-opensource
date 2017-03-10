@@ -133,6 +133,7 @@
     display: none;
 }
 
+.place-camera-button,
 .place-mute-button,
 .place-zoom-button {
     background-color: rgba(0, 0, 0, .6);
@@ -146,6 +147,17 @@
     position: absolute;
     top: 10px;
     width: 40px;
+}
+
+.place-camera-button {
+    display: none;
+    top: 60px;
+    right: 10px;
+    background-image: data-uri('../place_camera_track_on.png');
+
+    &.place-following {
+        background-image: data-uri('../place_camera_track_off.png');
+    }
 }
 
 .place-zoom-button {

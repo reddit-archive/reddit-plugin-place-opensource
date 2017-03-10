@@ -5,6 +5,8 @@
   var AudioManager = require('audio');
   var bindEvents = require('utils').bindEvents;
   var Camera = require('camera');
+  var CameraButton = require('camerabutton');
+  var CameraButtonEvents = require('camerabuttonevents');
   var CameraEvents = require('cameraevents');
   var CanvasEvents = require('canvasevents');
   var Canvasse = require('canvasse');
@@ -56,6 +58,7 @@
 
     var viewer = document.getElementById('place-viewer');
     var camera = document.getElementById('place-camera');
+    var cameraButton = document.getElementById('place-camera-button');
     var canvas = document.getElementById('place-canvasse');
     var palette = document.getElementById('place-palette');
     var hand = document.getElementById('place-hand');
@@ -87,6 +90,7 @@
 
 
     Canvasse.init(canvas, canvasWidth, canvasHeight);
+    CameraButton.init(cameraButton);
     Hand.init(hand, handSwatch);
     Inspector.init(inspector);
 
@@ -130,6 +134,7 @@
     bindEvents(container, CameraEvents['container']);
     bindEvents(document, CameraEvents['document']);
     bindEvents(camera, CanvasEvents);
+    bindEvents(cameraButton, CameraButtonEvents);
     bindEvents(muteButton, MuteButtonEvents);
     bindEvents(zoomButton, ZoomButtonEvents);
 
