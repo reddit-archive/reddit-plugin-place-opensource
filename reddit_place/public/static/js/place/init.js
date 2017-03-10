@@ -11,6 +11,7 @@
   var Client = require('client');
   var Cursor = require('cursor');
   var Hand = require('hand');
+  var Inspector = require('inspector');
   var Notifications = require('notifications');
   var Palette = require('palette');
   var PaletteEvents = require('paletteevents');
@@ -64,6 +65,7 @@
     var canvas = document.getElementById('place-canvasse');
     var palette = document.getElementById('place-palette');
     var hand = document.getElementById('place-hand');
+    var inspector = document.getElementById('place-inspector');
     var handSwatch = document.getElementById('place-hand-swatch');
 
     if (isFullscreen) {
@@ -83,6 +85,7 @@
 
     Canvasse.init(canvas, canvasWidth, canvasHeight);
     Hand.init(hand, handSwatch);
+    Inspector.init(inspector);
 
     if (isUserLoggedIn) {
       Palette.init(palette, COLORS);
@@ -90,14 +93,15 @@
 
     Notifications.init();
 
+    // Clamp starting coordinates to the canvas boundries
     var halfWidth = canvasWidth / 2;
     var halfHeight = canvasHeight / 2;
-    // Clamp starting coordinates to the canvas boundries
-    var startX = Math.max(-halfWidth, Math.min(halfWidth, hashParams.x|0));
-    var startY = Math.max(-halfHeight, Math.min(halfHeight, hashParams.y|0));
+    var startX = Math.max(0, Math.min(canvasWidth, hashParams.x || halfWidth));
+    var startY = Math.max(0, Math.min(canvasHeight, hashParams.y || halfHeight));
+
     // Convert those values to canvas transform offsets
     // TODO - this shouldn't be done here, it requires Canvasse.init to be called first
-    var startOffsets = Client.getOffsetFromCameraPosition(startX, startY);
+    var startOffsets = Client.getOffsetFromCameraLocation(startX, startY);
 
     Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
 

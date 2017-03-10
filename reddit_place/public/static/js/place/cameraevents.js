@@ -1,6 +1,7 @@
 !r.placeModule('cameraevents', function(require) {
   var Client = require('client');
   var Cursor = require('cursor');
+  var Inspector = require('inspector');
 
   /**
    * @typedef {Object} Coordinate
@@ -40,9 +41,14 @@
     'mousemove': function(e) {
       var coords = getCoordsFromEvent(e);
 
+
       if (!Cursor.isDown) {
         Cursor.setTargetPosition(coords.x, coords.y);
         return;
+      }
+
+      if (Inspector.isVisible) {
+        Inspector.hide();
       }
 
       // We need to undo the previous transform first

@@ -22,6 +22,7 @@ class Place(Plugin):
             "place/camera.js",
             "place/canvasse.js",
             "place/hand.js",
+            "place/inspector.js",
             "place/notifications.js",
             "place/palette.js",
 

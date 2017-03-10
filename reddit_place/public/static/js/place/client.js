@@ -5,6 +5,7 @@
   var Camera = require('camera');
   var Canvasse = require('canvasse');
   var Hand = require('hand');
+  var Inspector = require('inspector');
   var Notifications = require('notifications');
   var R2Server = require('api');
   var lerp = require('utils').lerp;
@@ -465,12 +466,22 @@
       R2Server.getPixelInfo(x, y).then(
         // TODO - actually do something with this info in the UI.
         function onSuccess(responseJSON, status, jqXHR) {
-          console.log(responseJSON);
-        },
+          if ('color' in responseJSON) {
+            this.setTargetCameraLocation(x, y);
+            Inspector.show(
+              responseJSON.x,
+              responseJSON.y,
+              responseJSON.user_name,
+              responseJSON.timestamp
+            );
+          } else if (Inspector.isVisible) {
+            Inspector.hide();
+          }
+        }.bind(this),
 
         function onError(jqXHR, status, statusText) {
           console.error(jqXHR);
-        }
+        }.bind(this)
       )
     },
 
