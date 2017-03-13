@@ -8,7 +8,10 @@ from pylons import response, request
 from pylons.i18n import _
 
 from r2.controllers import add_controller
-from r2.controllers.reddit_base import RedditController
+from r2.controllers.reddit_base import (
+        RedditController,
+        set_content_type,
+)
 from r2.lib import hooks
 from r2.lib import websockets
 from r2.lib.base import BaseController
@@ -24,6 +27,9 @@ from r2.lib.validator import (
     VUser,
 )
 from r2.models import Subreddit
+from r2.controllers.oauth2 import (
+    allow_oauth2_access,
+)
 
 from .models import (
     CANVAS_WIDTH,
@@ -147,7 +153,18 @@ class PlaceController(RedditController):
         is_embed=VBoolean("is_embed"),
         is_webview=VBoolean("webview", default=False),
     )
+    @allow_oauth2_access
     def GET_canvasse(self, is_embed, is_webview):
+        # oauth will try to force the response into json
+        # undo that here by hacking extension, content_type, and render_style
+        try:
+            del(request.environ['extension'])
+        except:
+            pass
+        request.environ['content_type'] = "text/html; charset=UTF-8"
+        request.environ['render_style'] = "html"
+        set_content_type()
+
         websocket_url = websockets.make_url("/place", max_age=3600)
 
         content = PlaceCanvasse()
@@ -157,7 +174,7 @@ class PlaceController(RedditController):
             "place_canvas_width": CANVAS_WIDTH,
             "place_canvas_height": CANVAS_HEIGHT,
             "place_cooldown": 0 if c.user_is_admin else PIXEL_COOLDOWN_SECONDS,
-            "place_fullscreen": is_embed or is_webview, 
+            "place_fullscreen": is_embed or is_webview,
         }
 
         if is_embed:
