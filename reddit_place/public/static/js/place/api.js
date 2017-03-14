@@ -1,9 +1,17 @@
 !r.placeModule('api', function(require) {
   var r = require('r');
+  var buildFullURL = function(url) {
+    if (window.location.hostname == "oauth.reddit.com") {
+      return window.location.protocol + "//www.reddit.com" + url;
+    }
+    return window.location.protocol + "//" + window.location.hostname + url;
+  };
 
   // Collection of functions that call out to the backend API.
   // All requests made to the banckend from the client are defined here.
   return {
+
+
     /**
      * POST to the draw API
      * @function
@@ -60,7 +68,7 @@
         // If the fetch API is available, use it so we can process the response
         // in chunks as it comes in.
         // TODO - should we render the board as it streams in?
-        fetch("/api/place/board-bitmap", { credentials: 'include' })
+        fetch(buildFullURL("/api/place/board-bitmap"), { credentials: 'include' })
           .then(function(res) {
             function next(reader) {
               reader.read().then(function(chunk) {
@@ -78,7 +86,7 @@
         // Fall back to using a normal XHR request.
         var oReq = new XMLHttpRequest();
         oReq.responseType = "arraybuffer";
-        var resp = oReq.open("GET", "/api/place/board-bitmap", true);
+        var resp = oReq.open("GET", buildFullURL("/api/place/board-bitmap"), true);
 
         oReq.onload = function (oEvent) {
           var arrayBuffer = oReq.response;

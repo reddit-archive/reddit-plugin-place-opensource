@@ -203,6 +203,7 @@ class PlaceController(RedditController):
         y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
         color=VInt("color", min=0, max=15),
     )
+    @allow_oauth2_access
     def POST_draw(self, responder, x, y, color):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
             self.abort403()
@@ -289,6 +290,7 @@ class PlaceController(RedditController):
                     coerce=True, num_default=1),
         color=VInt("color", min=0, max=15),
     )
+    @allow_oauth2_access
     def POST_drawrect(self, responder, x, y, width, height, color):
         if x is None:
             # copy the error set by VNumber/VInt
@@ -351,6 +353,7 @@ class PlaceController(RedditController):
     @json_validate(
         VUser(),
     )
+    @allow_oauth2_access
     def GET_time_to_wait(self, responder):
         if c.user._date >= ACCOUNT_CREATION_CUTOFF:
             self.abort403()
@@ -365,6 +368,7 @@ class PlaceController(RedditController):
         }
 
     @json_validate()
+    @allow_oauth2_access
     def GET_state(self, responder):
         return [(x, y, d) for (x, y), d in Pixel.get_canvas().iteritems()]
 
@@ -372,6 +376,7 @@ class PlaceController(RedditController):
         x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
         y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
     )
+    @allow_oauth2_access
     def GET_pixel(self, responder, x, y):
         return Pixel.get_pixel_at(x, y)
 
