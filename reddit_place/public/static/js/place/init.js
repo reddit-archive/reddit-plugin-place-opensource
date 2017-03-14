@@ -146,6 +146,7 @@
       },
 
       'touchmove': function(e) {
+        e.preventDefault();
         return CameraEvents['mousemove'](e.changedTouches[0]);
       },
 
