@@ -38,6 +38,7 @@ class Pixel(tdb_cassandra.UuidThing):
         pixel._commit()
 
         Canvas.insert_pixel(pixel)
+        MinimalCanvas.insert_pixel(pixel)
         PixelsByParticipant.add(user, pixel)
 
         g.stats.simple_event('place.pixel.create')
@@ -47,6 +48,10 @@ class Pixel(tdb_cassandra.UuidThing):
     @classmethod
     def get_last_placement_datetime(cls, user):
         return PixelsByParticipant.get_last_pixel_datetime(user)
+
+    @classmethod
+    def get_canvas(cls):
+        return MinimalCanvas.get_all()
 
     @classmethod
     def get_pixel_at(cls, x, y):
@@ -153,4 +158,32 @@ class Canvas(tdb_cassandra.View):
 
         return {
             (x, y): json.loads(d) for (x, y), d in gen
+        }
+
+
+class MinimalCanvas(tdb_cassandra.View):
+    _use_db = True
+    _connection_pool = 'main'
+    _compare_with = CompositeType(IntegerType(), IntegerType())
+    _extra_schema_creation_args = dict(default_validation_class=INT_TYPE)
+
+    @classmethod
+    def _rowkey(cls):
+        return CANVAS_ID
+
+    @classmethod
+    def insert_pixel(cls, pixel):
+        column = {(pixel.x, pixel.y): pixel.color}
+        cls._cf.insert(cls._rowkey(), column)
+
+    @classmethod
+    def get_all(cls):
+        """Return dict of (x,y) -> color"""
+        try:
+            gen = cls._cf.xget(cls._rowkey())
+        except tdb_cassandra.NotFoundException:
+            return {}
+
+        return {
+            (x, y): v for (x, y), v in gen
         }
