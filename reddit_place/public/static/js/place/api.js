@@ -103,19 +103,6 @@
     },
 
     /**
-     * GET the canvas state from the API.
-     * The payload is passed directly along to canvasse.js#setState.
-     * @function
-     * @returns {Promise}
-     */
-    getCanvasState: function() {
-      return r.ajax({
-        url: '/api/place/state.json',
-        type: 'GET',
-      });
-    },
-
-    /**
      * GET the amount of time remaining on the current user's cooldown.
      * @function
      * @returns {Promise<number>}

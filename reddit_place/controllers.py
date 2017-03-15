@@ -352,26 +352,6 @@ class PlaceController(RedditController):
             "wait_seconds": wait_seconds,
         }
 
-    @json_validate()
-    @allow_oauth2_access
-    def GET_state(self, responder):
-        # Grab the canvas from redis as a single key and iterate through each
-        # color, calculating the coordinate based on the offset.
-        canvas_bitfield = c.place_redis.get(CANVAS_ID)
-        redis_items = []
-        if canvas_bitfield:
-            for i in xrange(0, len(canvas_bitfield), 3):
-                red, green, blue = canvas_bitfield[i:i+3]
-                if red == '\x00' and green == '\x00' and blue == '\x00':
-                    continue
-                color = '#{:02x}{:02x}{:02x}'.format(
-                    ord(red), ord(green), ord(blue))
-                offset = i / 3
-                x = offset % CANVAS_WIDTH
-                y = offset / CANVAS_WIDTH
-                redis_items.append((x, y, {"color": color}))
-        return redis_items
-
     @json_validate(
         x=VInt("x", min=0, max=CANVAS_WIDTH, coerce=False),
         y=VInt("y", min=0, max=CANVAS_HEIGHT, coerce=False),
