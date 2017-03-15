@@ -6,11 +6,14 @@
     }
     return window.location.protocol + "//" + window.location.hostname + url;
   };
+  var injectedHeaders = {};
 
   // Collection of functions that call out to the backend API.
   // All requests made to the banckend from the client are defined here.
   return {
-
+    injectHeaders: function(headers) {
+      injectedHeaders = headers;
+    },
 
     /**
      * POST to the draw API
@@ -24,6 +27,7 @@
       return r.ajax({
         url: '/api/place/draw.json',
         type: 'POST',
+        headers: injectedHeaders,
         data: {
           x: x,
           y: y,
@@ -110,6 +114,7 @@
     getTimeToWait: function() {
       return r.ajax({
         url: '/api/place/time.json',
+        headers: injectedHeaders,
         type: 'GET',
       }).then(function onSuccess(responseJSON, status, jqXHR) {
         return 1000 * responseJSON.wait_seconds

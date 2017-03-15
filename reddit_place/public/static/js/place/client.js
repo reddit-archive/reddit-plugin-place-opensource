@@ -508,5 +508,9 @@
     enablePan: function() {
       this.isPanEnabled = true;
     },
+
+    injectHeaders: function(headers) {
+      R2Server.injectHeaders(headers);
+    }
   };
 });
