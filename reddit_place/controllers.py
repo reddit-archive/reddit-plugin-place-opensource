@@ -55,6 +55,13 @@ PLACE_SUBREDDIT = Subreddit._by_name("place", stale=True)
 
 @add_controller
 class LoggedOutPlaceController(BaseController):
+    def pre(self):
+        BaseController.pre(self)
+
+        if "Origin" in request.headers:
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "GET"
+
     # We want to be able to cache some endpoints regardless of whether or not
     # the user is logged in.  For this, we need to inherit from
     # BaseController.  This lets us avoid the cache poisoning and logged in
