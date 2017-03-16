@@ -63,7 +63,9 @@ class LoggedOutPlaceController(BaseController):
         BaseController.pre(self)
 
         if "Origin" in request.headers:
-            response.headers["Access-Control-Allow-Origin"] = "*"
+            oauth_origin = "https://%s" % g.oauth_domain
+            response.headers["Access-Control-Allow-Origin"] = oauth_origin
+            response.headers["Vary"] = "Origin"
             response.headers["Access-Control-Allow-Methods"] = "GET"
 
     # We want to be able to cache some endpoints regardless of whether or not
