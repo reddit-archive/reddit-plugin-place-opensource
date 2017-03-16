@@ -67,6 +67,7 @@ class LoggedOutPlaceController(BaseController):
             response.headers["Access-Control-Allow-Origin"] = oauth_origin
             response.headers["Vary"] = "Origin"
             response.headers["Access-Control-Allow-Methods"] = "GET"
+            response.headers["Access-Control-Allow-Credentials"] = "true"
 
     # We want to be able to cache some endpoints regardless of whether or not
     # the user is logged in.  For this, we need to inherit from
