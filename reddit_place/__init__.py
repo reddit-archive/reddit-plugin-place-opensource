@@ -23,6 +23,7 @@ class Place(Plugin):
             "place/canvasse.js",
             "place/hand.js",
             "place/inspector.js",
+            "place/mollyguard.js",
             "place/mutebutton.js",
             "place/notifications.js",
             "place/palette.js",

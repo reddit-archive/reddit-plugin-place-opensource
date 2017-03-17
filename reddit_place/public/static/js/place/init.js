@@ -12,6 +12,7 @@
   var Cursor = require('cursor');
   var Hand = require('hand');
   var Inspector = require('inspector');
+  var MollyGuard = require('mollyguard');
   var MuteButton = require('mutebutton');
   var MuteButtonEvents = require('mutebuttonevents');
   var Notifications = require('notifications');
@@ -71,6 +72,7 @@
     var hand = document.getElementById('place-hand');
     var inspector = document.getElementById('place-inspector');
     var handSwatch = document.getElementById('place-hand-swatch');
+    var mollyGuard = document.getElementById('place-molly-guard');
     var muteButton = document.getElementById('place-mute-button');
     var zoomButton = document.getElementById('place-zoom-button');
 
@@ -97,6 +99,7 @@
       Palette.init(palette, COLORS);
     }
 
+    MollyGuard.init(mollyGuard);
     MuteButton.init(muteButton);
     Notifications.init();
     ZoomButton.init(zoomButton);

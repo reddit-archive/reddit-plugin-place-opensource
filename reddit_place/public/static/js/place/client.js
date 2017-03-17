@@ -6,6 +6,7 @@
   var Canvasse = require('canvasse');
   var Hand = require('hand');
   var Inspector = require('inspector');
+  var MollyGuard = require('mollyguard');
   var MuteButton = require('mutebutton');
   var Notifications = require('notifications');
   var R2Server = require('api');
@@ -126,9 +127,14 @@
         this.enable();
         deferred.resolve();
         this.cooldownPromise = null;
+        MollyGuard.showUnlocked();
       }.bind(this), cooldownTime);
 
       this.cooldownPromise = deferred.promise();
+      if (cooldownTime) {
+        MollyGuard.showLocked();
+      }
+
       return this.cooldownPromise;
     },
 

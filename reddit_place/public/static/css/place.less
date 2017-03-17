@@ -71,6 +71,27 @@
     width: 30px;
 }
 
+.place-molly-guard {
+    background-color: rgba(0, 0, 0, .6);
+    background-image: data-uri('../place_icon_unlocked.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 24px 41px;
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    transition: all .3s;
+    width: 100%;
+
+    &.place-locked {
+        background-image: data-uri('../place_icon_locked.png');
+        opacity: 1;
+    }
+}
+
 
 .place-hand {
     position: absolute;
