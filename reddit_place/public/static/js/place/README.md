@@ -11,14 +11,16 @@ module generally fits into one of three categories: **entrance nodes**,
 ### Entrance nodes
 
 These modules listen to events from browser APIs, extract information from
-the event payloads, and call functions of the appropriate internal componets.
+the event payloads, and call functions of the appropriate internal or exit
+components.
 
-Module           | Listens to API      | Requires...
------------------|---------------------|--------------------------------------
-canvasevents     | Events ($camera)    | client, cursor
-cameraevents     | Events ($container) | client, cursor
-paletteevents    | Events ($palette)   | client
-websocketevents  | Websockets          | world
+Module           | Listens to API       | Requires...
+-----------------|----------------------|----------------------------------
+canvasevents     | Events ($camera)     | client, cursor
+cameraevents     | Events ($container)  | client, cursor
+mutebuttonevents | Events ($muteButton) | client
+paletteevents    | Events ($palette)    | client
+websocketevents  | Websockets           | world
 
 
 ### Internal nodes
@@ -28,7 +30,7 @@ out to functions on the external nodes when appropriate.
 
 Module           | Requires...
 -----------------|---------------------------------------------------------
-client           | api, audio, camera, canvasse, hand, inspector, notification
+client           | api, audio, camera, canvasse, hand, inspector, mutebutton, notification
 world            | canvasse
 cursor           | hand
 
@@ -45,6 +47,7 @@ camera           | DOM ($container and $camera)
 canvasse         | DOM ($canvas)
 hand             | DOM ($hand)
 inspector        | DOM ($inspector)
+mutebutton       | DOM ($muteButton)
 palette          | DOM ($palette)
 api              | XHR (r2)
 notifications    | Notification

@@ -6,6 +6,7 @@
   var Canvasse = require('canvasse');
   var Hand = require('hand');
   var Inspector = require('inspector');
+  var MuteButton = require('mutebutton');
   var Notifications = require('notifications');
   var R2Server = require('api');
   var lerp = require('utils').lerp;
@@ -36,6 +37,7 @@
     PAN_LERP_SPEED: .4,
     ZOOM_MAX_SCALE: 40,
     ZOOM_MIN_SCALE: 4,
+    VOLUME_LEVEL: .1,
 
     colorIndex: null,
     paletteColor: null,
@@ -77,6 +79,7 @@
       this.isZoomedIn = isZoomedIn !== undefined ? isZoomedIn : true;
       this.setZoom(this.isZoomedIn ? this.ZOOM_MAX_SCALE : this.ZOOM_MIN_SCALE);
       this.setOffset(panX|0, panY|0);
+      AudioManager.setGlobalVolume(this.VOLUME_LEVEL);
 
       if (!isEnabled) { return; }
 
@@ -562,9 +565,33 @@
     },
 
     /**
+     * Toggle the volume on/off
+     * @function
+     */
+    toggleVolume: function() {
+      if (AudioManager.enabled) {
+        AudioManager.disable();
+        MuteButton.showUnmute();
+      } else {
+        AudioManager.enable();
+        MuteButton.showMute();
+      }
+
+      AudioManager.playClip(SFX_SELECT);
+    },
+
+    /**
      * Sets the AudioManager volume globally.
      */
     setVolume: function(volume) {
+      if (!volume) {
+        AudioManager.disable();
+        MuteButton.showUnmute();
+      } else if (!AudioManager.globalVolume) {
+        AudioManager.enable();
+        MuteButton.showMute();
+      }
+
       AudioManager.setGlobalVolume(volume);
       AudioManager.playClip(SFX_SELECT);
     },

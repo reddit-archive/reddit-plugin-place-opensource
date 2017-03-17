@@ -23,6 +23,7 @@ class Place(Plugin):
             "place/canvasse.js",
             "place/hand.js",
             "place/inspector.js",
+            "place/mutebutton.js",
             "place/notifications.js",
             "place/palette.js",
 
@@ -31,9 +32,10 @@ class Place(Plugin):
             "place/cursor.js",
             "place/world.js",
 
-            # 'entrance node' modules, only dependant on 'internal nodes'
+            # 'entrance node' modules, only dependant on 'internal' or 'exit' nodes
             "place/cameraevents.js",
             "place/canvasevents.js",
+            "place/mutebuttonevents.js",
             "place/paletteevents.js",
             "place/websocketevents.js",
         ),

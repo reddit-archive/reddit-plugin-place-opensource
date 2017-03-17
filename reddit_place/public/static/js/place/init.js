@@ -12,6 +12,8 @@
   var Cursor = require('cursor');
   var Hand = require('hand');
   var Inspector = require('inspector');
+  var MuteButton = require('mutebutton');
+  var MuteButtonEvents = require('mutebuttonevents');
   var Notifications = require('notifications');
   var Palette = require('palette');
   var PaletteEvents = require('paletteevents');
@@ -67,6 +69,7 @@
     var hand = document.getElementById('place-hand');
     var inspector = document.getElementById('place-inspector');
     var handSwatch = document.getElementById('place-hand-swatch');
+    var muteButton = document.getElementById('place-mute-button');
 
     if (isFullscreen) {
       $(container).css({
@@ -91,6 +94,7 @@
       Palette.init(palette, COLORS);
     }
 
+    MuteButton.init(muteButton);
     Notifications.init();
 
     // Clamp starting coordinates to the canvas boundries
@@ -122,6 +126,7 @@
     // TODO - fix this weird naming?
     bindEvents(container, CameraEvents);
     bindEvents(camera, CanvasEvents);
+    bindEvents(muteButton, MuteButtonEvents);
 
     if (isUserLoggedIn) {
       bindEvents(palette, PaletteEvents);
@@ -173,33 +178,6 @@
         if (!Cursor.isUsingTouch) {
           Cursor.setTouchMode(true);
         }
-      },
-    });
-
-    // TODO - make less shitty
-    var shittyMuteButton = document.getElementById('place-mute-button');
-    var volumeIcons = ['🔇', '🔈', '🔉', '🔊'];
-    var volumeLevels = [0, .01, .1, 1];
-    var currentIndex = 2;
-
-    AudioManager.setGlobalVolume(volumeLevels[currentIndex]);
-    $(shittyMuteButton).text(volumeIcons[currentIndex]);
-    
-    bindEvents(shittyMuteButton, {
-      'click': function() {
-        currentIndex -= 1;
-        if (currentIndex < 0) currentIndex = volumeLevels.length - 1;
-
-        var volume = volumeLevels[currentIndex];
-        
-        AudioManager.setGlobalVolume(volume);
-        if (!volume) {
-          AudioManager.disable();
-        } else {
-          AudioManager.enable();
-        }
-
-        $(shittyMuteButton).text(volumeIcons[currentIndex]);
       },
     });
 

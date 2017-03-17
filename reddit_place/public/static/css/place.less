@@ -95,3 +95,16 @@
     padding: 20px;
     position: absolute;
 }
+
+.place-mute-button {
+    border: none;
+    background-color: transparent;
+    background-image: data-uri('../place_icon_audio_off.png');
+    background-size: 24px 24px;
+    background-position: center;
+    outline: none;
+
+    &.place-muted {
+        background-image: data-uri('../place_icon_audio_on.png');
+    }
+}
