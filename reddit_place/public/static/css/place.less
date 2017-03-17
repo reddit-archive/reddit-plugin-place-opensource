@@ -96,14 +96,24 @@
     position: absolute;
 }
 
-.place-mute-button {
+.place-mute-button,
+.place-zoom-button {
     border: none;
     background-color: transparent;
-    background-image: data-uri('../place_icon_audio_off.png');
     background-size: 24px 24px;
     background-position: center;
     outline: none;
+}
 
+.place-zoom-button {
+    background-image: data-uri('../place_icon_zoom_out.png');
+    &.place-zoomed-out {
+        background-image: data-uri('../place_icon_zoom_in.png');
+    }
+}
+
+.place-mute-button {
+    background-image: data-uri('../place_icon_audio_off.png');
     &.place-muted {
         background-image: data-uri('../place_icon_audio_on.png');
     }

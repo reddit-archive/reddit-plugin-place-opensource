@@ -10,6 +10,7 @@
   var Notifications = require('notifications');
   var R2Server = require('api');
   var lerp = require('utils').lerp;
+  var ZoomButton = require('zoombutton');
 
   var MAX_COLOR_INDEX = 15;
   var DEFAULT_COLOR = '#FFFFFF';
@@ -491,18 +492,22 @@
     /**
      * Toggles between the two predefined zoom levels.
      * @function
-     * @param {number} offsetX
-     * @param {number} offsetY
+     * @param {number} [offsetX]
+     * @param {number} [offsetY]
      */
     toggleZoom: function(offsetX, offsetY) {
       if (this.isZoomedIn) {
         this.setTargetZoom(this.ZOOM_MIN_SCALE);
         AudioManager.playClip(SFX_ZOOM_OUT);
+        ZoomButton.showZoomIn();
       } else {
         this.setTargetZoom(this.ZOOM_MAX_SCALE);
         // Any time we are zooming in, also center camera where the user clicked
-        this.setTargetOffset(offsetX, offsetY);
+        if (offsetX !== undefined && offsetY !== undefined) {
+          this.setTargetOffset(offsetX, offsetY);
+        }
         AudioManager.playClip(SFX_ZOOM_IN);
+        ZoomButton.showZoomOut();
       }
 
       this.isZoomedIn = this.zoom === this.ZOOM_MAX_SCALE;

@@ -19,6 +19,8 @@
   var PaletteEvents = require('paletteevents');
   var R2Server = require('api');
   var WebsocketEvents = require('websocketevents');
+  var ZoomButton = require('zoombutton');
+  var ZoomButtonEvents = require('zoombuttonevents');
 
 
   /**
@@ -70,6 +72,7 @@
     var inspector = document.getElementById('place-inspector');
     var handSwatch = document.getElementById('place-hand-swatch');
     var muteButton = document.getElementById('place-mute-button');
+    var zoomButton = document.getElementById('place-zoom-button');
 
     if (isFullscreen) {
       $(container).css({
@@ -96,6 +99,7 @@
 
     MuteButton.init(muteButton);
     Notifications.init();
+    ZoomButton.init(zoomButton);
 
     // Clamp starting coordinates to the canvas boundries
     var halfWidth = canvasWidth / 2;
@@ -127,6 +131,7 @@
     bindEvents(container, CameraEvents);
     bindEvents(camera, CanvasEvents);
     bindEvents(muteButton, MuteButtonEvents);
+    bindEvents(zoomButton, ZoomButtonEvents);
 
     if (isUserLoggedIn) {
       bindEvents(palette, PaletteEvents);

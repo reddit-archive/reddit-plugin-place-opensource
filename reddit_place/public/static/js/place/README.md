@@ -21,6 +21,7 @@ cameraevents     | Events ($container)  | client, cursor
 mutebuttonevents | Events ($muteButton) | client
 paletteevents    | Events ($palette)    | client
 websocketevents  | Websockets           | world
+zoombuttonevents | Events ($zoomButton) | client
 
 
 ### Internal nodes
@@ -49,5 +50,6 @@ hand             | DOM ($hand)
 inspector        | DOM ($inspector)
 mutebutton       | DOM ($muteButton)
 palette          | DOM ($palette)
+zoombutton       | DOM ($zoomButton)
 api              | XHR (r2)
 notifications    | Notification

@@ -26,6 +26,7 @@ class Place(Plugin):
             "place/mutebutton.js",
             "place/notifications.js",
             "place/palette.js",
+            "place/zoombutton.js",
 
             # 'internal node' modules, only dependant on 'exit nodes'
             "place/client.js",
@@ -38,6 +39,7 @@ class Place(Plugin):
             "place/mutebuttonevents.js",
             "place/paletteevents.js",
             "place/websocketevents.js",
+            "place/zoombuttonevents.js",
         ),
         # Optionally included admin-only modules
         "place-admin": Module("place-admin.js",
