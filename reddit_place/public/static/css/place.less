@@ -55,6 +55,7 @@
 .place-palette {
     background: #111111;
     bottom: 0;
+    box-sizing: border-box;
     cursor: pointer;
     left: 0;
     padding: 5px;
@@ -98,15 +99,23 @@
 
 .place-mute-button,
 .place-zoom-button {
-    border: none;
-    background-color: transparent;
-    background-size: 24px 24px;
+    background-color: rgba(0, 0, 0, .6);
     background-position: center;
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    border-radius: 50%;
+    border: none;
+    height: 40px;
     outline: none;
+    position: absolute;
+    top: 10px;
+    width: 40px;
 }
 
 .place-zoom-button {
     background-image: data-uri('../place_icon_zoom_out.png');
+    right: 10px;
+
     &.place-zoomed-out {
         background-image: data-uri('../place_icon_zoom_in.png');
     }
@@ -114,6 +123,8 @@
 
 .place-mute-button {
     background-image: data-uri('../place_icon_audio_off.png');
+    left: 10px;
+
     &.place-muted {
         background-image: data-uri('../place_icon_audio_on.png');
     }
