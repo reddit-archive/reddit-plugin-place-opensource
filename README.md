@@ -21,6 +21,12 @@ Then add the plugin to your ini file:
 +plugins = about, liveupdate, place
 ```
 
+Update your ``development.update`` file:
+
+```diff
++place_redis_url = redis://localhost:6380/
+```
+
 Finally, you'll need redis running.  You can run it in the background or in a
 screen session, or set up some fancy upstart stuff if you're crazy.
 
@@ -34,5 +40,5 @@ make
 Then run:
 
 ```bash
-src/redis-server
+src/redis-server --port 6380
 ```
