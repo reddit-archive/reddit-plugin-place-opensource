@@ -25,7 +25,10 @@ class RedisCanvas(object):
         # determination as to whether the cached state is too old.  If it's too
         # old, the client will hit the non-fastly-cached endpoint directly.
         timestamp = time.time()
-        bitmap = c.place_redis.get(CANVAS_ID)
+        # If no pixels have been placed yet, we'll get back None.  This will
+        # cause concatenation to fail below, so we turn it into a string
+        # instead.
+        bitmap = c.place_redis.get(CANVAS_ID) or ''
         return struct.pack('I', int(timestamp)) + bitmap
 
     @classmethod
