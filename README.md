@@ -42,3 +42,13 @@ Then run:
 ```bash
 src/redis-server --port 6380
 ```
+
+## Restoring the Board
+
+In case redis needs to be restarted or gets cleared for whatever reason, you
+can re-load the board from Cassandra:
+
+```python
+from reddit_place.lib import restore_redis_board_from_cass
+restore_redis_board_from_cass()
+```
