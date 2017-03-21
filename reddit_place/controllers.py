@@ -84,33 +84,31 @@ class LoggedOutPlaceController(BaseController):
         baseplate_integration.finish_server_span()
         return response
 
-    def GET_board_bitmap_fastly_cached(self):
+    def GET_board_bitmap(self):
         """
-        Get board bitmap with cache control headers set to be cached by fastly.
+        Get board bitmap with cache control determined by GET parames.
         """
-        response.headers['Cache-Control'] = 'max-age=1'
-        return self._get_board_bitmap()
 
-    def GET_board_bitmap_mc_cached(self):
-        """
-        Get board bitmap cached by memcache.
+        # nocache
+        if 'nocache' in request.GET:
+            response.headers['Cache-Control'] = 'private'
+        else:
+            response.headers['Cache-Control'] = 'max-age=1'
 
-        This explicitly sets headers to not allow fastly caching, since if we
-        are hitting this endpoint that means fastly has started serving stale
-        data.
-        """
-        response.headers['Cache-Control'] = 'private'
-        board_bitmap = g.gencache.get('place:board_bitmap')
+        # nostalecache
+        dont_stalecache = 'nostalecache' in request.GET or not g.stalecache
+        if dont_stalecache:
+            board_bitmap = None
+        else:
+            board_bitmap = g.stalecache.get('place:board_bitmap')
+
+        # redis
         if not board_bitmap:
             board_bitmap = self._get_board_bitmap()
-            g.gencache.set('place:board_bitmap', board_bitmap, time=1)
-        return board_bitmap
+            if not dont_stalecache:
+                g.stalecache.set('place:board_bitmap', board_bitmap, time=1,
+                                 noreply=True)
 
-    def GET_board_bitmap_nocache(self):
-        """
-        Get board bitmap with headers set to avoid fastly caching.
-        """
-        response.headers['Cache-Control'] = 'private'
         return self._get_board_bitmap()
 
     def post(self):
