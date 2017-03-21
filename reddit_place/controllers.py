@@ -33,6 +33,7 @@ from r2.controllers.oauth2 import (
     allow_oauth2_access,
 )
 
+from . import events
 from .models import (
     CANVAS_ID,
     CANVAS_WIDTH,
@@ -263,6 +264,8 @@ class PlaceController(RedditController):
                 "color": color,
             }
         )
+
+        events.place_pixel(x, y, color)
 
     @json_validate(
         VUser(),    # NOTE: this will respond with a 200 with an error body
