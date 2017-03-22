@@ -51,6 +51,7 @@ inspector        | DOM ($inspector)
 mollyguard       | DOM ($mollyGuard)
 mutebutton       | DOM ($muteButton)
 palette          | DOM ($palette)
+timer            | DOM ($timer)
 zoombutton       | DOM ($zoomButton)
 api              | XHR (r2)
 notifications    | Notification

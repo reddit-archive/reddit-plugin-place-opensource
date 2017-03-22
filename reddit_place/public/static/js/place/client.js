@@ -10,6 +10,7 @@
   var MuteButton = require('mutebutton');
   var Notifications = require('notifications');
   var R2Server = require('api');
+  var Timer = require('timer');
   var lerp = require('utils').lerp;
   var ZoomButton = require('zoombutton');
 
@@ -128,7 +129,14 @@
         deferred.resolve();
         this.cooldownPromise = null;
         MollyGuard.showUnlocked();
+        Timer.stopTimer();
+        Timer.hide();
       }.bind(this), cooldownTime);
+
+      if (cooldownTime) {
+        Timer.startTimer(this.cooldownEndTime);
+        Timer.show();
+      }
 
       this.cooldownPromise = deferred.promise();
       if (cooldownTime) {

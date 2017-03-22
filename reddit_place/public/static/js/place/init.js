@@ -19,6 +19,7 @@
   var Palette = require('palette');
   var PaletteEvents = require('paletteevents');
   var R2Server = require('api');
+  var Timer = require('timer');
   var WebsocketEvents = require('websocketevents');
   var ZoomButton = require('zoombutton');
   var ZoomButtonEvents = require('zoombuttonevents');
@@ -75,6 +76,7 @@
     var mollyGuard = document.getElementById('place-molly-guard');
     var muteButton = document.getElementById('place-mute-button');
     var zoomButton = document.getElementById('place-zoom-button');
+    var timer = document.getElementById('place-timer');
 
     function resizeToWindow() {
       $(container).css({
@@ -106,6 +108,7 @@
 
     MollyGuard.init(mollyGuard);
     MuteButton.init(muteButton);
+    Timer.init(timer);
     Notifications.init();
     ZoomButton.init(zoomButton);
 

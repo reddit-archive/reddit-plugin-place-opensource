@@ -28,6 +28,7 @@ class Place(Plugin):
             "place/notifications.js",
             "place/palette.js",
             "place/zoombutton.js",
+            "place/timer.js",
 
             # 'internal node' modules, only dependant on 'exit nodes'
             "place/client.js",
