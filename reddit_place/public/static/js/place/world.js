@@ -7,12 +7,14 @@
     enabled: true,
 
     drawTile: function(x, y, color) {
-      var hexColorString = Client.getPaletteColor(color);
+      var color = Client.getPaletteColorABGR(color);
+      var i = Canvasse.getIndexFromCoords(x, y);
+      Client.state[i] = this.colorIndex;
 
       if (this.enabled) {
-        Canvasse.drawTileAt(x, y, hexColorString);
+        Canvasse.drawTileAt(x, y, color);
       } else {
-        Canvasse.drawTileToBuffer(x, y, hexColorString);
+        Canvasse.drawTileToBuffer(x, y, color);
       }
     },
 

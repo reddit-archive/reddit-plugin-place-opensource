@@ -16,9 +16,11 @@
   var Timer = require('timer');
   var lerp = require('utils').lerp;
   var ZoomButton = require('zoombutton');
+  var parseHexColor = require('utils').parseHexColor;
 
   var MAX_COLOR_INDEX = 15;
   var DEFAULT_COLOR = '#FFFFFF';
+  var DEFAULT_COLOR_ABGR = 0xFFFFFFFF;
 
   // Define some sound effects, to be played with AudioManager.playClip
   var SFX_DROP = AudioManager.compileClip([
@@ -64,12 +66,13 @@
       '#820080', // purple
     ],
 
+    state: null,
     colorIndex: null,
     paletteColor: null,
     cooldown: 0,
     cooldownEndTime: 0,
     cooldownPromise: null,
-    palette: [],
+    palette: null,
     enabled: true,
     isZoomedIn: false,
     isPanEnabled: true,
@@ -114,6 +117,8 @@
         this._setAudioEnabled(false);
       }
 
+      this.state = new Uint8Array(new ArrayBuffer(Canvasse.width * Canvasse.height));
+
       if (!isEnabled) { return; }
 
       // Get the remaining wait time from the API, then set the cooldown.
@@ -136,8 +141,26 @@
      * @param {string[]} palette An array of valid css color strings
      */
     setColorPalette: function(palette) {
+      var isNew = this.palette === null;
+
       this.palette = palette;
-      // TODO - redraw canvas with old colors mapped to new ones
+      // The internal color palette structure stores colors as AGBR (reversed
+      // RGBA) to make writing to the color buffer easier.
+      var dataView = new DataView(new ArrayBuffer(4));
+      // The first byte is alpha, which is always going to be 0xFF
+      dataView.setUint8(0, 0xFF);
+      this.paletteABGR = palette.map(function(colorString) {
+        var color = parseHexColor(colorString);
+        dataView.setUint8(1, color.blue);
+        dataView.setUint8(2, color.green);
+        dataView.setUint8(3, color.red);
+        return dataView.getUint32(0);
+      });
+
+      if (!isNew) {
+        // TODO - clean up
+        this.setInitialState(this.state);
+      }
     },
 
     /**
@@ -249,30 +272,35 @@
       return this.palette[colorIndex % this.palette.length] || DEFAULT_COLOR;
     },
 
+    getPaletteColorABGR: function(colorIndex) {
+      colorIndex = Math.min(MAX_COLOR_INDEX, Math.max(0, colorIndex|0));
+      return this.paletteABGR[colorIndex % this.paletteABGR.length] || DEFAULT_COLOR_ABGR;
+    },
+
     /**
      * Sets the initial state of the canvas.
-     * This accepts a Uint8Array of color indices, and mutates it into
-     * the format expected by Canvasse.setState.
+     * This accepts a Uint8Array of color indices
      * Note that if the API payload shape changes, this will need to update.
      * @function
-     * @param {Object} state A Uint8Array of color indices
+     * @param {Uint8Array} state A Uint8Array of color indices
      */
     setInitialState: function(state) {
       // Iterate over API response state.
       var canvas = [];
-      state.forEach(function(colorIndex, i) {
-        // The current shape of the API payload is a bitmap of pixels, where
-        // each pixel is a color index to be used as reference in a palette.
-        //
-        // Canvasse expects an array of [x, y, hexColor]
-        var x = i % r.config.place_canvas_width;
-        var y = Math.floor(i / r.config.place_canvas_width);
-        var hexColorString = this.getPaletteColor(colorIndex);
-        canvas.push([x, y, hexColorString]);
-      }.bind(this));
 
-      Canvasse.writeStateToBuffer(canvas);
-      Canvasse.drawDisplayToBuffer();
+      // Safari TypedArray implementation doesn't support forEach :weary:
+      var colorIndex, color;
+      for (var i = 0; i < state.length; i++) {
+        colorIndex = state[i];
+        color = this.getPaletteColorABGR(colorIndex);
+        Canvasse.setBufferState(i, color);
+        // Assumes that all non-0 values in local state are *newer* than the
+        // state we're loading. This might not be strictly true but eh
+        if (colorIndex > 0) {
+          this.state[i] = colorIndex;
+        }
+      }
+
       Canvasse.drawBufferToDisplay();
     },
 
@@ -296,9 +324,11 @@
 
       this.colorIndex = colorIndex;
       this.paletteColor = this.getPaletteColor(colorIndex);
+      this.paletteColorABGR = this.getPaletteColorABGR(colorIndex);
       Hand.updateColor(this.paletteColor);
       Palette.clearSwatchHighlights();
       Palette.highlightSwatch(colorIndex);
+
       if (playSFX) {
         AudioManager.playClip(SFX_SELECT);
       }
@@ -314,6 +344,7 @@
       Hand.clearColor();
       Palette.clearSwatchHighlights();
       this.paletteColor = null;
+      this.paletteColorABGR = null;
       
       if (playSFX) {
         AudioManager.playClip(SFX_DROP);
@@ -490,7 +521,9 @@
         // if the delay is too noticeable, otherwise we may want to
         // optimistically update the canvas and then undo on error.
         function onSuccess(responseJSON, status, jqXHR) {
-          Canvasse.drawTileAt(x, y, this.paletteColor);
+          var i = Canvasse.getIndexFromCoords(x, y);
+          this.state[i] = this.colorIndex;
+          Canvasse.drawTileAt(x, y, this.paletteColorABGR);
           AudioManager.playClip(SFX_PLACE);
           this.clearColor(false);
           this.setCooldownTime(this.cooldown).then(function() {

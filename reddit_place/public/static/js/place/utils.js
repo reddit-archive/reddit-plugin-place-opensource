@@ -37,6 +37,21 @@
     },
 
     /**
+     * Utility to parse a hex color string into a color object
+     * @function
+     * @param {string} hexColor A css hex color, including the # prefix
+     * @returns {Color}
+     */
+    parseHexColor: function(hexColor) {
+      var colorVal = parseInt(hexColor.slice(1), 16);
+      return {
+        red: colorVal >> 16 & 0xFF,
+        green: colorVal >> 8 & 0xFF,
+        blue: colorVal & 0xFF,
+      };
+    },
+
+    /**
      * Utility for wrapping a method with a sort of decorator function
      * Used specifically from admin tools to inject behavior into some other modules
      * @function

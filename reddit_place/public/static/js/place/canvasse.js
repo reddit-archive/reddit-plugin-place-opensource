@@ -8,21 +8,6 @@
    * @property {number} blue
    */
 
-  /**
-   * Utility to parse a hex color string into a color object
-   * @function
-   * @param {string} hexColor A css hex color, including the # prefix
-   * @returns {Color}
-   */
-  function parseHexColor(hexColor) {
-    var colorVal = parseInt(hexColor.slice(1), 16);
-    return {
-      red: colorVal >> 16 & 0xFF,
-      green: colorVal >> 8 & 0xFF,
-      blue: colorVal & 0xFF,
-    };
-  }
-
   var $ = require('jQuery');
 
   // Model the state of the canvas
@@ -72,6 +57,15 @@
       $(this.img).addClass('place-canvas');
       $(this.el).parent().append(this.img);
       $(this.el).detach();
+
+      // This array buffer will hold color data to be drawn to the canvas.
+      this.buffer = new ArrayBuffer(width * height * 4);
+      // This view into the buffer is used to construct the PixelData object
+      // for drawing to the canvas
+      this.readBuffer = new Uint8ClampedArray(this.buffer);
+      // This view into the buffer is used to write.  Values written should be
+      // 32 bit colors stored as AGBR (rgba in reverse).
+      this.writeBuffer = new Uint32Array(this.buffer);
     },
 
     /**
@@ -81,7 +75,7 @@
      * @function
      * @param {int} x
      * @param {int} y
-     * @param {string} color Any valid css color string
+     * @param {number} color AGBR color number
      */
     drawTileAt: function(x, y, color) {
       // TODO - clean this up. Eventually we'll want to be able to draw
@@ -140,11 +134,34 @@
      * @function
      * @param {int} x
      * @param {int} y
-     * @param {string} color Any valid css color string
+     * @param {number} color AGBR color
      */
     drawTileToBuffer: function(x, y, color) {
-      this.bufferCtx.fillStyle = color;
-      this.bufferCtx.fillRect(x, y, 1, 1);
+      var i = this.getIndexFromCoords(x, y);
+      this.setBufferState(i, color);
+    },
+
+    /**
+     * Get the flat-array index of the tile at the given coordinates
+     * @function
+     * @param {int} x
+     * @param {int} y
+     * @returns {int} 
+     */
+    getIndexFromCoords: function(x, y) {
+      return y * this.width + x;
+    },
+
+    /**
+     * Draw a color to the buffer canvas
+     * Does not update the display canvas. Call drawBufferToDisplay to copy
+     * buffered updates to the display.
+     * @function
+     * @param {int} i
+     * @param {number} color AGBR color
+     */
+    setBufferState: function(i, color) {
+      this.writeBuffer[i] = color;
       this.isBufferDirty = true;
     },
 
@@ -153,69 +170,11 @@
      * @function
      */
     drawBufferToDisplay: function() {
-      this.ctx.drawImage(this.bufferEl, 0, 0, this.width, this.height);
+      var imageData = new ImageData(this.readBuffer, this.width, this.height);
+      this.ctx.putImageData(imageData, 0, 0);
       this.isBufferDirty = false;
       // Safari yeeeesh
       this.img.src = this.el.toDataURL();
-    },
-
-    /**
-     * Update the buffer canvas by drawing from the display canvas
-     * This has a very particular use case - during initial loading, the
-     * client can receive updates over websockets that will not be reflected
-     * in the initial state (i.e. the loaded state will be stale by the time
-     * it finishes loading), so we preserve them in the *display* canvas
-     * to re-write back on top of the loaded state.
-     * @function
-     */
-    drawDisplayToBuffer: function() {
-      this.bufferCtx.drawImage(this.el, 0, 0, this.width, this.height);
-      this.isDisplayDirty = false;
-    },
-
-    /**
-     * @typedef {Object} PixelState
-     * @property {number} pixelState[0] x coordinate
-     * @property {number} pixelState[1] y coordinate
-     * @property {string} pixelState[2] hex color string
-     */
-
-    /**
-     * Updates the buffer canvas given a state.
-     * @function
-     * @param {PixelState[]} state
-     */
-    writeStateToBuffer: function(state) {
-      var width = this.width;
-      var height = this.height;
-
-      // We need to convert this into a Uint8ClampedArray to write it to the
-      // canvas, where each pixel is represented by 4 items in the array – the
-      // red, green, blue, and alpha channels of the color.
-      var pixelDataLength = 4 * width * height;
-      var pixelData = new Uint8ClampedArray(pixelDataLength);
-
-      // Iterate over the state and update the pixelData array.
-      state.forEach(function(pixelState) {
-        var x = pixelState[0];
-        var y = pixelState[1];
-        var color = parseHexColor(pixelState[2]);
-
-        // The normal formula for finding the index in a flat-array representation
-        // of a 2D grid for given (x, y) coordinates is: i = y * width + x
-        // Since this array holds 4 sequential items per pixel, we'll need to
-        // multiply by 4 as well to get the *first* index;
-        var i = 4 * (y * width + x);
-
-        pixelData[i] = color.red;
-        pixelData[i+1] = color.green;
-        pixelData[i+2] = color.blue;
-        // Just set alpha to full transparency.
-        pixelData[i+3] = 255;
-      }, this);
-
-      var imageData = new ImageData(pixelData, width, height);
-      this.bufferCtx.putImageData(imageData, 0, 0);
     },
   };
 });
