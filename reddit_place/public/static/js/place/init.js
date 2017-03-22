@@ -76,11 +76,16 @@
     var muteButton = document.getElementById('place-mute-button');
     var zoomButton = document.getElementById('place-zoom-button');
 
-    if (isFullscreen) {
+    function resizeToWindow() {
       $(container).css({
         height: window.innerHeight,
         width: window.innerWidth,
       });
+    }
+
+    if (isFullscreen) {
+      resizeToWindow();
+      $(window).on('resize', resizeToWindow);
     }
 
     AudioManager.init();
