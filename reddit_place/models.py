@@ -11,7 +11,7 @@ from pylons import tmpl_context as c
 
 from r2.lib.db import tdb_cassandra
 
-CANVAS_ID = "test_1"
+CANVAS_ID = "test_2"
 CANVAS_WIDTH = 1000
 CANVAS_HEIGHT = 1000
 
