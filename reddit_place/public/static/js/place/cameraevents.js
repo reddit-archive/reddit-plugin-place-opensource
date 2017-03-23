@@ -1,7 +1,6 @@
 !r.placeModule('cameraevents', function(require) {
   var Client = require('client');
   var Cursor = require('cursor');
-  var Inspector = require('inspector');
 
   /**
    * @typedef {Object} Coordinate
@@ -47,9 +46,7 @@
         return;
       }
 
-      if (Inspector.isVisible) {
-        Inspector.hide();
-      }
+      Client.interact();
 
       // We need to undo the previous transform first
       var oldOffsetX = (Cursor.x - Cursor.downX) / Client.zoom;

@@ -255,6 +255,7 @@
      */
     setColor: function(colorIndex, playSFX) {
       playSFX = playSFX === undefined ? true : playSFX;
+      this.interact();
 
       if (!this.enabled) {
         if (playSFX) {
@@ -441,6 +442,8 @@
      * @param {number} y
      */
     drawTile: function(x, y) {
+      this.interact();
+
       if (!this.paletteColor || !this.enabled) {
         AudioManager.playClip(SFX_ERROR);
         return;
@@ -481,6 +484,8 @@
      * @param {number} y
      */
     inspectTile: function(x, y) {
+      this.interact();
+
       R2Server.getPixelInfo(x, y).then(
         // TODO - actually do something with this info in the UI.
         function onSuccess(responseJSON, status, jqXHR) {
@@ -510,6 +515,7 @@
      * @param {number} [offsetY]
      */
     toggleZoom: function(offsetX, offsetY) {
+      this.interact();
       if (this.isZoomedIn) {
         this.setTargetZoom(this.ZOOM_MIN_SCALE);
         AudioManager.playClip(SFX_ZOOM_OUT);
@@ -588,6 +594,8 @@
      * @function
      */
     toggleVolume: function() {
+      this.interact();
+
       if (AudioManager.enabled) {
         AudioManager.disable();
         MuteButton.showUnmute();
@@ -613,6 +621,15 @@
 
       AudioManager.setGlobalVolume(volume);
       AudioManager.playClip(SFX_SELECT);
+    },
+
+    /**
+     * Used to disable some features when the user interacts
+     */
+    interact: function() {
+      if (Inspector.isVisible) {
+        Inspector.hide();
+      }
     },
   };
 });
