@@ -164,6 +164,10 @@ class PlaceController(RedditController):
             "place_fullscreen": is_embed or is_webview,
         }
 
+        activity = PLACE_SUBREDDIT.count_activity()
+        if activity and activity.logged_in:
+            js_config["place_active_visitors"] = activity.logged_in.count
+
         if is_embed:
             # ensure we're off the cookie domain before allowing embedding
             if request.host != g.media_domain:
@@ -393,6 +397,10 @@ def add_place_config(config):
         config["place_canvas_width"] = CANVAS_WIDTH
         config["place_canvas_height"] = CANVAS_HEIGHT
         config["place_cooldown"] = cooldown
+
+        activity = c.site.count_activity()
+        if activity and activity.logged_in:
+            config["place_active_visitors"] = activity.logged_in.count
 
 
 @controller_hooks.on("extra_stylesheets")
