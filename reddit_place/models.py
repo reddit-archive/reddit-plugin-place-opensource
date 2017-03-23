@@ -69,8 +69,8 @@ class Pixel(tdb_cassandra.UuidThing):
         # of the board in case something goes wrong with redis.
         pixel = cls(
             canvas_id=CANVAS_ID,
-            user_name=user.name,
-            user_fullname=user._fullname,
+            user_name=user.name if user else '',
+            user_fullname=user._fullname if user else '',
             color=color,
             x=x,
             y=y,
@@ -78,7 +78,9 @@ class Pixel(tdb_cassandra.UuidThing):
         pixel._commit()
 
         Canvas.insert_pixel(pixel)
-        PixelsByParticipant.add(user, pixel)
+
+        if user:
+            PixelsByParticipant.add(user, pixel)
 
         RedisCanvas.set_pixel(color, x, y)
 

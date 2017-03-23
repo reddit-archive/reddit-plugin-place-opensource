@@ -328,9 +328,9 @@ class PlaceController(RedditController):
 
         for _x in xrange(x, x + width):
             for _y in xrange(y, y + height):
-                pixel = Pixel.create(c.user, color, _x, _y)
+                pixel = Pixel.create(None, color, _x, _y)
                 payload = {
-                    "author": c.user.name,
+                    "author": '',
                     "x": _x,
                     "y": _y,
                     "color": color,
@@ -366,7 +366,10 @@ class PlaceController(RedditController):
     )
     @allow_oauth2_access
     def GET_pixel(self, responder, x, y):
-        return Pixel.get_pixel_at(x, y)
+        pixel = Pixel.get_pixel_at(x, y)
+        if pixel and pixel["user_name"]:
+            # pixels blanked out by admins will not have a user_name set
+            return pixel
 
 
 def get_wait_seconds(user):
