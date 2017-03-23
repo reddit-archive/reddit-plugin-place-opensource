@@ -18,11 +18,15 @@
         return;
       }
 
-      Notification.requestPermission().then(function(result) {
-        if (result === 'granted') {
-          this.enabled = true;
-        }
-      }.bind(this));
+      try {
+        Notification.requestPermission().then(function(result) {
+          if (result === 'granted') {
+            this.enabled = true;
+          }
+        }.bind(this));
+      } catch (err) {
+        // Do nothing!
+      }
     },
 
     /**
