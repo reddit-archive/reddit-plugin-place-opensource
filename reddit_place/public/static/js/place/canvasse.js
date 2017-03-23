@@ -23,6 +23,8 @@
     };
   }
 
+  var $ = require('jQuery');
+
   // Model the state of the canvas
   // This is really just a thin wrapper around the native canvas API.
   return {
@@ -63,6 +65,13 @@
       this.bufferCtx = this.bufferEl.getContext('2d');
       this.bufferEl.width = width;
       this.bufferEl.height = height;
+
+      this.img = new Image();
+      this.img.width = width;
+      this.img.height = height;
+      $(this.img).addClass('place-canvas');
+      $(this.el).parent().append(this.img);
+      $(this.el).detach();
     },
 
     /**
@@ -146,6 +155,8 @@
     drawBufferToDisplay: function() {
       this.ctx.drawImage(this.bufferEl, 0, 0, this.width, this.height);
       this.isBufferDirty = false;
+      // Safari yeeeesh
+      this.img.src = this.el.toDataURL();
     },
 
     /**
