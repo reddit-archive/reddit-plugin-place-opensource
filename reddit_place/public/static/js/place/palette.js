@@ -34,9 +34,26 @@
       $(div)
       .css('backgroundColor', color)
       .data('color', index)
-      .addClass(this.SWATCH_CLASS);
+      .addClass('place-swatch');
       this.el.appendChild(div);
       return div;
+    },
+
+    /**
+     * Add a highlight class to the swatch at the given index
+     * @function
+     * @param {number} index The index of the swatch to add the highlight to
+     */
+    highlightSwatch: function(index) {
+      $(this.el).children('.place-swatch').eq(index).addClass('place-selected');
+    },
+
+    /**
+     * Clear highlights
+     * @function
+     */
+    clearSwatchHighlights: function() {
+      $(this.el).children('.place-swatch').removeClass('place-selected');
     },
   };
 });

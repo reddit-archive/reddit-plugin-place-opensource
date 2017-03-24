@@ -65,10 +65,19 @@
 }
 
 .place-palette > * {
+    box-sizing: border-box;
     display: inline-block;
     height: 30px;
     vertical-align: top;
     width: 30px;
+}
+
+.place-swatch {
+    &.place-selected {
+        transform: scale(1.1, 1.1);
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, .4);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
 }
 
 .place-molly-guard {

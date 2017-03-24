@@ -11,6 +11,7 @@
   var MollyGuard = require('mollyguard');
   var MuteButton = require('mutebutton');
   var Notifications = require('notifications');
+  var Palette = require('palette');
   var R2Server = require('api');
   var Timer = require('timer');
   var lerp = require('utils').lerp;
@@ -275,6 +276,8 @@
       this.colorIndex = colorIndex;
       this.paletteColor = this.getPaletteColor(colorIndex);
       Hand.updateColor(this.paletteColor);
+      Palette.clearSwatchHighlights();
+      Palette.highlightSwatch(colorIndex);
       if (playSFX) {
         AudioManager.playClip(SFX_SELECT);
       }
@@ -288,6 +291,7 @@
       playSFX = playSFX === undefined ? true : playSFX;
 
       Hand.clearColor();
+      Palette.clearSwatchHighlights();
       this.paletteColor = null;
       
       if (playSFX) {
