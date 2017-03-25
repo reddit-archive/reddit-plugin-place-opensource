@@ -3,7 +3,7 @@
   var intervalToken;
 
   return {
-    REFRESH_INTERVAL_MS: 1000,
+    REFRESH_INTERVAL_MS: 100,
 
     $el: null,
 
@@ -14,6 +14,7 @@
      */
     init: function(el) {
       this.$el = $(el);
+      this.lastDisplayText = null;
     },
 
     /**
@@ -52,13 +53,18 @@
       var updateTime = function() {
         var ms = this.getTimeRemaining(stopTime);
         // Force an upper limit of 59:59 so we don't have to deal with hours :P
-        var s = Math.min(3599, Math.floor(ms / 1000));
+        var s = Math.min(3599, Math.ceil(ms / 1000));
         var m = Math.floor(s / 60);
         s = s % 60;
 
         var seconds = (s < 10 ? '0' : '') + s;
         var minutes = (m < 10 ? '0' : '') + m;
-        this.setText(minutes + ':' + seconds);
+        var displayText = minutes + ':' + seconds;
+
+        if (displayText !== this.lastDisplayText) {
+          this.lastDisplayText = displayText;
+          this.setText(displayText);
+        }
 
         if (!ms) {
           this.stopTimer();
