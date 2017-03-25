@@ -203,11 +203,11 @@
      * Get a promise that resolves when the cooldown period expires.
      * If there isn't an active cooldown, returns a promise that
      * immediately resolves.
-     * 
+     *
      *    Client.whenCooldownEnds().then(function() {
      *      // do stuff
      *    });
-     * 
+     *
      * @function
      * @returns {Promise}
      */
@@ -345,7 +345,7 @@
       Palette.clearSwatchHighlights();
       this.paletteColor = null;
       this.paletteColorABGR = null;
-      
+
       if (playSFX) {
         AudioManager.playClip(SFX_DROP);
       }
@@ -376,11 +376,11 @@
      * Used to pan the camera around.
      * The x and y values are offsets for the canvas rather than camera
      * positions, which may be unintuitive to use.  For example, to
-     * position the camera in the top left corner of a 1000x1000 canvas, 
+     * position the camera in the top left corner of a 1000x1000 canvas,
      * you would call:
-     * 
+     *
      *    r.place.setOffset(500, 500);
-     * 
+     *
      * which pushes the canvas down and to the right 500px, putting its
      * top left corner in the center of the screen.  If this is confusing,
      * use the setCameraPosition method instead.
@@ -393,7 +393,7 @@
       this._panY = this.panY = y;
       Camera.updateTranslate(this._panX, this._panY);
     },
-  
+
     /**
      * Given coordinates relative to the camera position, get canvas offsets.
      * See the setCameraPosition method description for more details.
@@ -516,31 +516,29 @@
       // Disable to prevent further draw actions until the API request resolves.
       this.disable();
 
-      R2Server.draw(x, y, this.colorIndex).then(
-        // On success, draw the tile.  Will need to play with this to see
-        // if the delay is too noticeable, otherwise we may want to
-        // optimistically update the canvas and then undo on error.
-        function onSuccess(responseJSON, status, jqXHR) {
-          var i = Canvasse.getIndexFromCoords(x, y);
-          this.state[i] = this.colorIndex;
-          Canvasse.drawTileAt(x, y, this.paletteColorABGR);
-          AudioManager.playClip(SFX_PLACE);
-          this.clearColor(false);
-          this.setCooldownTime(this.cooldown).then(function() {
-            Notifications.sendNotification('Your next tile is now available');
-          });
-        }.bind(this),
+      MollyGuard.showLocked();
+      Timer.show();
+      Timer.setText('Painting...');
 
-        // Handle API errors.
-        function onError(jqXHR, status, statusText) {
-          AudioManager.playClip(SFX_ERROR);
-          // Handle ratelimit, enable after wait_seconds.
-          // TODO - may want to do some UI treatment to show the user that they
-          // can't interact.
-          var cooldownTime = 1000 * jqXHR.responseJSON.wait_seconds;
-          this.setCooldownTime(cooldownTime);
-        }.bind(this)
-      );
+      AudioManager.playClip(SFX_PLACE);
+
+      var i = Canvasse.getIndexFromCoords(x, y);
+      this.state[i] = this.colorIndex;
+      Canvasse.drawTileAt(x, y, this.paletteColorABGR);
+      this.clearColor(false);
+
+      R2Server.draw(x, y, this.colorIndex)
+        .then(function onSuccess(responseJSON, status, jqXHR) {
+          return this.setCooldownTime(1000 * responseJSON.wait_seconds);
+        }.bind(this))
+        .fail(function onError(jqXHR, status, statusText) {
+          this.enable();
+          MollyGuard.showUnlocked();
+          Timer.hide();
+        }.bind(this))
+        .then(function onSuccess() {
+          Notifications.sendNotification('Your next tile is now available');
+        })
     },
 
     /**

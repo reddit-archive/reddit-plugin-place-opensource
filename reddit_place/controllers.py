@@ -299,6 +299,10 @@ class PlaceController(RedditController):
 
         events.place_pixel(x, y, color)
 
+        return {
+            'wait_seconds': PIXEL_COOLDOWN_SECONDS,
+        }
+
     @json_validate(
         VUser(),    # NOTE: this will respond with a 200 with an error body
         VAdmin(),
