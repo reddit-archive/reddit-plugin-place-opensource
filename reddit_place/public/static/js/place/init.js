@@ -127,7 +127,8 @@
     websocket.start();
 
     // TODO - fix this weird naming?
-    bindEvents(container, CameraEvents);
+    bindEvents(container, CameraEvents['container']);
+    bindEvents(document, CameraEvents['document']);
     bindEvents(camera, CanvasEvents);
     bindEvents(muteButton, MuteButtonEvents);
     bindEvents(zoomButton, ZoomButtonEvents);
@@ -144,7 +145,7 @@
     bindEvents(container, {
       'mouseout': function(e) {
         if (shouldMouseOutCancel(e)) {
-          return CameraEvents['mouseup'](e);
+          return CameraEvents['container']['mouseup'](e);
         }
       },
 
@@ -158,21 +159,21 @@
         if (!Cursor.isUsingTouch) {
           Cursor.setTouchMode(true);
         }
-        return CameraEvents['mousedown'](e.changedTouches[0]);
+        return CameraEvents['container']['mousedown'](e.changedTouches[0]);
       },
 
       'touchmove': function(e) {
         e.preventDefault();
-        return CameraEvents['mousemove'](e.changedTouches[0]);
+        return CameraEvents['container']['mousemove'](e.changedTouches[0]);
       },
 
       'touchend': function(e) {
-        return CameraEvents['mouseup'](e.changedTouches[0]);
+        return CameraEvents['container']['mouseup'](e.changedTouches[0]);
       },
 
       'touchcancel': function(e) {
         if (shouldMouseOutCancel(e)) {
-          return CameraEvents['mouseup'](e.changedTouches[0]);
+          return CameraEvents['container']['mouseup'](e.changedTouches[0]);
         }
       },
     });

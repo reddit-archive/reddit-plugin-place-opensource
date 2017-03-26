@@ -2,6 +2,14 @@
   var Client = require('client');
   var Cursor = require('cursor');
 
+  var E_KEY = 69;
+  var DIRECTIONS = {
+    87: {dx: 0, dy: 1},  // w
+    65: {dx: 1, dy: 0},  // a
+    83: {dx: 0, dy: -1}, // s
+    68: {dx: -1, dy: 0}, // d
+  };
+
   /**
    * @typedef {Object} Coordinate
    * @property {number} x
@@ -27,49 +35,71 @@
   // relative to the screen.  These events are used to update the Cursor object,
   // which also tracks position in "container space".
   return {
-    'mousedown': function(e) {
-      var coords = getCoordsFromEvent(e);
-      Cursor.setCursorDown(coords.x, coords.y);
+    'container': {
+      'mousedown': function(e) {
+        var coords = getCoordsFromEvent(e);
+        Cursor.setCursorDown(coords.x, coords.y);
+      },
+
+      'mouseup': function(e) {
+        var coords = getCoordsFromEvent(e);
+        Cursor.setCursorUp(coords.x, coords.y);
+      },
+
+      'mousemove': function(e) {
+        var coords = getCoordsFromEvent(e);
+
+
+        if (!Cursor.isDown) {
+          Cursor.setTargetPosition(coords.x, coords.y);
+          return;
+        }
+
+        Client.interact();
+
+        // We need to undo the previous transform first
+        var oldOffsetX = (Cursor.x - Cursor.downX) / Client.zoom;
+        var oldOffsetY = (Cursor.y - Cursor.downY) / Client.zoom;
+
+        // Then update the cursor position so we can do the same on
+        // the next mousemove event
+        Cursor.setPosition(coords.x, coords.y);
+
+        if (!Client.isPanEnabled) { return; }
+
+        // Finally, calculate the new offset
+        var newOffsetX = (coords.x - Cursor.downX) / Client.zoom;
+        var newOffsetY = (coords.y - Cursor.downY) / Client.zoom;
+
+        // And update the offset.  Important to know that Client
+        // expects offset coordinates in canvas-space, which is why
+        // we are only calculating an offset relative to the current
+        // camera position and scaling that to the zoom level.
+        Client.setOffset(
+          Client.panX - oldOffsetX + newOffsetX,
+          Client.panY - oldOffsetY + newOffsetY
+        );
+      },
     },
 
-    'mouseup': function(e) {
-      var coords = getCoordsFromEvent(e);
-      Cursor.setCursorUp(coords.x, coords.y);
-    },
+    'document': {
+      'keydown': function(e) {
+        var direction = DIRECTIONS[e.which];
+        if (direction) {
+          Client.panInDirection(direction.dx, direction.dy);
+        }
 
-    'mousemove': function(e) {
-      var coords = getCoordsFromEvent(e);
+        if (e.which === E_KEY) {
+          Client.toggleZoom();
+        }
+      },
 
-
-      if (!Cursor.isDown) {
-        Cursor.setTargetPosition(coords.x, coords.y);
-        return;
-      }
-
-      Client.interact();
-
-      // We need to undo the previous transform first
-      var oldOffsetX = (Cursor.x - Cursor.downX) / Client.zoom;
-      var oldOffsetY = (Cursor.y - Cursor.downY) / Client.zoom;
-
-      // Then update the cursor position so we can do the same on
-      // the next mousemove event
-      Cursor.setPosition(coords.x, coords.y);
-
-      if (!Client.isPanEnabled) { return; }
-
-      // Finally, calculate the new offset
-      var newOffsetX = (coords.x - Cursor.downX) / Client.zoom;
-      var newOffsetY = (coords.y - Cursor.downY) / Client.zoom;
-
-      // And update the offset.  Important to know that Client
-      // expects offset coordinates in canvas-space, which is why
-      // we are only calculating an offset relative to the current
-      // camera position and scaling that to the zoom level.
-      Client.setOffset(
-        Client.panX - oldOffsetX + newOffsetX,
-        Client.panY - oldOffsetY + newOffsetY
-      );
+      'keyup': function(e) {
+        var direction = DIRECTIONS[e.which];
+        if (direction) {
+          Client.panInDirection(-direction.dx, -direction.dy);
+        }
+      },
     },
   };
 });

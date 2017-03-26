@@ -2,7 +2,7 @@
   return {
     /**
      * Utility for linear interpolation between to values
-     * Useful as a cheap and easy way to ease between to values
+     * Useful as a cheap and easy way to ease between two values
      *
      *    lerp(0, 10, .5);
      *    // 5
@@ -69,6 +69,18 @@
         var res = fn.apply(target, arguments);
         delete target.targetMethod;
       };
+    },
+
+    /**
+     * Keeps a value between a min and a max value
+     * @function
+     * @param {number} min
+     * @param {number} max
+     * @param {number} num The value you're trying to clamp
+     * @returns {number} The clamped value
+     */
+    clamp: function(min, max, num) {
+      return Math.min(Math.max(num, min), max);
     },
   };
 });

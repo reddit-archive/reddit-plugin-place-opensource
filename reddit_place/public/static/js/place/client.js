@@ -17,6 +17,7 @@
   var lerp = require('utils').lerp;
   var ZoomButton = require('zoombutton');
   var parseHexColor = require('utils').parseHexColor;
+  var clamp = require('utils').clamp;
 
   var MAX_COLOR_INDEX = 15;
   var DEFAULT_COLOR = '#FFFFFF';
@@ -37,7 +38,6 @@
   ])
   var SFX_ZOOM_OUT = SFX_DROP;
   var SFX_ZOOM_IN = SFX_ZOOM_OUT.slice().reverse();
-
 
   // Handles actions the local user takes.
   return {
@@ -118,6 +118,12 @@
       }
 
       this.state = new Uint8Array(new ArrayBuffer(Canvasse.width * Canvasse.height));
+
+      this.panTimer = null;
+      this.currentDirection = {
+        dx: 0,
+        dy: 0,
+      };
 
       if (!isEnabled) { return; }
 
@@ -242,6 +248,9 @@
         this._zoom = lerp(this._zoom, this.zoom, this.ZOOM_LERP_SPEED);
         Camera.updateScale(this._zoom);
       }
+
+      this.panX += this.currentDirection.dx;
+      this.panY += this.currentDirection.dy;
 
       var didOffsetUpdate = false;
       if (this._panX !== this.panX) {
@@ -651,6 +660,17 @@
 
     injectHeaders: function(headers) {
       R2Server.injectHeaders(headers);
+    },
+
+    /**
+     * Begin panning in given direction
+     * @function
+     * @param {number} dx
+     * @param {number} dy
+     */
+    panInDirection: function(dx, dy) {
+      this.currentDirection.dx = clamp(-1, 1, this.currentDirection.dx + dx);
+      this.currentDirection.dy = clamp(-1, 1, this.currentDirection.dy + dy);
     },
 
     /**
