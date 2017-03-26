@@ -95,16 +95,16 @@
      * @param {?number} panX Horizontal camera offset
      * @param {?number} panY Vertical camera offset
      * @param {?string} color Hex-formatted color string
-     * @param {?boolean} isZoomedIn Is the camera zoomed in or out
      */
-    init: function(isEnabled, cooldown, panX, panY, color, isZoomedIn) {
+    init: function(isEnabled, cooldown, panX, panY, color) {
       // If logged out, client is disabled.  If logged in, client is
       // initially disabled until we get the API response back to know
       // whether they can place.
       this.enabled = false;
+      this.isZoomedIn = false
       this.cooldown = cooldown;
       if (color) this.setColor(color, false);
-      this.isZoomedIn = isZoomedIn !== undefined ? isZoomedIn : true;
+
       this.setZoom(this.isZoomedIn ? this.ZOOM_MAX_SCALE : this.ZOOM_MIN_SCALE);
       this.setOffset(panX|0, panY|0);
       AudioManager.setGlobalVolume(this.VOLUME_LEVEL);
