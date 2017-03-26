@@ -53,11 +53,11 @@ r.placeModule('selector', function(require) {
     var maxY = Math.max(y, Selector.anchorY);
     var width = maxX - minX + 1;
     var height = maxY - minY + 1;
-    
+
     this.disable();
     Canvasse.drawRectToDisplay(minX, minY, width, height, Selector.selectionColor);
 
-    AdminAPI.drawRect(minX, minY, width, height, this.colorIndex).always(
+    AdminAPI.drawRect(minX, minY, width, height).always(
       function onFinally() {
         // Undo the selection rect drawing.  We'll just rely on the websocket
         // events for the actual updates.

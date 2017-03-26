@@ -313,10 +313,9 @@ class PlaceController(RedditController):
                    coerce=True, num_default=1),
         height=VInt("height", min=1, max=ADMIN_RECT_DRAW_MAX_SIZE,
                     coerce=True, num_default=1),
-        color=VInt("color", min=0, max=15),
     )
     @allow_oauth2_access
-    def POST_drawrect(self, responder, x, y, width, height, color):
+    def POST_drawrect(self, responder, x, y, width, height):
         if x is None:
             # copy the error set by VNumber/VInt
             c.errors.add(
@@ -343,12 +342,8 @@ class PlaceController(RedditController):
                 },
             )
 
-        if color is None:
-            c.errors.add(errors.BAD_COLOR, field="color")
-
         if (responder.has_errors("x", errors.BAD_NUMBER) or
-                responder.has_errors("y", errors.BAD_NUMBER) or
-                responder.has_errors("color", errors.BAD_COLOR)):
+                responder.has_errors("y", errors.BAD_NUMBER)):
             # TODO: return 400 with parsable error message?
             return
 
@@ -360,12 +355,12 @@ class PlaceController(RedditController):
 
         for _x in xrange(x, x + width):
             for _y in xrange(y, y + height):
-                pixel = Pixel.create(None, color, _x, _y)
+                pixel = Pixel.create(None, 0, _x, _y)
                 payload = {
                     "author": '',
                     "x": _x,
                     "y": _y,
-                    "color": color,
+                    "color": 0,
                 }
                 batch_payload.append(payload)
 

@@ -10,10 +10,9 @@ r.placeModule('adminapi', function(require) {
      * @param {int} y
      * @param {int} width
      * @param {int} height
-     * @param {string} color
      * @returns {Promise}
      */
-    drawRect: function(x, y, width, height, color) {
+    drawRect: function(x, y, width, height) {
       return r.ajax({
         url: '/api/place/drawrect.json',
         type: 'POST',
@@ -22,7 +21,6 @@ r.placeModule('adminapi', function(require) {
           y: y,
           width: width,
           height: height,
-          color: color,
         },
       });
     },
