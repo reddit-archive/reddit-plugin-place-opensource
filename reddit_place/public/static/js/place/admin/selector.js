@@ -10,6 +10,7 @@ r.placeModule('selector', function(require) {
   var hijack = require('utils').hijack;
   var Palette = require('palette');
   var World = require('world');
+  var Notifications = require('notifications');
 
   var Selector = {
     isSelecting: false,
@@ -76,6 +77,10 @@ r.placeModule('selector', function(require) {
 
   // Needed to make sure that Palette is initialized first.
   r.hooks.get('place.init').register(function() {
+    // notifs don't make sense in admin mode since you can always place
+    // another tile
+    Notifications.disable();
+
     var selectionSwatch = Palette.buildSwatch(Selector.selectionColor);
 
     bindEvents(selectionSwatch, {

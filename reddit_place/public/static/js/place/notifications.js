@@ -29,6 +29,10 @@
       }
     },
 
+    disable: function() {
+      this.enabled = false;
+    },
+
     /**
      * Send a browser notification.
      * @function
