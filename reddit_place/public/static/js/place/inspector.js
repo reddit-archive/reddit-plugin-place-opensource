@@ -1,7 +1,7 @@
 !r.placeModule('inspector', function(require) {
   var template = _.template(
     '<div class="place-inspector-user-row">' +
-      '<a href="/user/<%- username %>">u/<%- username %></a>' +
+      '<a href="/user/<%- username %>" target="_blank">u/<%- username %></a>' +
     '</div>' +
     '<div class="place-inspector-location-row">(<%- x %>, <%- y %>)</div>' +
     '<div class="place-inspector-timestamp-row"><%- timestamp %></div>' +
