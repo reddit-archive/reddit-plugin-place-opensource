@@ -127,9 +127,6 @@ class PlaceController(RedditController):
     def pre(self):
         RedditController.pre(self)
 
-        if not c.user.employee:
-            self.abort403()
-
         if c.user.in_timeout:
             self.abort403()
 
