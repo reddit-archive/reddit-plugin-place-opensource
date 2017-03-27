@@ -308,6 +308,21 @@
     });
 
     r.place = Client;
+
+    window.addEventListener('message', (e) => {
+      if (e.origin == "https://reddit.com") {
+        try {
+          var data = JSON.parse(e.data);
+        } catch (e) {
+          return;
+        }
+
+        if (data.name == 'PLACE_MESSAGE' && data.payload) {
+          R2Server.injectHeaders(data.payload);
+        }
+      }
+    });
+
     r.hooks.call('place.init');
   });
 });
