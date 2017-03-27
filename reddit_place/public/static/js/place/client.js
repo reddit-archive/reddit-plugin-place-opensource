@@ -1,6 +1,8 @@
 !r.placeModule('client', function(require) {
   var $ = require('jQuery');
   var r = require('r');
+  var store = require('store');
+
   var AudioManager = require('audio');
   var Camera = require('camera');
   var Canvasse = require('canvasse');
@@ -83,6 +85,12 @@
       this.setZoom(this.isZoomedIn ? this.ZOOM_MAX_SCALE : this.ZOOM_MIN_SCALE);
       this.setOffset(panX|0, panY|0);
       AudioManager.setGlobalVolume(this.VOLUME_LEVEL);
+
+      // We store whether the user has turned off audio in localStorage.
+      var audioIsDisabled = !!store.safeGet('place-audio-isDisabled');
+      if (audioIsDisabled) {
+        this._setAudioEnabled(false);
+      }
 
       if (!isEnabled) { return; }
 
@@ -590,21 +598,32 @@
     },
 
     /**
+     * Set the state of the AudioManager and MuteButton modules
+     * For internal use
+     * @function
+     * @param {boolean} enabled Whether you are enabling or disabling audio.
+     */
+    _setAudioEnabled: function(enabled) {
+      if (!AudioManager.isSupported) { return; }
+      this.interact();
+
+      if (enabled) {
+        AudioManager.enable();
+        MuteButton.showMute();
+        store.remove('place-audio-isDisabled');
+      } else {
+        AudioManager.disable();
+        MuteButton.showUnmute();
+        store.safeSet('place-audio-isDisabled', '1');
+      }
+    },
+
+    /**
      * Toggle the volume on/off
      * @function
      */
     toggleVolume: function() {
-      if (!AudioManager.isSupported) { return; }
-      this.interact();
-
-      if (AudioManager.enabled) {
-        AudioManager.disable();
-        MuteButton.showUnmute();
-      } else {
-        AudioManager.enable();
-        MuteButton.showMute();
-      }
-
+      this._setAudioEnabled(!AudioManager.enabled);
       AudioManager.playClip(SFX_SELECT);
     },
 
@@ -615,11 +634,9 @@
       if (!AudioManager.isSupported) { return; }
 
       if (!volume) {
-        AudioManager.disable();
-        MuteButton.showUnmute();
+        this._setAudioEnabled(false);
       } else if (!AudioManager.globalVolume) {
-        AudioManager.enable();
-        MuteButton.showMute();
+        this._setAudioEnabled(true);
       }
 
       AudioManager.setGlobalVolume(volume);

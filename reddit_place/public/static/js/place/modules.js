@@ -1,10 +1,11 @@
 !function(r, $, _) {
   // A dict to store all module exports on.
-  // Add r, $, _ by default for convenience.
+  // Add r, $, _, store by default for convenience.
   var modules = {
     r: r,
     jQuery: $,
     underscore: _,
+    store: store,
   };
 
   /**
