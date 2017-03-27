@@ -127,6 +127,9 @@ class PlaceController(RedditController):
     def pre(self):
         RedditController.pre(self)
 
+        if not PLACE_SUBREDDIT.can_view(c.user):
+            self.abort403()
+
         if c.user.in_timeout:
             self.abort403()
 
