@@ -94,7 +94,8 @@ class LoggedOutPlaceController(BaseController):
         if 'nocache' in request.GET:
             response.headers['Cache-Control'] = 'private'
         else:
-            response.headers['Cache-Control'] = 'max-age=1'
+            response.headers['Cache-Control'] = \
+                'max-age=1, stale-while-revalidate=1'
 
         # nostalecache
         dont_stalecache = 'nostalecache' in request.GET or not g.stalecache
