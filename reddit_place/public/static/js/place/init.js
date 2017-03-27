@@ -109,10 +109,11 @@
 
     if (!isUiHidden) {
       MollyGuard.init(mollyGuard);
-      MuteButton.init(muteButton);
+      if (AudioManager.isSupported) {
+        MuteButton.init(muteButton);
+      }
       ZoomButton.init(zoomButton);
     }
-
     Timer.init(timer);
     Notifications.init();
 

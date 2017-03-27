@@ -594,6 +594,7 @@
      * @function
      */
     toggleVolume: function() {
+      if (!AudioManager.isSupported) { return; }
       this.interact();
 
       if (AudioManager.enabled) {
@@ -611,6 +612,8 @@
      * Sets the AudioManager volume globally.
      */
     setVolume: function(volume) {
+      if (!AudioManager.isSupported) { return; }
+
       if (!volume) {
         AudioManager.disable();
         MuteButton.showUnmute();

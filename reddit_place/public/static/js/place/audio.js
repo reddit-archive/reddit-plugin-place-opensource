@@ -53,11 +53,11 @@
   });
 
   // Audio controller.  Must be initialized before use!
-  // TODO - handle browsers without AudioContext support
   return {
     audioCtx: null,
     audioGain: null,
     enabled: true,
+    isSupported: true,
 
     init: function() {
       var AudioContext = window.AudioContext // Default
@@ -69,6 +69,7 @@
         this.audioGain.connect(this.audioCtx.destination);
       } else {
         this.enabled = false;
+        this.isSupported = false;
       }
     },
 
