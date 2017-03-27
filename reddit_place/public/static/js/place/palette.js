@@ -4,6 +4,7 @@
   // Generates the color palette UI
   return {
     el: null,
+    initialized: false,
 
     /**
      * Initialize the color palette UI
@@ -13,6 +14,8 @@
      */
     init: function(el, colors) {
       this.el = el;
+      $(el).removeClass('place-uninitialized');
+      this.initialized = true;
 
       colors.forEach(function(color, index) {
         this.buildSwatch(color, index);
@@ -26,6 +29,7 @@
      * @returns {HTMLElement}
      */
     buildSwatch: function(color, index) {
+      if (!this.initialized) { return; }
       var div = document.createElement('div');
       $(div)
       .css('backgroundColor', color)

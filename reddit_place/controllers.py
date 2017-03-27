@@ -158,9 +158,10 @@ class PlaceController(RedditController):
     @validate(
         is_embed=VBoolean("is_embed"),
         is_webview=VBoolean("webview", default=False),
+        is_palette_hidden=VBoolean('hide_palette', default=False),
     )
     @allow_oauth2_access
-    def GET_canvasse(self, is_embed, is_webview):
+    def GET_canvasse(self, is_embed, is_webview, is_palette_hidden):
         # oauth will try to force the response into json
         # undo that here by hacking extension, content_type, and render_style
         try:
@@ -181,6 +182,7 @@ class PlaceController(RedditController):
             "place_canvas_height": CANVAS_HEIGHT,
             "place_cooldown": 0 if c.user_is_admin else PIXEL_COOLDOWN_SECONDS,
             "place_fullscreen": is_embed or is_webview,
+            "place_hide_ui": is_palette_hidden,
         }
 
         # this is a sad duplication of the same from reddit_base :(

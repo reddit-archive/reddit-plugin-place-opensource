@@ -41,6 +41,7 @@
   // Init code:
   $(function() {
     var isFullscreen = r.config.place_fullscreen;
+    var isUiHidden = r.config.place_hide_ui;
     var isUserLoggedIn = r.config.logged;
     var canvasWidth = r.config.place_canvas_width;
     var canvasHeight = r.config.place_canvas_height;
@@ -102,15 +103,18 @@
     Hand.init(hand, handSwatch);
     Inspector.init(inspector);
 
-    if (isUserLoggedIn) {
+    if (isUserLoggedIn && !isUiHidden) {
       Palette.init(palette, COLORS);
     }
 
-    MollyGuard.init(mollyGuard);
-    MuteButton.init(muteButton);
+    if (!isUiHidden) {
+      MollyGuard.init(mollyGuard);
+      MuteButton.init(muteButton);
+      ZoomButton.init(zoomButton);
+    }
+
     Timer.init(timer);
     Notifications.init();
-    ZoomButton.init(zoomButton);
 
     // Clamp starting coordinates to the canvas boundries
     var halfWidth = canvasWidth / 2;

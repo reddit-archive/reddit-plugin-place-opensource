@@ -3,16 +3,21 @@
 
   return {
     $el: null,
+    initialized: false,
 
     init: function(el) {
       this.$el = $(el);
+      this.$el.removeClass('place-uninitialized');
+      this.initialized = true;
     },
 
     showZoomOut: function() {
+      if (!this.initialized) { return; }
       this.$el.removeClass('place-zoomed-out');
     },
 
     showZoomIn: function() {
+      if (!this.initialized) { return; }
       this.$el.addClass('place-zoomed-out');
     },
   };
