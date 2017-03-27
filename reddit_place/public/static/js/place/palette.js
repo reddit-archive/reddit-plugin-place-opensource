@@ -3,6 +3,8 @@
 
   // Generates the color palette UI
   return {
+    SWATCH_CLASS: 'place-swatch',
+
     el: null,
     initialized: false,
 
@@ -10,13 +12,21 @@
      * Initialize the color palette UI
      * @function
      * @param {HTMLElement} el The parent element to hold the UI
-     * @param {string[]} colors A list of valid css color strings
      */
-    init: function(el, colors) {
+    init: function(el) {
       this.el = el;
       $(el).removeClass('place-uninitialized');
       this.initialized = true;
+    },
 
+    /**
+     * Rebuild the color swatch elements
+     * @function
+     * @param {string[]} colors A list of valid css color strings
+     */
+    generateSwatches: function(colors) {
+      if (!this.initialized) { return; }
+      $(this.el).children(this.SWATCH_CLASS).remove();
       colors.forEach(function(color, index) {
         this.buildSwatch(color, index);
       }, this);

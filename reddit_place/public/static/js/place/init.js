@@ -48,24 +48,6 @@
     var cooldownDuration = 1000 * r.config.place_cooldown;
     var websocketUrl = r.config.place_websocket_url;
 
-    var COLORS = [
-      '#FFFFFF',
-      '#949494',
-      '#353535',
-      '#FF4500',
-      '#0DD3BB',
-      '#24A0ED',
-      '#FF8717',
-      '#FFB000',
-      '#94E044',
-      '#46D160',
-      '#7193FF',
-      '#DDBD37',
-      '#FFD635',
-      '#FF585B',
-      '#EA0027',
-    ];
-
     var container = document.getElementById('place-container');
 
     // Bail out early if the container element isn't found – we're probably
@@ -109,7 +91,7 @@
     Inspector.init(inspector);
 
     if (isUserLoggedIn && !isUiHidden) {
-      Palette.init(palette, COLORS);
+      Palette.init(palette);
     }
 
     if (!isUiHidden) {
@@ -133,10 +115,6 @@
     var startOffsets = Client.getOffsetFromCameraLocation(startX, startY);
 
     Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
-
-    // TODO - this should just get passed into init.  Honestly just
-    // avoiding merge conflicts with another branch here
-    Client.setColorPalette(COLORS);
 
     R2Server.getCanvasBitmapState().then(function(timestamp, canvas) {
       // TODO - request non-cached version if the timestamp is too old

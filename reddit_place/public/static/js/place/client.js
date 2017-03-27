@@ -45,6 +45,25 @@
     ZOOM_MIN_SCALE: 4,
     VOLUME_LEVEL: .1,
 
+    DEFAULT_COLOR_PALETTE: [
+      '#FFFFFF', // white
+      '#E4E4E4', // light grey
+      '#888888', // grey
+      '#222222', // black
+      '#FFA7D1', // pink
+      '#E50000', // red
+      '#E59500', // orange
+      '#A06A42', // brown
+      '#E5D900', // yellow
+      '#94E044', // lime
+      '#02BE01', // green
+      '#00E5F0', // cyan
+      '#0083C7', // blue
+      '#0000EA', // dark blue
+      '#E04AFF', // magenta
+      '#820080', // purple
+    ],
+
     colorIndex: null,
     paletteColor: null,
     cooldown: 0,
@@ -86,6 +105,8 @@
       this.setZoom(this.isZoomedIn ? this.ZOOM_MAX_SCALE : this.ZOOM_MIN_SCALE);
       this.setOffset(panX|0, panY|0);
       AudioManager.setGlobalVolume(this.VOLUME_LEVEL);
+      this.setColorPalette(this.DEFAULT_COLOR_PALETTE);
+      Palette.generateSwatches(this.DEFAULT_COLOR_PALETTE);
 
       // We store whether the user has turned off audio in localStorage.
       var audioIsDisabled = !!store.safeGet('place-audio-isDisabled');
