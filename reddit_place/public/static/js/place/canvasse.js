@@ -17,6 +17,7 @@
     height: 0,
     el: null,
     ctx: null,
+    img: null,
     bufferEl: null,
     bufferCtx: null,
     // TODO - not sure if I'll actually need these yet, remove if they aren't
@@ -51,13 +52,6 @@
       this.bufferEl.width = width;
       this.bufferEl.height = height;
 
-      this.img = new Image();
-      this.img.width = width;
-      this.img.height = height;
-      $(this.img).addClass('place-canvas');
-      $(this.el).parent().append(this.img);
-      $(this.el).detach();
-
       // This array buffer will hold color data to be drawn to the canvas.
       this.buffer = new ArrayBuffer(width * height * 4);
       // This view into the buffer is used to construct the PixelData object
@@ -66,6 +60,22 @@
       // This view into the buffer is used to write.  Values written should be
       // 32 bit colors stored as AGBR (rgba in reverse).
       this.writeBuffer = new Uint32Array(this.buffer);
+
+      // Safari has a blurry-canvas problem due to its lack of proper
+      // support for the 'image-rendering' css rule, which is what allows
+      // us to scale up the canvas without bilinear interpolation.
+      // Safari does support this on image elements though, so the hack here
+      // is to hide the canvas and use an img tag instead.  This comes with
+      // a performance hit, so we don't want to do it on other platforms.
+      if (window.navigator.userAgent.indexOf('Safari') > -1 &&
+          window.navigator.userAgent.indexOf('Chrome') === -1) {
+        this.img = new Image();
+        this.img.width = width;
+        this.img.height = height;
+        $(this.img).addClass('place-canvas');
+        $(this.el).parent().append(this.img);
+        $(this.el).detach();
+      }
     },
 
     /**
@@ -180,8 +190,10 @@
       var imageData = new ImageData(this.readBuffer, this.width, this.height);
       this.ctx.putImageData(imageData, 0, 0);
       this.isBufferDirty = false;
-      // Safari yeeeesh
-      this.img.src = this.el.toDataURL();
+
+      if (this.img) {
+        this.img.src = this.el.toDataURL();
+      }
     },
   };
 });
