@@ -67,6 +67,11 @@
     ];
 
     var container = document.getElementById('place-container');
+
+    // Bail out early if the container element isn't found – we're probably
+    // running on some other page in r/place that doesn't have the canvas.
+    if (!container) { return; }
+
     var viewer = document.getElementById('place-viewer');
     var camera = document.getElementById('place-camera');
     var canvas = document.getElementById('place-canvasse');
