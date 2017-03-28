@@ -2,6 +2,7 @@
   var $ = require('jQuery');
   var r = require('r');
 
+  var Activity = require('activity');
   var AudioManager = require('audio');
   var bindEvents = require('utils').bindEvents;
   var Camera = require('camera');
@@ -42,6 +43,7 @@
 
   // Init code:
   $(function() {
+    var activeVisitors = r.config.place_active_visitors;
     var isFullscreen = r.config.place_fullscreen;
     var isUiHidden = r.config.place_hide_ui;
     var isUserLoggedIn = r.config.logged;
@@ -50,12 +52,15 @@
     var cooldownDuration = 1000 * r.config.place_cooldown;
     var websocketUrl = r.config.place_websocket_url;
 
+
+
     var container = document.getElementById('place-container');
 
     // Bail out early if the container element isn't found – we're probably
     // running on some other page in r/place that doesn't have the canvas.
     if (!container) { return; }
 
+    var activityCount = document.getElementById('place-activity-count');
     var viewer = document.getElementById('place-viewer');
     var camera = document.getElementById('place-camera');
     var cameraButton = document.getElementById('place-camera-button');
@@ -81,6 +86,7 @@
       $(window).on('resize', resizeToWindow);
     }
 
+    Activity.init(activityCount, activeVisitors);
     AudioManager.init();
     Camera.init(viewer, camera);
 

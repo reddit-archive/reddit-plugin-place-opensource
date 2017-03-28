@@ -1,4 +1,5 @@
 !r.placeModule('world', function(require) {
+  var Activity = require('activity');
   var Canvasse = require('canvasse');
   var Client = require('client');
 
@@ -18,6 +19,10 @@
       }
 
       Client.trackRecentTile(x, y);
+    },
+
+    updateActivity: function(count) {
+      Activity.setCount(count);
     },
 
     /**

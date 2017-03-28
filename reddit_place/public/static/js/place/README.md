@@ -44,6 +44,7 @@ update the DOM or make requests to the backend API.
 Module           | Calls to API
 -----------------|---------------------------------------------------------
 audio            | Web Audio
+activity         | DOM ($activityCount)
 camera           | DOM ($container and $camera)
 canvasse         | DOM ($canvas)
 hand             | DOM ($hand)

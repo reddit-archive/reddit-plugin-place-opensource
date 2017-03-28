@@ -17,6 +17,7 @@ class Place(Plugin):
             "place/utils.js",
 
             # 'exit node' modules, no internal dependencies
+            "place/activity.js",
             "place/api.js",
             "place/audio.js",
             "place/camera.js",

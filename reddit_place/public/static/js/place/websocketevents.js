@@ -33,5 +33,11 @@
         });
       }
     },
+
+    'message:activity': function(message) {
+      if (message.count) {
+        World.updateActivity(message.count);
+      }
+    },
   };
 });
