@@ -69,6 +69,16 @@
     },
 
     /**
+     * Tick function that draws buffered updates to the display.
+     * @function
+     */
+    tick: function() {
+      if (this.isBufferDirty) {
+        this.drawBufferToDisplay();
+      }
+    },
+
+    /**
      * Draw a color to the buffer canvas and immediately update.
      * Coordinates are in canvas pixels, not screen pixels.
      * @deprecated Use drawTileToDisplay or drawTileToBuffer
@@ -78,10 +88,7 @@
      * @param {number} color AGBR color number
      */
     drawTileAt: function(x, y, color) {
-      // TODO - clean this up. Eventually we'll want to be able to draw
-      // without actually updating the buffer canvas.
       this.drawTileToBuffer(x, y, color);
-      this.drawBufferToDisplay();
     },
 
     /**

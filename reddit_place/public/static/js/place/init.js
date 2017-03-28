@@ -207,6 +207,7 @@
     startTicking(function() {
       Client.tick();
       Cursor.tick();
+      Canvasse.tick();
     });
 
     r.place = Client;
