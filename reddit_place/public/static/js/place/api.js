@@ -74,6 +74,18 @@
         // TODO - should we render the board as it streams in?
         fetch(buildFullURL("/api/place/board-bitmap"), { credentials: 'include' })
           .then(function(res) {
+            // Firefox implements the fetch API, but doesn't support the
+            // ReadableStream portion that Chrome does. In that case we'll
+            // use the arrayBuffer method, which reads the response to
+            // completion and returns a Promise<ArrayBuffer>
+            if (!(res.body && res.body.getReader)) {
+              res.arrayBuffer().then(function(arrayBuffer) {
+                handleChunk(new Uint8Array(arrayBuffer));
+                dfd.resolve(timestamp, canvas);
+              });
+              return;
+            }
+
             function next(reader) {
               reader.read().then(function(chunk) {
                 if (chunk.done) {
