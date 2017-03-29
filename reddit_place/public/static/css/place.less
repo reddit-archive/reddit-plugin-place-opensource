@@ -61,14 +61,19 @@
 // But that isn't implemented yet.  So it's just a comment.
 // cursor: -webkit-grabbing;
 
+.place-bottom-toolbar {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    width: 100%;
+}
+
 .place-palette {
     background: #111111;
-    bottom: 0;
     box-sizing: border-box;
     cursor: pointer;
     left: 0;
     padding: 5px;
-    position:absolute;
     text-align: center;
     width: 100%;
 }
@@ -128,14 +133,14 @@
 .place-inspector {
     background: white;
     border: 1px solid #eeeeee;
-    bottom: 60px;
+    bottom: 100%;
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
     display: none;
     font-size: 14px;
     left: 50%;
     padding: 20px;
     position: absolute;
-    transform: translateX(-50%);
+    transform: translate(-50%, -20px);
 }
 
 .place-uninitialized {
