@@ -18,11 +18,12 @@
     },
 
     show: function(x, y, username, timestamp) {
+      var age = r.TimeText.now() / 1000 - timestamp;
       this.$el.html(template({
         x: x,
         y: y,
         username: username,
-        timestamp: timestamp,
+        timestamp: r.TimeText.prototype.formatTime(null, age),
       }));
       this.$el.show();
       this.isVisible = true;
