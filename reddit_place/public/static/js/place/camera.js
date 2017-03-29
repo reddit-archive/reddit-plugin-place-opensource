@@ -5,6 +5,7 @@
   return {
     zoomElement: null,
     panElement: null,
+    isDirty: false,
 
     /**
      * Initialize the camera.
@@ -18,12 +19,21 @@
       this.panElement = panElement;
     },
 
+    tick: function() {
+      if (this.isDirty) {
+        this.isDirty = false;
+        return true;
+      }
+      return false;
+    },
+
     /**
      * Update the scale transform on the zoomElement element.
      * @function
      * @param {number} s The scale
      */
     updateScale: function(s) {
+      this.isDirty = true;
       $(this.zoomElement).css({
         transform: 'scale(' + s + ',' + s + ')',
       });
@@ -36,6 +46,7 @@
      * @param {number} y The vertical offset
      */
     updateTranslate: function(x, y) {
+      this.isDirty = true;
       $(this.panElement).css({
         transform: 'translate(' + x + 'px,' + y + 'px)',
       });

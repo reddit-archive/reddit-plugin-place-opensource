@@ -17,7 +17,6 @@
     height: 0,
     el: null,
     ctx: null,
-    img: null,
     bufferEl: null,
     bufferCtx: null,
     // TODO - not sure if I'll actually need these yet, remove if they aren't
@@ -42,6 +41,10 @@
       this.el.width = width;
       this.el.height = height;
       this.ctx = this.el.getContext('2d');
+      this.ctx.mozImageSmoothingEnabled = false;
+      this.ctx.webkitImageSmoothingEnabled = false;
+      this.ctx.msImageSmoothingEnabled = false;
+      this.ctx.imageSmoothingEnabled = false;
 
       // The actual canvas state.  This canvas is hidden, to allow us to do
       // stuff like pause rendering of incoming updates without losing them,
@@ -60,32 +63,19 @@
       // This view into the buffer is used to write.  Values written should be
       // 32 bit colors stored as AGBR (rgba in reverse).
       this.writeBuffer = new Uint32Array(this.buffer);
-
-      // Safari has a blurry-canvas problem due to its lack of proper
-      // support for the 'image-rendering' css rule, which is what allows
-      // us to scale up the canvas without bilinear interpolation.
-      // Safari does support this on image elements though, so the hack here
-      // is to hide the canvas and use an img tag instead.  This comes with
-      // a performance hit, so we don't want to do it on other platforms.
-      if (window.navigator.userAgent.indexOf('Safari') > -1 &&
-          window.navigator.userAgent.indexOf('Chrome') === -1) {
-        this.img = new Image();
-        this.img.width = width;
-        this.img.height = height;
-        $(this.img).addClass('place-canvas');
-        $(this.el).parent().append(this.img);
-        $(this.el).detach();
-      }
     },
 
     /**
      * Tick function that draws buffered updates to the display.
      * @function
+     * @returns {boolean} Returns true if any updates were made
      */
     tick: function() {
       if (this.isBufferDirty) {
         this.drawBufferToDisplay();
+        return true;
       }
+      return false;
     },
 
     /**
@@ -190,10 +180,6 @@
       var imageData = new ImageData(this.readBuffer, this.width, this.height);
       this.ctx.putImageData(imageData, 0, 0);
       this.isBufferDirty = false;
-
-      if (this.img) {
-        this.img.src = this.el.toDataURL();
-      }
     },
   };
 });

@@ -284,11 +284,14 @@
      * Tick function that updates interpolated zoom and offset values.
      * Not intended for external use.
      * @function
+     * @returns {boolean} Returns true if anything updated.
      */
     tick: function() {
+      var didUpdate = false;
       if (this._zoom !== this.zoom) {
         this._zoom = lerp(this._zoom, this.zoom, this.ZOOM_LERP_SPEED);
         Camera.updateScale(this._zoom);
+        didUpdate = true;
       }
 
       this.panX += this.currentDirection.dx;
@@ -305,9 +308,13 @@
         didOffsetUpdate = true;
       }
 
+      didUpdate = didUpdate || didOffsetUpdate;
+
       if (didOffsetUpdate) {
         Camera.updateTranslate(this._panX, this._panY);
       }
+
+      return didUpdate;
     },
 
     /**

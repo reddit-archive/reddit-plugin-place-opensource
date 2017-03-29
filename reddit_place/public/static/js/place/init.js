@@ -120,10 +120,72 @@
 
     Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
 
+    // Some browsers (Safari, Edge) have a blurry canvas problem due to 
+    // lack of proper support for the 'image-rendering' css rule, which is 
+    // what allows us to scale up the canvas without bilinear interpolation.
+    // We can still upscale correctly by drawing the small canvas into a bigger
+    // canvas using the imageSmoothingEnabled flag.
+    var canvasDiv = null;
+    var displayCanvas = null;
+    var displayCtx = null;
+    var usingBlurryCanvasFix = false;
+
+    // Only apply to browsers where this is a known issue.
+    var isSafari = (window.navigator.userAgent.indexOf('Safari') > -1 &&
+                    window.navigator.userAgent.indexOf('Chrome') === -1);
+    var isEdge = window.navigator.userAgent.indexOf('Edge') > -1;
+    if (isSafari || isEdge) {
+      usingBlurryCanvasFix = true;
+      // To avoid having to redo event work, we just let the existing canvas
+      // element sit there invisibly.
+      $(Canvasse.el).css({ opacity: 0 });
+      displayCanvas = document.createElement('canvas');
+      displayCtx = displayCanvas.getContext('2d');
+      $(displayCanvas).addClass('place-display-canvas');
+      $(container).prepend(displayCanvas);
+      resizeDisplayCanvas();
+    }
+
+    function resizeDisplayCanvas() {
+      var containerRect = container.getBoundingClientRect();
+      displayCanvas.width = containerRect.width;
+      displayCanvas.height = containerRect.height;
+      // Here's the magic.  These flags are reset any time the canvas resize
+      // changes, so they need to be set here.
+      displayCtx.mozImageSmoothingEnabled = false;
+      displayCtx.webkitImageSmoothingEnabled = false;
+      displayCtx.msImageSmoothingEnabled = false;
+      displayCtx.imageSmoothingEnabled = false;
+      redrawDisplayCanvas();
+    }
+
+    function redrawDisplayCanvas() {
+      displayCtx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
+      displayCtx.drawImage(
+        Canvasse.el,
+        // Center the canvas, then apply the current pan offset.  The half pixel
+        // css it necessary to match the same offset applied to the real canvas
+        // via a css transform.
+        (displayCanvas.width / 2) + (Client._panX - halfWidth - .5) * Client._zoom,
+        (displayCanvas.height / 2) + (Client._panY - halfHeight - .5) * Client._zoom,
+        Canvasse.width * Client._zoom,
+        Canvasse.height * Client._zoom
+      );
+    }
+
+    bindEvents(window, {
+      'resize': function() {
+        resizeDisplayCanvas();
+      },
+    });
+
     R2Server.getCanvasBitmapState().then(function(timestamp, canvas) {
       // TODO - request non-cached version if the timestamp is too old
       if (!canvas) { return; }
       Client.setInitialState(canvas);
+      if (usingBlurryCanvasFix) {
+        redrawDisplayCanvas();
+      }
     });
 
     var websocket = new r.WebSocket(websocketUrl);
@@ -207,7 +269,12 @@
     startTicking(function() {
       Client.tick();
       Cursor.tick();
-      Canvasse.tick();
+      var cameraDidUpdate = Camera.tick();
+      var canvasDidUpdate = Canvasse.tick();
+
+      if (usingBlurryCanvasFix && (cameraDidUpdate || canvasDidUpdate)) {
+        redrawDisplayCanvas();
+      }
     });
 
     r.place = Client;

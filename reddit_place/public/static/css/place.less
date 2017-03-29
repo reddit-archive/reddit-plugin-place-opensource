@@ -33,6 +33,7 @@
 }
 
 .place-canvas {
+    -ms-interpolation-mode: bicubic;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges; /* so crisp */
@@ -40,8 +41,16 @@
     background-color: white;
     pointer-events: none;
     transform: translate(-.5px, -.5px);
-    // TODO - remove
-    // outline: dashed green;
+    display: block;
+}
+
+.place-display-canvas {
+    position: absolute;
+    pointer-events: none;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .place-camera:active {
