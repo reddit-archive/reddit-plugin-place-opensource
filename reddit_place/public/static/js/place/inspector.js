@@ -6,7 +6,7 @@
     '<div class="place-inspector-location-row">(<%- x %>, <%- y %>)</div>' +
     '<div class="place-inspector-timestamp-row"><%- timestamp %></div>' +
     '<div class="place-inspector-link-row">' +
-      '<a href="#x=<%- x %>&y=<%- y %>">link to this tile</a>' +
+      '<input type="text" value="<%- link %>">' +
     '</div>'
   );
 
@@ -15,6 +15,10 @@
 
     init: function(el) {
       this.$el = $(el);
+
+      this.$el.on('focus', 'input', function(e) {
+        $(this).select();
+      });
     },
 
     show: function(x, y, username, timestamp) {
@@ -24,6 +28,7 @@
         y: y,
         username: username,
         timestamp: r.TimeText.prototype.formatTime(null, age),
+        link: 'https://www.reddit.com/r/place#x=' + x + '&y=' + y,
       }));
       this.$el.show();
       this.isVisible = true;
