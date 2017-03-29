@@ -185,6 +185,19 @@
       },
     });
 
+    // Move the camera if the hash params changedTouches
+    bindEvents(window, {
+      'hashchange': function(e) {
+        var locationHash = window.location.hash.replace(/^#/, '');
+        var hashParams = r.utils.parseQueryString(locationHash);
+
+        if (hashParams.x && hashParams.y) {
+          Client.interact();
+          Client.setCameraLocation(hashParams.x, hashParams.y);
+        }
+      },
+    });
+
     startTicking(function() {
       Client.tick();
       Cursor.tick();
