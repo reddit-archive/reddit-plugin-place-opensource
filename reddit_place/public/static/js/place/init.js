@@ -84,6 +84,12 @@
     AudioManager.init();
     Camera.init(viewer, camera);
 
+    // Hack to fix slightly older versions of Safari, where the viewer element
+    // defaults to fitting within the container width.
+    $(viewer).css({
+      flex: '0 0 ' + canvasWidth + 'px',
+    });
+
     // Allow passing in starting camera position in the url hash
     var locationHash = window.location.hash.replace(/^#/, '');
     var hashParams = r.utils.parseQueryString(locationHash);
