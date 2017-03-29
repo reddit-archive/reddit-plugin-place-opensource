@@ -6,6 +6,7 @@ from pylons import tmpl_context as c
 from pylons import response, request
 from pylons.i18n import _
 
+from r2.config import feature
 from r2.controllers import add_controller
 from r2.controllers.reddit_base import (
         RedditController,
@@ -18,6 +19,7 @@ from r2.lib import (
 )
 from r2.lib.base import BaseController
 from r2.lib.errors import errors
+from r2.lib.pages import SideBox
 from r2.lib.utils import SimpleSillyStub
 from r2.lib.validator import (
     json_validate,
@@ -462,3 +464,16 @@ def add_place_js_module(extra_js_modules):
         if c.user_is_admin:
             extra_js_modules.append("place-admin")
         extra_js_modules.append("place-init")
+
+
+@controller_hooks.on('home.add_sidebox')
+def add_home_sidebox():
+    if not feature.is_enabled('place_on_homepage'):
+        return None
+
+    return SideBox(
+        title="PLACE",
+        css_class="place_sidebox",
+        link="/r/place",
+        target="_blank",
+    )

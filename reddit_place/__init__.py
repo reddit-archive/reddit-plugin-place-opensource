@@ -96,12 +96,15 @@ class Place(Plugin):
            conditions={"function": not_in_sr})
 
     def load_controllers(self):
+        from r2.lib.pages import Reddit
         from reddit_place.controllers import (
             controller_hooks,
             PlaceController,
         )
 
         controller_hooks.register_all()
+
+        Reddit.extra_stylesheets.append('place_global.less')
 
     def declare_queues(self, queues):
         # TODO: add any queues / bindings you need here, e.g.:

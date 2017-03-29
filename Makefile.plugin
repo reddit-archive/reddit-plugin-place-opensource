@@ -1,1 +1,1 @@
-LESS_STYLESHEETS += place.less
+LESS_STYLESHEETS += place.less place_global.less
