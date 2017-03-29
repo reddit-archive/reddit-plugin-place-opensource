@@ -18,6 +18,7 @@ from r2.lib import (
 )
 from r2.lib.base import BaseController
 from r2.lib.errors import errors
+from r2.lib.utils import SimpleSillyStub
 from r2.lib.validator import (
     json_validate,
     validate,
@@ -62,6 +63,18 @@ PLACE_SUBREDDIT = Subreddit._by_name("place", stale=True)
 class LoggedOutPlaceController(BaseController):
     def pre(self):
         BaseController.pre(self)
+
+        action = request.environ["pylons.routes_dict"].get("action")
+        if action:
+            if not self._get_action_handler():
+                action = 'invalid'
+            controller = request.environ["pylons.routes_dict"]["controller"]
+            timer_name = "service_time.web.{}.{}".format(controller, action)
+            c.request_timer = g.stats.get_timer(timer_name)
+        else:
+            c.request_timer = SimpleSillyStub()
+
+        c.request_timer.start()
 
         if "Origin" in request.headers:
             oauth_origin = "https://%s" % g.oauth_domain
@@ -114,6 +127,8 @@ class LoggedOutPlaceController(BaseController):
         return self._get_board_bitmap()
 
     def post(self):
+        c.request_timer.stop()
+        g.stats.flush()
 
         # This should never happen.  Our routes should never be changing the
         # login status of a user.  Still, since we plan on heavily caching
