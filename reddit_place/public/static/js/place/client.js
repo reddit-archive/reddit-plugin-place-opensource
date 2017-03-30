@@ -204,6 +204,7 @@
       var isNew = this.palette === null;
 
       this.palette = palette;
+      Palette.generateSwatches(palette);
       // The internal color palette structure stores colors as AGBR (reversed
       // RGBA) to make writing to the color buffer easier.
       var dataView = new DataView(new ArrayBuffer(4));
