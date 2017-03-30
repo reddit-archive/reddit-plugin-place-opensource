@@ -26,7 +26,7 @@
      */
     generateSwatches: function(colors) {
       if (!this.initialized) { return; }
-      $(this.el).children(this.SWATCH_CLASS).remove();
+      $(this.el).children('.' + this.SWATCH_CLASS).remove();
       colors.forEach(function(color, index) {
         this.buildSwatch(color, index);
       }, this);
