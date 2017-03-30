@@ -340,8 +340,8 @@
     background: rgba(255, 255, 255, .6);
     border-radius: 4px;
     bottom: 100%;
+    color: #666666;
     font-size: 10px;
-    font-size: 13px;
     font-weight: bold;
     height: auto;
     line-height: 12px;
@@ -349,5 +349,19 @@
     position: absolute;
     right: 0;
     transform: translate(-10px, -10px);
+    vertical-align: middle;
     width: auto;
+
+    &:after {
+        background-image: data-uri('../place_icon_activity.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 12px 12px;
+        content: '';
+        display: inline-block;
+        height: 12px;
+        margin-left: 5px;
+        vertical-align: middle;
+        width: 12px;
+    }
 }
