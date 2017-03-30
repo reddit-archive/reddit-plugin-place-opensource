@@ -3,12 +3,6 @@
   var Cursor = require('cursor');
 
   var E_KEY = 69;
-  var DIRECTIONS = {
-    87: {dx: 0, dy: 1},  // w
-    65: {dx: 1, dy: 0},  // a
-    83: {dx: 0, dy: -1}, // s
-    68: {dx: -1, dy: 0}, // d
-  };
 
   /**
    * @typedef {Object} Coordinate
@@ -85,20 +79,8 @@
 
     'document': {
       'keydown': function(e) {
-        var direction = DIRECTIONS[e.which];
-        if (direction) {
-          Client.panInDirection(direction.dx, direction.dy);
-        }
-
         if (e.which === E_KEY) {
           Client.toggleZoom();
-        }
-      },
-
-      'keyup': function(e) {
-        var direction = DIRECTIONS[e.which];
-        if (direction) {
-          Client.panInDirection(-direction.dx, -direction.dy);
         }
       },
     },

@@ -9,6 +9,7 @@
   var Canvasse = require('canvasse');
   var Hand = require('hand');
   var Inspector = require('inspector');
+  var Keyboard = require('keyboard');
   var MollyGuard = require('mollyguard');
   var MuteButton = require('mutebutton');
   var NotificationButton = require('notificationbutton');
@@ -179,10 +180,9 @@
 
       this.state = new Uint8Array(new ArrayBuffer(Canvasse.width * Canvasse.height));
 
-      this.panTimer = null;
       this.currentDirection = {
-        dx: 0,
-        dy: 0,
+        x: 0,
+        y: 0,
       };
 
       if (!isEnabled) { return; }
@@ -313,8 +313,24 @@
         didUpdate = true;
       }
 
-      this.panX += this.currentDirection.dx;
-      this.panY += this.currentDirection.dy;
+      this.currentDirection.x = 0;
+      this.currentDirection.y = 0;
+
+      if (Keyboard.isKeyDown('LEFT') || Keyboard.isKeyDown('A')) {
+        this.currentDirection.x -= 1;
+      }
+      if (Keyboard.isKeyDown('RIGHT') || Keyboard.isKeyDown('D')) {
+        this.currentDirection.x += 1;
+      }
+      if (Keyboard.isKeyDown('UP') || Keyboard.isKeyDown('W')) {
+        this.currentDirection.y -= 1;
+      }
+      if (Keyboard.isKeyDown('DOWN') || Keyboard.isKeyDown('S')) {
+        this.currentDirection.y += 1;
+      }
+
+      this.panX -= this.currentDirection.x;
+      this.panY -= this.currentDirection.y;
 
       var didOffsetUpdate = false;
       if (this._panX !== this.panX) {
@@ -765,17 +781,6 @@
       if (isIOSFullscreen) {
         NotificationButton.init(notificationButton);
       }
-    },
-
-    /**
-     * Begin panning in given direction
-     * @function
-     * @param {number} dx
-     * @param {number} dy
-     */
-    panInDirection: function(dx, dy) {
-      this.currentDirection.dx = clamp(-1, 1, this.currentDirection.dx + dx);
-      this.currentDirection.dy = clamp(-1, 1, this.currentDirection.dy + dy);
     },
 
     /**

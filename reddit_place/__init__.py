@@ -25,6 +25,7 @@ class Place(Plugin):
             "place/canvasse.js",
             "place/hand.js",
             "place/inspector.js",
+            "place/keyboard.js",
             "place/mollyguard.js",
             "place/mutebutton.js",
             "place/notificationbutton.js",

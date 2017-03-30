@@ -15,6 +15,7 @@
   var Cursor = require('cursor');
   var Hand = require('hand');
   var Inspector = require('inspector');
+  var Keyboard = require('keyboard');
   var MollyGuard = require('mollyguard');
   var MuteButton = require('mutebutton');
   var MuteButtonEvents = require('mutebuttonevents');
@@ -107,6 +108,7 @@
     CameraButton.init(cameraButton);
     Hand.init(hand, handSwatch);
     Inspector.init(inspector);
+    Keyboard.init();
 
     if (isUserLoggedIn && !isUiHidden) {
       Palette.init(palette);
@@ -286,6 +288,7 @@
     });
 
     startTicking(function() {
+      Keyboard.tick();
       Client.tick();
       Cursor.tick();
       var cameraDidUpdate = Camera.tick();
