@@ -96,6 +96,7 @@
     MAXIMUM_AUDIBLE_DISTANCE:  10,
     WORLD_AUDIO_MULTIPLIER: .1,
     MAX_WORLD_AUDIO_RATE: 250,
+    KEYBOARD_PAN_SPEED: .5,
 
     DEFAULT_COLOR_PALETTE: [
       '#FFFFFF', // white
@@ -331,9 +332,9 @@
       }
 
       normalizeVector(this.currentDirection);
-
-      this.panX -= this.currentDirection.x;
-      this.panY -= this.currentDirection.y;
+      var moveSpeed = this.ZOOM_MAX_SCALE / this._zoom * this.KEYBOARD_PAN_SPEED;
+      this.panX -= this.currentDirection.x * moveSpeed;
+      this.panY -= this.currentDirection.y * moveSpeed;
 
       var didOffsetUpdate = false;
       if (this._panX !== this.panX) {
