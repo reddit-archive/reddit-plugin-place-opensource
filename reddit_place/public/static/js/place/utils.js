@@ -96,5 +96,20 @@
       var dy = y1 - y2;
       return Math.sqrt(dx * dx + dy * dy);
     },
+
+    /**
+     * Normalizes a given {x, y} vector to be a unit-length vector
+     * This modifies the given vector object.
+     * @param {Object} vector
+     */
+    normalizeVector: function(vector) {
+      var x = vector.x;
+      var y = vector.y;
+      if (!(x || y)) { return }
+      var length = Math.sqrt(x * x + y * y);
+      if (!length) { return }
+      vector.x = x / length;
+      vector.y = y / length;
+    },
   };
 });

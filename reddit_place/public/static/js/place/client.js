@@ -22,6 +22,7 @@
   var parseHexColor = require('utils').parseHexColor;
   var clamp = require('utils').clamp;
   var getDistance = require('utils').getDistance;
+  var normalizeVector = require('utils').normalizeVector;
 
   var MAX_COLOR_INDEX = 15;
   var DEFAULT_COLOR = '#FFFFFF';
@@ -328,6 +329,8 @@
       if (Keyboard.isKeyDown('DOWN') || Keyboard.isKeyDown('S')) {
         this.currentDirection.y += 1;
       }
+
+      normalizeVector(this.currentDirection);
 
       this.panX -= this.currentDirection.x;
       this.panY -= this.currentDirection.y;
