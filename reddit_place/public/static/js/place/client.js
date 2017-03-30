@@ -131,6 +131,7 @@
     isPanEnabled: true,
     lastWorldAudioTime: 0,
     isWorldAudioEnabled: false,
+    containerSize: { width: 0, height: 0 },
     panX: 0,
     panY: 0,
     zoom: 1,
@@ -431,6 +432,9 @@
       this.paletteColor = this.getPaletteColor(colorIndex);
       this.paletteColorABGR = this.getPaletteColorABGR(colorIndex);
       Hand.updateColor(this.paletteColor);
+      if (this.isZoomedIn) {
+        Hand.showCursor();
+      }
       Palette.clearSwatchHighlights();
       Palette.highlightSwatch(colorIndex);
 
@@ -447,6 +451,7 @@
       playSFX = playSFX === undefined ? true : playSFX;
 
       Hand.clearColor();
+      Hand.hideCursor();
       Palette.clearSwatchHighlights();
       this.paletteColor = null;
       this.paletteColorABGR = null;
@@ -473,6 +478,11 @@
     setZoom: function(zoomLevel) {
       this._zoom = this.zoom = zoomLevel;
       this.isZoomedIn = zoomLevel === this.ZOOM_MAX_SCALE;
+      if (this.isZoomedIn) {
+        Hand.showCursor();
+      } else {
+        Hand.hideCursor();
+      }
       Camera.updateScale(this._zoom);
     },
 
@@ -532,6 +542,36 @@
     getCameraLocationFromOffset: function(x, y) {
       var size = this.getCanvasSize();
       return { x: size.width / 2 - x, y: size.height / 2 - y };
+    },
+
+    /**
+     * Given the position in the container element, get the tile coordinate.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    getLocationFromCursorPosition: function(x, y) {
+      var canvasSize = this.getCanvasSize();
+      var containerSize = this.getContainerSize();
+      return {
+        x: Math.round(x / this.zoom + canvasSize.width / 2 - containerSize.width / (2 * this.zoom) - this.panX),
+        y: Math.round(y / this.zoom + canvasSize.height / 2 - containerSize.height / (2 * this.zoom) - this.panY),
+      };
+    },
+
+    /**
+     * Given the location of the tile, give its position on screen
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    getCursorPositionFromLocation: function(x, y) {
+      var canvasSize = this.getCanvasSize();
+      var containerSize = this.getContainerSize();
+      return {
+        x: this.zoom * (x - canvasSize.width / 2 + containerSize.width / (2 * this.zoom) + this.panX),
+        y: this.zoom * (y - canvasSize.height / 2 + containerSize.height / (2 * this.zoom) + this.panY),
+      };
     },
 
     /**
@@ -722,7 +762,11 @@
         this.setTargetZoom(this.ZOOM_MIN_SCALE);
         AudioManager.playClip(SFX_ZOOM_OUT);
         ZoomButton.showZoomIn();
+        Hand.hideCursor();
       } else {
+        if (this.hasColor()) {
+          Hand.showCursor();
+        }
         this.setTargetZoom(this.ZOOM_MAX_SCALE);
         // Any time we are zooming in, also center camera where the user clicked
         if (offsetX !== undefined && offsetY !== undefined) {
@@ -751,6 +795,26 @@
         width: Canvasse.width,
         height: Canvasse.height,
       };
+    },
+
+    /**
+     * Set the current container size.
+     * @function
+     * @param {number} width
+     * @param {number} height
+     */
+    setContainerSize: function(width, height) {
+      this.containerSize.width = width;
+      this.containerSize.height = height;
+    },
+
+    /**
+     * Get the current canvas size.
+     * @function
+     * @returns {BoxSize}
+     */
+    getContainerSize: function() {
+      return this.containerSize;
     },
 
     /**

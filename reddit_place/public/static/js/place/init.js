@@ -69,8 +69,9 @@
     var canvas = document.getElementById('place-canvasse');
     var palette = document.getElementById('place-palette');
     var hand = document.getElementById('place-hand');
-    var inspector = document.getElementById('place-inspector');
+    var handCursor = document.getElementById('place-hand-cursor');
     var handSwatch = document.getElementById('place-hand-swatch');
+    var inspector = document.getElementById('place-inspector');
     var mollyGuard = document.getElementById('place-molly-guard');
     var muteButton = document.getElementById('place-mute-button');
     var zoomButton = document.getElementById('place-zoom-button');
@@ -106,7 +107,7 @@
 
     Canvasse.init(canvas, canvasWidth, canvasHeight);
     CameraButton.init(cameraButton);
-    Hand.init(hand, handSwatch);
+    Hand.init(hand, handSwatch, handCursor);
     Inspector.init(inspector);
     Keyboard.init();
 
@@ -135,6 +136,13 @@
     var startOffsets = Client.getOffsetFromCameraLocation(startX, startY);
 
     Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
+    var containerRect = container.getBoundingClientRect();
+    Client.setContainerSize(containerRect.width, containerRect.height);
+
+    $(window).on('resize', function() {
+      var containerRect = container.getBoundingClientRect();
+      Client.setContainerSize(containerRect.width, containerRect.height);
+    });
 
     // Some browsers (Safari, Edge) have a blurry canvas problem due to
     // lack of proper support for the 'image-rendering' css rule, which is

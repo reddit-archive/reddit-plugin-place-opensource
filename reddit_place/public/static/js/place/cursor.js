@@ -146,6 +146,10 @@
       this.y = y;
     },
 
+    setActiveTilePosition: function(x, y) {
+      Hand.updateCursorTransform(x, y);
+    },
+
     /**
      * Update whether or not we're using touch events
      * @function
