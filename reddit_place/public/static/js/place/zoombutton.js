@@ -20,5 +20,9 @@
       if (!this.initialized) { return; }
       this.$el.addClass('place-zoomed-out');
     },
+
+    highlight: function(enabled) {
+      this.$el.toggleClass('place-zoom-pulsing', enabled);
+    }
   };
 });

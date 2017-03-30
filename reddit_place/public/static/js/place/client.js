@@ -159,6 +159,10 @@
         this._setAudioEnabled(false);
       }
 
+      if (!this.getZoomButtonClicked()) {
+        ZoomButton.highlight(true);
+      }
+
       this.state = new Uint8Array(new ArrayBuffer(Canvasse.width * Canvasse.height));
 
       this.panTimer = null;
@@ -741,6 +745,23 @@
         MuteButton.showUnmute();
         store.safeSet('place-audio-isDisabled', '1');
       }
+    },
+
+    /**
+     * Has the zoom button been acknowledged?
+     * For internal use
+     * @function
+     */
+    getZoomButtonClicked: function() {
+      return parseInt(store.safeGet('place-zoom-wasClicked'), 10) || 0;
+    },
+
+    /**
+     * Remember that zoom button has been acknowledged
+     * @function
+     */
+    setZoomButtonClicked: function() {
+      store.safeSet('place-zoom-wasClicked', '1');
     },
 
     /**
