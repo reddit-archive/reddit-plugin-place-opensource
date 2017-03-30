@@ -22,6 +22,7 @@
     },
 
     highlight: function(enabled) {
+      if (!this.initialized) { return; }
       this.$el.toggleClass('place-zoom-pulsing', enabled);
     }
   };
