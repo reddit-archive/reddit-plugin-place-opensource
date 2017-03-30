@@ -97,6 +97,7 @@
     WORLD_AUDIO_MULTIPLIER: .1,
     MAX_WORLD_AUDIO_RATE: 250,
     KEYBOARD_PAN_SPEED: .5,
+    KEYBOARD_PAN_LERP_SPEED: .275,
 
     DEFAULT_COLOR_PALETTE: [
       '#FFFFFF', // white
@@ -133,6 +134,7 @@
     panX: 0,
     panY: 0,
     zoom: 1,
+    currentDirection: { x: 0, y: 0 },
     // For values that can be 'lerp'ed, copies of the attribute
     // prefixed with an underscore (e.g. _zoom) are used to track
     // the current *actual* value, while the unprefixed attribute
@@ -140,6 +142,7 @@
     _panX: 0,
     _panY: 0,
     _zoom: 1,
+    _currentDirection: { x: 0, y: 0 },
 
     /**
      * Initialize
@@ -181,11 +184,6 @@
       }
 
       this.state = new Uint8Array(new ArrayBuffer(Canvasse.width * Canvasse.height));
-
-      this.currentDirection = {
-        x: 0,
-        y: 0,
-      };
 
       if (!isEnabled) { return; }
 
@@ -332,9 +330,19 @@
       }
 
       normalizeVector(this.currentDirection);
+
+      if (this._currentDirection.x !== this.currentDirection.x) {
+        this._currentDirection.x = lerp(this._currentDirection.x, this.currentDirection.x,
+                                        this.KEYBOARD_PAN_LERP_SPEED);
+      }
+      if (this._currentDirection.y !== this.currentDirection.y) {
+        this._currentDirection.y = lerp(this._currentDirection.y, this.currentDirection.y,
+                                        this.KEYBOARD_PAN_LERP_SPEED);
+      }
+
       var moveSpeed = this.ZOOM_MAX_SCALE / this._zoom * this.KEYBOARD_PAN_SPEED;
-      this.panX -= this.currentDirection.x * moveSpeed;
-      this.panY -= this.currentDirection.y * moveSpeed;
+      this.panX -= this._currentDirection.x * moveSpeed;
+      this.panY -= this._currentDirection.y * moveSpeed;
 
       var didOffsetUpdate = false;
       if (this._panX !== this.panX) {
