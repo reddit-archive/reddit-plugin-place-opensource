@@ -1,4 +1,6 @@
 !r.placeModule('utils', function(require) {
+  var MIN_LERP_VAL = 0.05;
+
   return {
     /**
      * Utility for linear interpolation between to values
@@ -15,7 +17,11 @@
      * @returns {number} The interpolated value
      */
     lerp: function(startVal, endVal, interpolationAmount) {
-      return startVal + interpolationAmount * (endVal - startVal);
+      var lerpVal = startVal + interpolationAmount * (endVal - startVal);
+      if (Math.abs(endVal - lerpVal) < MIN_LERP_VAL) {
+        return endVal;
+      }
+      return lerpVal;
     },
 
     /**
