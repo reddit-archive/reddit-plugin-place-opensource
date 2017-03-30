@@ -155,6 +155,7 @@
 .place-camera-button,
 .place-mute-button,
 .place-zoom-button,
+.place-notification-button,
 .place-zoom-pulse {
     border-radius: 50%;
     border: none;
@@ -167,11 +168,21 @@
 
 .place-camera-button,
 .place-mute-button,
+.place-notification-button,
 .place-zoom-button {
     background-color: rgba(0, 0, 0, .6);
     background-position: center;
     background-repeat: no-repeat;
     background-size: 24px 24px;
+}
+
+.place-notification-button {
+    display: none;
+    left: 60px;
+    background-image: data-uri('../place_notification_off.png');
+    &.place-notification-on {
+        background-image: data-uri('../place_notification_on.png');
+    }
 }
 
 .place-camera-button {
@@ -202,7 +213,7 @@
   border: 2px rgba(0, 0, 0, 0.6) solid;
   height: 100%;
   width: 100%;
-  
+
   opacity: 0;
   .place-zoom-pulsing & {
     -webkit-animation: pulse 3s ease-out;

@@ -26,7 +26,8 @@
   var WebsocketEvents = require('websocketevents');
   var ZoomButton = require('zoombutton');
   var ZoomButtonEvents = require('zoombuttonevents');
-
+  var NotificationButton = require('notificationbutton');
+  var NotificationButtonEvents = require('notificationbuttonevents');
 
   /**
    * Utility for kicking off an animation frame loop.
@@ -72,6 +73,7 @@
     var mollyGuard = document.getElementById('place-molly-guard');
     var muteButton = document.getElementById('place-mute-button');
     var zoomButton = document.getElementById('place-zoom-button');
+    var notificationButton = document.getElementById('place-notification-button');
     var timer = document.getElementById('place-timer');
 
     function resizeToWindow() {
@@ -132,8 +134,8 @@
 
     Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
 
-    // Some browsers (Safari, Edge) have a blurry canvas problem due to 
-    // lack of proper support for the 'image-rendering' css rule, which is 
+    // Some browsers (Safari, Edge) have a blurry canvas problem due to
+    // lack of proper support for the 'image-rendering' css rule, which is
     // what allows us to scale up the canvas without bilinear interpolation.
     // We can still upscale correctly by drawing the small canvas into a bigger
     // canvas using the imageSmoothingEnabled flag.
@@ -215,6 +217,7 @@
     bindEvents(cameraButton, CameraButtonEvents);
     bindEvents(muteButton, MuteButtonEvents);
     bindEvents(zoomButton, ZoomButtonEvents);
+    bindEvents(notificationButton, NotificationButtonEvents);
 
     if (isUserLoggedIn) {
       bindEvents(palette, PaletteEvents);

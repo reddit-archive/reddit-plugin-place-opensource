@@ -11,6 +11,7 @@
   var Inspector = require('inspector');
   var MollyGuard = require('mollyguard');
   var MuteButton = require('mutebutton');
+  var NotificationButton = require('notificationbutton');
   var Notifications = require('notifications');
   var Palette = require('palette');
   var R2Server = require('api');
@@ -59,7 +60,7 @@
    * https://en.wikipedia.org/wiki/Rossmo%27s_formula
    * Using this as a rough way of determining where the most interesting part
    * of the board might be.
-   * @param {Object} a { x, y } coordinate object 
+   * @param {Object} a { x, y } coordinate object
    * @param {Object[]} ns array of { x, y } coordinate objects
    * @param {number} B "buffer" zone size
    * @param {number} k used to scale the entire results.  Essentially
@@ -163,6 +164,11 @@
 
       if (!this.getZoomButtonClicked()) {
         ZoomButton.highlight(true);
+      }
+
+      var isNotificationButtonEnabled = parseInt(store.safeGet('iOS-Notifications-Enabled'), 10) === 1;
+      if (isNotificationButtonEnabled) {
+        NotificationButton.showNotificationOn();
       }
 
       this.state = new Uint8Array(new ArrayBuffer(Canvasse.width * Canvasse.height));
@@ -563,6 +569,26 @@
     },
 
     /**
+     * iOS Tile Notification management. Asks if the user desires notifications
+     * if they select yes then attempt to register a local notification
+     * using the webkit handler
+     * @function
+     */
+    attemptToFireiOSLocalNotification: function() {
+      if (parseInt(store.safeGet('iOS-Notifications-Enabled'), 10) === 1) {
+        var isIOSFullscreen = (window.navigator.userAgent.indexOf('iPhone') > -1 && window.innerHeight > 200);
+        if (isIOSFullscreen && typeof webkit !== 'undefined') {
+          try {
+            // tell iOS to setup a local notification
+            webkit.messageHandlers.tilePlacedHandler.postMessage(this.cooldown / 1000);
+          } catch(err) {
+            // message handler doesn't exist for some reason
+          }
+        }
+      }
+    },
+
+    /**
      * Draw the current color to the given coordinates
      * Makes the API call and optimistically updates the canvas.
      * @function
@@ -583,13 +609,14 @@
       MollyGuard.showLocked();
       Timer.show();
       Timer.setText('Painting...');
-
       AudioManager.playClip(SFX_PLACE);
 
       var i = Canvasse.getIndexFromCoords(x, y);
       this.state[i] = this.colorIndex;
       Canvasse.drawTileAt(x, y, this.paletteColorABGR);
       this.clearColor(false);
+
+      this.attemptToFireiOSLocalNotification();
 
       R2Server.draw(x, y, this.colorIndex)
         .then(function onSuccess(responseJSON, status, jqXHR) {
@@ -715,6 +742,10 @@
 
     injectHeaders: function(headers) {
       R2Server.injectHeaders(headers);
+      var isIOSFullscreen = (window.navigator.userAgent.indexOf('iPhone') > -1 && window.innerHeight > 200);
+      if (isIOSFullscreen) {
+        NotificationButton.init(notificationButton);
+      }
     },
 
     /**
@@ -773,6 +804,17 @@
     toggleVolume: function() {
       this._setAudioEnabled(!AudioManager.enabled);
       AudioManager.playClip(SFX_SELECT);
+    },
+
+    toggleNotificationButton: function() {
+      var enabled = parseInt(store.safeGet('iOS-Notifications-Enabled'), 10) === 1;
+      if (!enabled) {
+        store.safeSet('iOS-Notifications-Enabled', '1');
+        NotificationButton.showNotificationOn();
+      } else {
+        store.safeSet('iOS-Notifications-Enabled', '0');
+        NotificationButton.showNotificationOff();
+      }
     },
 
     /**
