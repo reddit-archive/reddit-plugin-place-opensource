@@ -146,7 +146,8 @@
     var isSafari = (window.navigator.userAgent.indexOf('Safari') > -1 &&
                     window.navigator.userAgent.indexOf('Chrome') === -1);
     // Necessary to catch webview embedded in native iOS app
-    var isIOS = (window.navigator.userAgent.indexOf('iOS') > -1);
+    var isIOS = (window.navigator.userAgent.indexOf('iOS') > -1 ||
+                 window.navigator.userAgent.indexOf('AppleWebKit') > -1);
     var isEdge = window.navigator.userAgent.indexOf('Edge') > -1;
     if (isSafari || isIOS || isEdge) {
       usingBlurryCanvasFix = true;
