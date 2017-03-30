@@ -18,7 +18,7 @@
         Canvasse.drawTileToBuffer(x, y, color);
       }
 
-      Client.trackRecentTile(x, y);
+      Client.receiveTile(x, y);
     },
 
     updateActivity: function(count) {

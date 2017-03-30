@@ -20,6 +20,7 @@
   var ZoomButton = require('zoombutton');
   var parseHexColor = require('utils').parseHexColor;
   var clamp = require('utils').clamp;
+  var getDistance = require('utils').getDistance;
 
   var MAX_COLOR_INDEX = 15;
   var DEFAULT_COLOR = '#FFFFFF';
@@ -90,6 +91,9 @@
     ZOOM_MAX_SCALE: 40,
     ZOOM_MIN_SCALE: 4,
     VOLUME_LEVEL: .1,
+    MAXIMUM_AUDIBLE_DISTANCE:  10,
+    WORLD_AUDIO_MULTIPLIER: .1,
+    MAX_WORLD_AUDIO_RATE: 250,
 
     DEFAULT_COLOR_PALETTE: [
       '#FFFFFF', // white
@@ -121,6 +125,8 @@
     enabled: true,
     isZoomedIn: false,
     isPanEnabled: true,
+    lastWorldAudioTime: 0,
+    isWorldAudioEnabled: false,
     panX: 0,
     panY: 0,
     zoom: 1,
@@ -489,6 +495,18 @@
     },
 
     /**
+     * Given canvas offsets, get the camera coordinates.
+     * The inverse of getOffsetFromCameraLocation.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    getCameraLocationFromOffset: function(x, y) {
+      var size = this.getCanvasSize();
+      return { x: size.width / 2 - x, y: size.height / 2 - y };
+    },
+
+    /**
      * An alias for setOffset with values relative to the camera.
      * It literally just reverses the direction of the coordinates.  To use
      * the above example, if you want to position the camera in the top left
@@ -843,7 +861,47 @@
       }
     },
 
-    /*
+    /**
+     * Method called by World when a tile update comes in.
+     * @function
+     * @param {number} x
+     * @param {number} y
+     */
+    receiveTile: function(x, y) {
+      this.trackRecentTile(x, y);
+      if (!this.isWorldAudioEnabled) { return; }
+      var camCoords = this.getCameraLocationFromOffset(this._panX, this._panY);
+      var dist = Math.abs(getDistance(camCoords.x, camCoords.y, x, y));
+      this.playTileSoundAtDistance(dist);
+    },
+
+    enableWorldAudio: function() {
+      this.isWorldAudioEnabled = true;
+    },
+
+    disableWorldAudio: function() {
+      this.isWorldAudioEnabled = false;
+    },
+
+    /**
+     * Play the sound effect for placing a tile at the given distance
+     * @function
+     * @param {number} dist
+     */
+    playTileSoundAtDistance: function(dist) {
+      if (dist > this.MAXIMUM_AUDIBLE_DISTANCE) { return; }
+
+      var now = Date.now();
+      if (now - this.lastWorldAudioTime < this.MAX_WORLD_AUDIO_RATE) { return; }
+      this.lastWorldAudioTime = now;
+
+      var globalVolume = AudioManager.globalVolume;
+      var distanceMultiplier = clamp(0, 1, Math.pow(2, -dist/2));
+      var volume = globalVolume * distanceMultiplier * this.WORLD_AUDIO_MULTIPLIER;
+      AudioManager.playClip(SFX_PLACE, volume);
+    },
+
+    /**
      * Track the position of a recently added tile.
      * This is called by the world module and used to power the auto-camera
      * feature
