@@ -162,6 +162,12 @@
       $(displayCanvas).addClass('place-display-canvas');
       $(container).prepend(displayCanvas);
       resizeDisplayCanvas();
+
+      bindEvents(window, {
+        'resize': function() {
+          resizeDisplayCanvas();
+        },
+      });
     }
 
     function resizeDisplayCanvas() {
@@ -190,12 +196,6 @@
         Canvasse.height * Client._zoom
       );
     }
-
-    bindEvents(window, {
-      'resize': function() {
-        resizeDisplayCanvas();
-      },
-    });
 
     R2Server.getCanvasBitmapState().then(function(timestamp, canvas) {
       // TODO - request non-cached version if the timestamp is too old
