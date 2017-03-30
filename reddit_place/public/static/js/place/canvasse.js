@@ -17,8 +17,6 @@
     height: 0,
     el: null,
     ctx: null,
-    bufferEl: null,
-    bufferCtx: null,
     // TODO - not sure if I'll actually need these yet, remove if they aren't
     // getting used.
     // Flags to let us know when the two canvases are out of sync  
@@ -45,15 +43,6 @@
       this.ctx.webkitImageSmoothingEnabled = false;
       this.ctx.msImageSmoothingEnabled = false;
       this.ctx.imageSmoothingEnabled = false;
-
-      // The actual canvas state.  This canvas is hidden, to allow us to do
-      // stuff like pause rendering of incoming updates without losing them,
-      // or to optimistically render changes made by the user and revert them
-      // if they fail, etc.
-      this.bufferEl = document.createElement('canvas');
-      this.bufferCtx = this.bufferEl.getContext('2d');
-      this.bufferEl.width = width;
-      this.bufferEl.height = height;
 
       // This array buffer will hold color data to be drawn to the canvas.
       this.buffer = new ArrayBuffer(width * height * 4);
