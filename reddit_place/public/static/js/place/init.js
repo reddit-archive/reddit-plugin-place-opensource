@@ -145,8 +145,10 @@
     // Only apply to browsers where this is a known issue.
     var isSafari = (window.navigator.userAgent.indexOf('Safari') > -1 &&
                     window.navigator.userAgent.indexOf('Chrome') === -1);
+    // Necessary to catch webview embedded in native iOS app
+    var isIOS = (window.navigator.userAgent.indexOf('iOS') > -1);
     var isEdge = window.navigator.userAgent.indexOf('Edge') > -1;
-    if (isSafari || isEdge) {
+    if (isSafari || isIOS || isEdge) {
       usingBlurryCanvasFix = true;
       // To avoid having to redo event work, we just let the existing canvas
       // element sit there invisibly.
