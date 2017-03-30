@@ -37,7 +37,9 @@
   var SFX_ERROR = AudioManager.compileClip([
     ['E4', 1/32], ['C4', 1/32], ['A3', 1/16],
   ])
-  var SFX_ZOOM_OUT = SFX_DROP;
+  var SFX_ZOOM_OUT = AudioManager.compileClip([
+    ['D6', 1/32], ['C6', 1/32], ['A5', 1/16],
+  ]);;
   var SFX_ZOOM_IN = SFX_ZOOM_OUT.slice().reverse();
 
   // Used to keep a list of the most recent n pixel updates received.
