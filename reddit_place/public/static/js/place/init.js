@@ -319,6 +319,15 @@
 
         if (data.name == 'PLACE_MESSAGE' && data.payload) {
           R2Server.injectHeaders(data.payload);
+
+          // This is allows mweb to show and use the color
+          // palette without a reddit_session using only
+          // a valid token.
+          if (!isUserLoggedIn) {
+            Palette.init(palette, COLORS);
+            Client.enable();
+            bindEvents(palette, PaletteEvents);
+          }
         }
       }
     });
