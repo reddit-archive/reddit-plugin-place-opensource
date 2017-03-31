@@ -115,7 +115,10 @@
     CameraButton.init(cameraButton);
     Hand.init(hand, handSwatch, handCursor);
     Inspector.init(inspector);
-    Keyboard.init();
+
+    if (r.config.logged) {
+      Keyboard.init();
+    }
 
     var isIOSFullscreen = (window.navigator.userAgent.indexOf('AppleWebKit') > -1 && window.innerHeight > 200);
     if (isIOSFullscreen) {
