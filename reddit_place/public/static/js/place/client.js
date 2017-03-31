@@ -186,21 +186,6 @@
       }
 
       this.state = new Uint8Array(new ArrayBuffer(Canvasse.width * Canvasse.height));
-
-      if (!isEnabled) { return; }
-
-      // Get the remaining wait time from the API, then set the cooldown.
-      R2Server.getTimeToWait().then(
-        function onSuccess(waitTime, status, jqXHR) {
-          this.setCooldownTime(waitTime);
-        }.bind(this),
-
-        // Handle API errors.
-        function onError(jqXHR, status, statusText) {
-          // Something has gone wrong.  Assume the user can draw.
-          this.setCooldownTime(0);
-        }.bind(this)
-      );
     },
 
     /**

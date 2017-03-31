@@ -58,6 +58,7 @@
     var canvasHeight = r.config.place_canvas_height;
     var cooldownDuration = 1000 * r.config.place_cooldown;
     var websocketUrl = r.config.place_websocket_url;
+    var waitSeconds = r.config.place_wait_seconds;
 
 
 
@@ -152,6 +153,13 @@
     var startOffsets = Client.getOffsetFromCameraLocation(startX, startY);
 
     Client.init(isUserLoggedIn, cooldownDuration, startOffsets.x, startOffsets.y);
+
+    if (isUserLoggedIn) {
+      Client.setCooldownTime(waitSeconds * 1000);
+    } else {
+      Client.setCooldownTime(0);
+    }
+
     var containerRect = container.getBoundingClientRect();
     Client.setContainerSize(containerRect.width, containerRect.height);
 
