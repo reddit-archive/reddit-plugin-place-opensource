@@ -55,7 +55,7 @@ controller_hooks = hooks.HookRegistrar()
 
 
 ACCOUNT_CREATION_CUTOFF = datetime(2017, 3, 31, 0, 0, tzinfo=g.tz)
-PIXEL_COOLDOWN_SECONDS = 600
+PIXEL_COOLDOWN_SECONDS = 300
 PIXEL_COOLDOWN = timedelta(seconds=PIXEL_COOLDOWN_SECONDS)
 ADMIN_RECT_DRAW_MAX_SIZE = 20
 PLACE_SUBREDDIT = Subreddit._by_name("place", stale=True)
