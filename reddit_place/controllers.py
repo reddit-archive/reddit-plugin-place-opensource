@@ -414,6 +414,10 @@ class PlaceController(RedditController):
     )
     @allow_oauth2_access
     def GET_pixel(self, responder, x, y):
+        if (responder.has_errors("x", errors.BAD_NUMBER) or
+                responder.has_errors("y", errors.BAD_NUMBER)):
+            return
+
         pixel = Pixel.get_pixel_at(x, y)
         if pixel and pixel["user_name"]:
             # pixels blanked out by admins will not have a user_name set
