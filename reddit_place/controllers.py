@@ -313,9 +313,9 @@ class PlaceController(RedditController):
         )
 
         events.place_pixel(x, y, color)
-
+        cooldown = 0 if c.user_is_admin else PIXEL_COOLDOWN_SECONDS
         return {
-            'wait_seconds': wait_seconds,
+            'wait_seconds': cooldown,
         }
 
     @json_validate(
