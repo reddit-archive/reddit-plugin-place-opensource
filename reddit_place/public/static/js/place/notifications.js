@@ -45,9 +45,13 @@
       if (!this.enabled) { return }
 
       timeout = timeout === undefined ? this.DEFAULT_TIMEOUT : timeout;
-      var notif = new Notification(notificationText)
+      var notif = new Notification('Place', {
+        icon: '/static/place_icon.png',
+        body: notificationText,
+      });
 
       notif.onclick = function(e) {
+        window.focus();
         notif.close();
       };
       
