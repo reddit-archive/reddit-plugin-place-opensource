@@ -8,8 +8,12 @@
     init: function(el) {
       this.$el = $(el);
       this.$el.removeClass('place-uninitialized');
-      this.$el.show();
       this.initialized = true;
+    },
+
+    show: function() {
+      if (!this.initialized) { return; }
+      this.$el.show();
     },
 
     showNotificationOff: function() {

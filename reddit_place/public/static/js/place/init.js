@@ -111,6 +111,11 @@
     Inspector.init(inspector);
     Keyboard.init();
 
+    var isIOSFullscreen = (window.navigator.userAgent.indexOf('AppleWebKit') > -1 && window.innerHeight > 200);
+    if (isIOSFullscreen) {
+      NotificationButton.init(notificationButton);
+    }
+
     if (isUserLoggedIn && !isUiHidden) {
       Palette.init(palette);
     }

@@ -855,7 +855,7 @@
       R2Server.injectHeaders(headers);
       var isIOSFullscreen = (window.navigator.userAgent.indexOf('iPhone') > -1 && window.innerHeight > 200);
       if (isIOSFullscreen) {
-        NotificationButton.init(notificationButton);
+        NotificationButton.show();
       }
     },
 
