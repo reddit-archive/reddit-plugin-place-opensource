@@ -929,6 +929,7 @@
      * Used to disable some features when the user interacts
      */
     interact: function() {
+      this.disableAutoCamera();
       if (Inspector.isVisible) {
         Inspector.hide();
       }
@@ -1061,13 +1062,6 @@
     clearrecentTiles: function() {
       recentTiles.length = 0;
       recentTilesIndex = 0;
-    },
-
-    /**
-     * Used to disable some features when the user interacts
-     */
-    touch: function(x, y) {
-      this.disableAutoCamera();
     },
   };
 });

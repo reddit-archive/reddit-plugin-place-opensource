@@ -33,7 +33,6 @@
       'mousedown': function(e) {
         var coords = getCoordsFromEvent(e);
         Cursor.setCursorDown(coords.x, coords.y);
-        Client.touch(coords.x, coords.y);
       },
 
       'mouseup': function(e) {
