@@ -23,6 +23,7 @@ class Place(Plugin):
             "place/camera.js",
             "place/camerabutton.js",
             "place/canvasse.js",
+            "place/coordinates.js",
             "place/hand.js",
             "place/inspector.js",
             "place/keyboard.js",

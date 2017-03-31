@@ -7,6 +7,7 @@
   var Camera = require('camera');
   var CameraButton = require('camerabutton');
   var Canvasse = require('canvasse');
+  var Coordinates = require('coordinates');
   var Hand = require('hand');
   var Inspector = require('inspector');
   var Keyboard = require('keyboard');
@@ -360,6 +361,8 @@
 
       if (didOffsetUpdate) {
         Camera.updateTranslate(this._panX, this._panY);
+        var coords = this.getCameraLocationFromOffset(this._panX, this._panY);
+        Coordinates.setCoordinates(Math.round(coords.x), Math.round(coords.y));
       }
 
       return didUpdate;
@@ -507,6 +510,8 @@
       this._panX = this.panX = x;
       this._panY = this.panY = y;
       Camera.updateTranslate(this._panX, this._panY);
+      var coords = this.getCameraLocationFromOffset(this._panX, this._panY);
+      Coordinates.setCoordinates(Math.round(coords.x), Math.round(coords.y));
     },
 
     /**

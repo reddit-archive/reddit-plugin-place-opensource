@@ -12,6 +12,7 @@
   var CanvasEvents = require('canvasevents');
   var Canvasse = require('canvasse');
   var Client = require('client');
+  var Coordinates = require('coordinates');
   var Cursor = require('cursor');
   var Hand = require('hand');
   var Inspector = require('inspector');
@@ -67,6 +68,7 @@
     var camera = document.getElementById('place-camera');
     var cameraButton = document.getElementById('place-camera-button');
     var canvas = document.getElementById('place-canvasse');
+    var coordinates = document.getElementById('place-coordinates');
     var palette = document.getElementById('place-palette');
     var hand = document.getElementById('place-hand');
     var handCursor = document.getElementById('place-hand-cursor');
@@ -135,6 +137,8 @@
     var halfHeight = canvasHeight / 2;
     var startX = Math.max(0, Math.min(canvasWidth, hashParams.x || halfWidth));
     var startY = Math.max(0, Math.min(canvasHeight, hashParams.y || halfHeight));
+
+    Coordinates.init(coordinates, startX, startY);
 
     // Convert those values to canvas transform offsets
     // TODO - this shouldn't be done here, it requires Canvasse.init to be called first

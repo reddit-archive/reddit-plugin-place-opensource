@@ -360,21 +360,30 @@
     transform: translate(-50%, 10px);
 }
 
-.place-activity-count {
+.place-activity-count,
+.place-coordinates {
     background: rgba(255, 255, 255, .6);
     border-radius: 4px;
     bottom: 100%;
     color: #666666;
     font-size: 10px;
-    font-weight: bold;
     height: auto;
     line-height: 12px;
     padding: 5px;
     position: absolute;
-    right: 0;
-    transform: translate(-10px, -10px);
     vertical-align: middle;
     width: auto;
+}
+
+.place-coordinates {
+    left: 0;
+    transform: translate(10px, -10px);
+}
+
+.place-activity-count {
+    font-weight: bold;
+    right: 0;
+    transform: translate(-10px, -10px);
 
     &:after {
         background-image: data-uri('../place_icon_activity.png');
