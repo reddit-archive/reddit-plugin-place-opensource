@@ -44,14 +44,16 @@
       'mousemove': function(e) {
         var coords = getCoordsFromEvent(e);
 
+        var offsetLeft = e.currentTarget ? e.currentTarget.offsetLeft : 0;
+        var offsetTop = e.currentTarget ? e.currentTarget.offsetTop : 0;
         var tileCoords = Client.getLocationFromCursorPosition(
-          coords.x - e.currentTarget.offsetLeft,
-          coords.y - e.currentTarget.offsetTop
+          coords.x - offsetLeft,
+          coords.y - offsetTop
         );
         var activeTileCoords = Client.getCursorPositionFromLocation(tileCoords.x, tileCoords.y);
         Cursor.setActiveTilePosition(
-          activeTileCoords.x + e.currentTarget.offsetLeft,
-          activeTileCoords.y + e.currentTarget.offsetTop
+          activeTileCoords.x + offsetLeft,
+          activeTileCoords.y + offsetTop
         );
 
         if (!Cursor.isDown) {
