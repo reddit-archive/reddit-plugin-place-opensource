@@ -361,7 +361,7 @@
     r.place = Client;
 
     window.addEventListener('message', function (e) {
-      if (e.origin == "https://reddit.com") {
+      if (e.origin == "https://www.reddit.com") {
         try {
           var data = JSON.parse(e.data);
         } catch (e) {
