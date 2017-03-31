@@ -114,6 +114,7 @@
 
     Canvasse.init(canvas, canvasWidth, canvasHeight);
     CameraButton.init(cameraButton);
+    CameraButton.enable();
     Hand.init(hand, handSwatch, handCursor);
     Inspector.init(inspector);
 
