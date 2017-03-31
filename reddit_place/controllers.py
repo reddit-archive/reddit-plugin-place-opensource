@@ -414,6 +414,32 @@ class PlaceController(RedditController):
     )
     @allow_oauth2_access
     def GET_pixel(self, responder, x, y):
+        if x is None:
+            # copy the error set by VNumber/VInt
+            c.errors.add(
+                error_name=errors.BAD_NUMBER,
+                field="x",
+                msg_params={
+                    "range": _("%(min)d to %(max)d") % {
+                        "min": 0,
+                        "max": CANVAS_WIDTH,
+                    },
+                },
+            )
+
+        if y is None:
+            # copy the error set by VNumber/VInt
+            c.errors.add(
+                error_name=errors.BAD_NUMBER,
+                field="y",
+                msg_params={
+                    "range": _("%(min)d to %(max)d") % {
+                        "min": 0,
+                        "max": CANVAS_HEIGHT,
+                    },
+                },
+            )
+
         if (responder.has_errors("x", errors.BAD_NUMBER) or
                 responder.has_errors("y", errors.BAD_NUMBER)):
             return
