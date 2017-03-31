@@ -111,10 +111,10 @@
       '#E5D900', // yellow
       '#94E044', // lime
       '#02BE01', // green
-      '#00E5F0', // cyan
+      '#00D3DD', // cyan
       '#0083C7', // blue
       '#0000EA', // dark blue
-      '#E04AFF', // magenta
+      '#CF6EE4', // magenta
       '#820080', // purple
     ],
 
