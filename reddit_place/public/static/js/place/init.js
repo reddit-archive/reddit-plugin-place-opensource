@@ -35,13 +35,17 @@
    * Utility for kicking off an animation frame loop.
    * @function
    * @param {function} fn The function to call on each frame
-   * @returns {number} An id, used to cancel with cancelAnimationFrame
+   * @returns {function} A function that cancels the animation when called
    */
   function startTicking(fn) {
-    return requestAnimationFrame(function tick() {
+    var token = requestAnimationFrame(function tick() {
       fn();
-      requestAnimationFrame(tick);
+      token = requestAnimationFrame(tick);
     });
+
+    return function cancel() {
+      cancelAnimationFrame(token);
+    }
   }
 
   // Init code:
@@ -216,9 +220,32 @@
       );
     }
 
+    var minLoadingX = startX - 2;
+    var loadingWidth = 5;
+    var loadingDir = 1;
+    var loadingX = 0;
+    var loadingY = startY;
+    var loadingTicks = 0;
+    var loadingTicksPerFrame = 10;
+ 
+    var loadingAnimationCancel = startTicking(function() {
+      loadingTicks = (loadingTicks + 1) % loadingTicksPerFrame;
+      // only show when ticks is 0
+      if (loadingTicks) { return; }
+      // erase tile from the previous frame
+      Canvasse.drawRectToDisplay(minLoadingX, loadingY, loadingWidth, 1, 'grey');
+      // increment position
+      loadingX = (loadingX + loadingDir) % loadingWidth;
+      // draw new tile
+      Canvasse.drawTileToDisplay(minLoadingX + loadingX, loadingY, 'black');
+    });
+
     R2Server.getCanvasBitmapState().then(function(timestamp, canvas) {
       // TODO - request non-cached version if the timestamp is too old
       if (!canvas) { return; }
+      
+      loadingAnimationCancel();
+      Canvasse.clearRectFromDisplay(minLoadingX, loadingY, loadingWidth, 1);
       Client.setInitialState(canvas);
       if (usingBlurryCanvasFix) {
         redrawDisplayCanvas();
@@ -226,6 +253,7 @@
       if (Client.isZoomedIn) {
         Client.toggleZoom();
       }
+
     });
 
     var websocket = new r.WebSocket(websocketUrl);
