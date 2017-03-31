@@ -203,7 +203,7 @@ class PlaceController(RedditController):
             "place_hide_ui": is_palette_hidden,
         }
 
-        if c.user_is_loggedin:
+        if c.user_is_loggedin and not c.user_is_admin:
             js_config["place_wait_seconds"] = get_wait_seconds(c.user)
 
         # this is a sad duplication of the same from reddit_base :(
@@ -478,7 +478,7 @@ def add_place_config(config):
         config["place_canvas_width"] = CANVAS_WIDTH
         config["place_canvas_height"] = CANVAS_HEIGHT
         config["place_cooldown"] = cooldown
-        if c.user_is_loggedin:
+        if c.user_is_loggedin and not c.user_is_admin:
             config["place_wait_seconds"] = get_wait_seconds(c.user)
 
         try:
