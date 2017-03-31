@@ -131,7 +131,7 @@
     isZoomedIn: false,
     isPanEnabled: true,
     lastWorldAudioTime: 0,
-    isWorldAudioEnabled: false,
+    isWorldAudioEnabled: true,
     containerSize: { width: 0, height: 0 },
     panX: 0,
     panY: 0,
