@@ -100,6 +100,7 @@ class LoggedOutPlaceController(BaseController):
         baseplate_integration.finish_server_span()
         return response
 
+    @allow_oauth2_access
     def GET_board_bitmap(self):
         """
         Get board bitmap with cache control determined by GET parames.
