@@ -6,6 +6,14 @@
     }
     return window.location.protocol + "//" + window.location.hostname + url;
   };
+
+  var buildOauthUrl = function(relativeUrl) {
+    if (injectedHeaders['Authorization']) {
+      relativeUrl = 'https://oauth.reddit.com' + relativeUrl;
+    }
+    return relativeUrl;
+  };
+
   var injectedHeaders = {};
 
   // Collection of functions that call out to the backend API.
@@ -25,7 +33,7 @@
      */
     draw: function(x, y, color) {
       return r.ajax({
-        url: '/api/place/draw.json',
+        url: buildOauthUrl('/api/place/draw.json'),
         type: 'POST',
         headers: injectedHeaders,
         data: {
@@ -125,7 +133,7 @@
      */
     getTimeToWait: function() {
       return r.ajax({
-        url: '/api/place/time.json',
+        url: buildOauthUrl('/api/place/time.json'),
         headers: injectedHeaders,
         type: 'GET',
       }).then(function onSuccess(responseJSON, status, jqXHR) {
@@ -142,7 +150,7 @@
      */
     getPixelInfo: function(x, y) {
       return r.ajax({
-        url: '/api/place/pixel.json',
+        url: buildOauthUrl('/api/place/pixel.json'),
         headers: injectedHeaders,
         type: 'GET',
         data: {
