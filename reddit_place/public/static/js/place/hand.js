@@ -5,7 +5,7 @@
     enabled: true,
     hand: null,
     swatch: null,
-    visible: true,
+    visible: false,
 
     /**
      * Initialize the hand.

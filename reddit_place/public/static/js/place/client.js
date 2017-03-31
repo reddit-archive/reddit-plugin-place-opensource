@@ -482,7 +482,9 @@
       this._zoom = this.zoom = zoomLevel;
       this.isZoomedIn = zoomLevel === this.ZOOM_MAX_SCALE;
       if (this.isZoomedIn) {
-        Hand.showCursor();
+        if (this.hasColor()) {
+          Hand.showCursor();
+        }
       } else {
         Hand.hideCursor();
       }
