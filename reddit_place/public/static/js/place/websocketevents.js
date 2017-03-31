@@ -21,12 +21,10 @@
     },
 
     'message:place': function(message) {
-      console.log(message.x, message.y, message.color);
       World.drawTile(message.x, message.y, message.color);
     },
 
     'message:batch-place': function(messages) {
-      console.log(messages.length);
       if (Array.isArray(messages)) {
         messages.forEach(function(message) {
           World.drawTile(message.x, message.y, message.color);
