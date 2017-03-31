@@ -329,7 +329,8 @@
           // palette without a reddit_session using only
           // a valid token.
           if (!isUserLoggedIn) {
-            Palette.init(palette, COLORS);
+            Palette.init(palette);
+            Palette.generateSwatches(Client.DEFAULT_COLOR_PALETTE);
             Client.enable();
             bindEvents(palette, PaletteEvents);
           }
