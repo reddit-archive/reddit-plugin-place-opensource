@@ -315,7 +315,7 @@ class PlaceController(RedditController):
         events.place_pixel(x, y, color)
 
         return {
-            'wait_seconds': PIXEL_COOLDOWN_SECONDS,
+            'wait_seconds': wait_seconds,
         }
 
     @json_validate(
