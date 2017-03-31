@@ -143,8 +143,12 @@
     // Clamp starting coordinates to the canvas boundries
     var halfWidth = canvasWidth / 2;
     var halfHeight = canvasHeight / 2;
-    var startX = Math.max(0, Math.min(canvasWidth, hashParams.x || halfWidth));
-    var startY = Math.max(0, Math.min(canvasHeight, hashParams.y || halfHeight));
+
+    var randomX = parseInt(Math.random() * canvasWidth, 10);
+    var randomY = parseInt(Math.random() * canvasHeight, 10);
+
+    var startX = Math.max(0, Math.min(canvasWidth, hashParams.x || randomX));
+    var startY = Math.max(0, Math.min(canvasHeight, hashParams.y || randomY));
 
     Coordinates.init(coordinates, startX, startY);
 
