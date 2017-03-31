@@ -309,7 +309,7 @@
 
     r.place = Client;
 
-    window.addEventListener('message', (e) => {
+    window.addEventListener('message', function (e) {
       if (e.origin == "https://reddit.com") {
         try {
           var data = JSON.parse(e.data);
