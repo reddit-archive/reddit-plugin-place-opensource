@@ -144,8 +144,9 @@
     var halfWidth = canvasWidth / 2;
     var halfHeight = canvasHeight / 2;
 
-    var randomX = parseInt(Math.random() * canvasWidth, 10);
-    var randomY = parseInt(Math.random() * canvasHeight, 10);
+    var randomBuffer = parseInt(canvasWidth / 10);
+    var randomX = randomBuffer + parseInt(Math.random() * (canvasWidth - (randomBuffer * 2)), 10);
+    var randomY = randomBuffer + parseInt(Math.random() * (canvasHeight - (randomBuffer * 2)), 10);
 
     var startX = Math.max(0, Math.min(canvasWidth, hashParams.x || randomX));
     var startY = Math.max(0, Math.min(canvasHeight, hashParams.y || randomY));
