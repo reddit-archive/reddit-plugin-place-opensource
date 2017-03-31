@@ -988,7 +988,7 @@
       if (recentTiles[recentTilesIndex]) {
         // recycle existing objects once the list is full
         recentTiles[recentTilesIndex].x = x;
-        recentTiles[recentTilesIndex].x = y;
+        recentTiles[recentTilesIndex].y = y;
       } else {
         recentTiles[recentTilesIndex] = { x: x, y: y }
       }
