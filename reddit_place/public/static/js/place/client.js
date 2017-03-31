@@ -160,7 +160,7 @@
       // initially disabled until we get the API response back to know
       // whether they can place.
       this.enabled = false;
-      this.isZoomedIn = false
+      this.isZoomedIn = true;
       this.cooldown = cooldown;
       if (color) this.setColor(color, false);
 

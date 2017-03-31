@@ -223,6 +223,9 @@
       if (usingBlurryCanvasFix) {
         redrawDisplayCanvas();
       }
+      if (Client.isZoomedIn) {
+        Client.toggleZoom();
+      }
     });
 
     var websocket = new r.WebSocket(websocketUrl);
