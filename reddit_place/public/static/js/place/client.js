@@ -697,6 +697,7 @@
 
       this.attemptToFireiOSLocalNotification();
 
+      /*
       R2Server.draw(x, y, this.colorIndex)
         .then(function onSuccess(responseJSON, status, jqXHR) {
           return this.setCooldownTime(1000 * responseJSON.wait_seconds);
@@ -709,6 +710,7 @@
         .then(function onSuccess() {
           Notifications.sendNotification('Your next tile is now available');
         })
+      */
     },
 
     /**

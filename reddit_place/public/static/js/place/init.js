@@ -52,8 +52,8 @@
   $(function() {
     var activeVisitors = r.config.place_active_visitors;
     var isFullscreen = r.config.place_fullscreen;
-    var isUiHidden = r.config.place_hide_ui;
-    var isUserLoggedIn = r.config.logged;
+    var isUiHidden = true;
+    var isUserLoggedIn = false;
     var canvasWidth = r.config.place_canvas_width;
     var canvasHeight = r.config.place_canvas_height;
     var cooldownDuration = 1000 * r.config.place_cooldown;
