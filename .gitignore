@@ -1,3 +1,4 @@
 reddit_place.egg-info
 *.py[oc]
 build/
+ven/
